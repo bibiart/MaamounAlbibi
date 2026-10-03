@@ -48,7 +48,6 @@
 <!-- Sitemap hint -->
 <link rel="sitemap" type="application/xml" href="https://maamounalbibi.com/sitemap.xml">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;900&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{--bg:#f3efe8;--bg2:#f8f4ed;--sh:.3;--ink:#111;--mute:#6b665d;--a:#ff5a1f;--ball:rgba(0,0,0,.12);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0d;--bg2:#101012;--sh:.75;--ball:rgba(255,255,255,.09);--ink:#f2efe9;--mute:#8f8a80}}
@@ -58,24 +57,24 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{background:var(--bg);color:var(--ink);font-family:'Archivo','Cairo',system-ui,sans-serif;overflow-x:hidden}
 #bar{position:fixed;bottom:0;left:0;height:4px;width:100%;background:var(--a);transform-origin:left;transform:scaleX(0);z-index:50}
 header{position:fixed;top:0;inset-inline:0;z-index:64;background:transparent;color:var(--ink);padding-top:env(safe-area-inset-top,0px);transition:background .4s,color .4s}
-header.solid,header.open{background:#000;color:#fff;box-shadow:0 20px 34px -16px rgba(0,0,0,.65)}
+header.solid,header.open{background:#000;color:#fff}
 nav{display:flex;justify-content:space-between;align-items:center;padding:14px 5vw;transition:padding .5s cubic-bezier(.2,.9,.2,1);font-weight:900;font-size:clamp(20px,2.6vw,34px);letter-spacing:-.01em}
 section{position:relative}
 .hero{height:100vh;height:100svh;display:grid;place-items:center;overflow:hidden;text-align:center}
 .hero h1{font-size:clamp(64px,17vw,260px);font-weight:900;line-height:1;direction:ltr;position:relative;z-index:2}
 .hero h1 span{display:inline-block;transform:translateY(120%) rotate(12deg);opacity:0;animation:up 1s cubic-bezier(.2,.9,.2,1) forwards}
 @keyframes up{to{transform:none;opacity:1}}
-.tag{position:relative;z-index:2;font-size:clamp(16px,2.4vw,28px);color:color-mix(in srgb,var(--ink) 82%,transparent);text-shadow:0 0 14px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.5);margin-top:12px;opacity:0;animation:up 1s 2.9s forwards;white-space:nowrap;overflow:hidden;max-width:100%}
+.tag{position:relative;z-index:2;font-size:clamp(16px,2.4vw,28px);color:var(--mute);margin-top:12px;opacity:0;animation:up 1s 2.9s forwards}
 .orb{position:absolute;border-radius:50%;will-change:transform}
 .o1{width:32vmax;height:32vmax;top:-6vmax;right:-8vmax;background:var(--a)}
 .o2{width:22vmax;height:22vmax;bottom:-4vmax;left:-4vmax;background:#fff}
-.o3{width:9vmax;height:9vmax;top:72%;right:14%;background:var(--a)}
+.o3{width:9vmax;height:9vmax;top:55%;right:22%;background:var(--a)}
 .mq{overflow:hidden;padding:4vh 0;direction:ltr}
 .mq div{display:flex;gap:4vw;white-space:nowrap;font-size:clamp(48px,9vw,140px);font-weight:900;will-change:transform}
 .mq div:nth-child(2){-webkit-text-stroke:2px var(--ink);color:transparent}
 .about{height:280vh}
 .stick{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;padding:0 5vw}
-.about p{font-size:clamp(36px,7.4vw,128px);font-weight:700;line-height:1.15}
+.about p{font-size:clamp(32px,6vw,104px);font-weight:700;line-height:1.3}
 .about p span{opacity:.12}
 .works{padding:16vh 5vw 10vh}
 .wh{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-bottom:5vh}
@@ -111,7 +110,7 @@ nav{padding:10px 5vw;font-size:19px}
 .o3{width:20vw;height:20vw;right:12%}
 .mq div{font-size:clamp(40px,14vw,80px);gap:6vw}
 .about{height:260vh}
-.about p{font-size:clamp(34px,11vw,64px);line-height:1.12}
+.about p{font-size:clamp(26px,7.4vw,46px)}
 .works{padding:12vh 5vw 8vh}
 .filters button{padding:8px 16px;font-size:14px}
 .grid{gap:16px}
@@ -126,7 +125,7 @@ nav{padding:10px 5vw;font-size:19px}
 .pvh{padding:calc(9vh + 100px + env(safe-area-inset-top,0px)) 5vw 4vh}
 .pvh small{display:block;color:var(--ac,var(--a));font-size:clamp(18px,2.2vw,28px);font-weight:900;letter-spacing:.06em;text-transform:uppercase}
 .pvh h2{font-size:clamp(28px,4.4vw,64px);font-weight:900;line-height:1.1;margin:10px 0 16px}
-.pvh p{font-size:clamp(21px,2.3vw,27px);color:var(--mute);max-width:700px;line-height:1.7}.pvh p.pvdesc-full{max-width:none;width:100%}.pvdesc-full{transition:max-height .45s ease}.pvdesc-full.collapsed{max-height:3.4em;overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 100%);mask-image:linear-gradient(to bottom,#000 55%,transparent 100%)}.pvdesc-full.lang-ar{direction:rtl;text-align:right;font-family:'Cairo',sans-serif}.langsw.pvl{margin:18px 0 22px}.langsw.ab-langsw{margin:0 0 18px}.descmore{display:none;align-items:center;gap:6px;margin:14px 0 18px;width:max-content;background:none;border:none;color:var(--ac,var(--a));font-weight:800;font-size:14px;cursor:pointer;padding:0;font-family:inherit}.descmore.show{display:flex}.descmore svg{transition:transform .3s}.descmore.open svg{transform:rotate(180deg)}
+.pvh p{font-size:clamp(21px,2.3vw,27px);color:var(--mute);max-width:700px;line-height:1.7}.pvh p.pvdesc-full{max-width:none;width:100%}
 .pvi{display:grid;gap:16px;padding:0 5vw 6vh}
 .pvi>div{aspect-ratio:16/9;border-radius:16px;overflow:hidden}
 .pvi img{width:100%;height:100%;object-fit:cover;display:block}
@@ -199,8 +198,8 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,#pv::-webkit-scrollbar,#lb::-web
 .lead{font-size:clamp(26px,3.6vw,60px);font-weight:900;line-height:1.2;letter-spacing:-.01em}
 .abg{display:grid;grid-template-columns:1fr;max-width:1100px;padding:2vh 0 9vh}
 .sub{font-size:clamp(18px,1.75vw,27px);line-height:1.6;color:var(--mute);margin-top:4vh}
-.abr .col{margin-top:5vh}.col h3{font-size:clamp(14px,1.1vw,18px);letter-spacing:.14em;text-transform:uppercase;color:var(--a);margin-bottom:18px}.langsw{display:flex;gap:10px;margin:0 0 4vh}.langsw button{font:inherit;font-size:13px;font-weight:900;letter-spacing:.08em;padding:6px 16px;border:2px solid var(--mute);background:none;color:var(--mute);border-radius:999px;cursor:pointer;transition:background .2s,color .2s,border-color .2s}.langsw button:hover{border-color:var(--ink)}.langsw button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}.ab.lang-ar #ab-lead,.ab.lang-ar #ab-h,.ab.lang-ar #ab-p p,.ab.lang-ar #ab-cta{direction:rtl;text-align:right;font-family:"Cairo",sans-serif}
-.col p{font-size:clamp(18px,1.75vw,27px);line-height:1.7;color:var(--mute);margin-bottom:1.2em}.coname{color:var(--mute);font-weight:800}.bizcard{margin-top:8vh;border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);border-radius:18px;padding:26px 24px}.bizcard h3{font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--a);margin:0 0 18px}.bizqr{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:560px){.bizqr{grid-template-columns:1fr}}.bizq{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;border:1px solid color-mix(in srgb,var(--ink) 10%,transparent);border-radius:14px}.bizq b{font-size:14px}.bizq span{font-size:12px;color:var(--mute);text-align:center}.bizqbox{background:#fff;padding:9px;border-radius:9px;line-height:0}.bizqbox canvas,.bizqbox img{display:block;width:128px;height:128px}.bizrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid color-mix(in srgb,var(--ink) 10%,transparent)}.bizrow .bl{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;width:60px;flex-shrink:0}.bizrow .bv{font-family:ui-monospace,monospace;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;flex:1}.bizcp{flex-shrink:0;border:1px solid color-mix(in srgb,var(--ink) 20%,transparent);background:none;color:var(--ink);font-weight:700;font-size:12px;padding:6px 14px;border-radius:999px;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s}.bizcp:hover{border-color:var(--a)}.bizcp.cp-on{background:var(--a);border-color:var(--a);color:#fff}.chip{display:inline-block;background:rgba(255,90,31,.14);color:var(--ink);padding:2px 10px;border-radius:7px;font-weight:700;white-space:nowrap;margin:0 1px}
+.abr .col{margin-top:5vh}.col h3{font-size:clamp(14px,1.1vw,18px);letter-spacing:.14em;text-transform:uppercase;color:var(--a);margin-bottom:18px}.langsw{display:flex;gap:10px;margin:0 0 4vh}.langsw button{font:inherit;font-size:13px;font-weight:900;letter-spacing:.08em;padding:6px 16px;border:2px solid var(--mute);background:none;color:var(--mute);border-radius:999px;cursor:pointer;transition:background .2s,color .2s,border-color .2s}.langsw button:hover{border-color:var(--ink)}.langsw button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}.ab.lang-ar #ab-lead,.ab.lang-ar #ab-h,.ab.lang-ar #ab-p p,.ab.lang-ar #ab-cta{text-align:right;font-family:"Cairo",sans-serif}
+.col p{font-size:clamp(18px,1.75vw,27px);line-height:1.7;color:var(--mute);margin-bottom:1.2em}.chip{display:inline-block;background:rgba(255,90,31,.14);color:var(--ink);padding:2px 10px;border-radius:7px;font-weight:700;white-space:nowrap;margin:0 1px}
 .what{border-top:2px solid var(--mute);margin-bottom:9vh}
 .what .row{display:grid;grid-template-columns:1fr 1fr;gap:5vw;align-items:baseline;padding:24px 0;border-bottom:1px solid var(--mute)}
 .what b{display:block;font-size:clamp(22px,3vw,42px);font-weight:900}
@@ -395,20 +394,20 @@ const C={
       lead:"I turn ideas into motion, and everyday images into stories worth watching.",
       sub:"A graphic and motion designer and video editor from Damascus, Syria, now based in Istanbul. Over 18 years of experience creating visual content, working with Star Animation, New Boy, tareekhuna.com, Reflection Media and TRT Arabi, and for more than a decade building a commercial presence selling digital products on Creative Market, Envato, Motion Array and Yellow Images.",
       p:["I'm Maamoun Albibi, a graphic and motion designer and video editor originally from Damascus, Syria, now based in Istanbul, with over 18 years of experience creating visual content. My work spans graphic design, motion graphics, video editing and the use of AI tools.",
-         "Over the years I've worked with <bdi class='coname'>Star Animation</bdi> | <bdi class='coname'>New Boy</bdi> | <bdi class='coname'>tareekhuna.com</bdi> | <bdi class='coname'>Reflection Media</bdi> | <bdi class='coname'>TRT Arabi</bdi>, moving between movement and stillness: animated titles and brand motion on one side, TV show branding, social media graphics and abstract 3D on the other.",
-         "For over a decade I've also created and sold digital products through <bdi class='coname'>Creative Market</bdi> | <bdi class='coname'>Envato</bdi> | <bdi class='coname'>Motion Array</bdi> | <bdi class='coname'>Yellow Images</bdi>, building a sustained commercial presence across these platforms. I believe there's strength in coming together, and that teamwork is key to innovation and progress — I'm always open to new opportunities and creative collaborations."],
+         "Over the years I've worked with Star Animation, New Boy, tareekhuna.com, Reflection Media and TRT Arabi, moving between movement and stillness: animated titles and brand motion on one side, TV show branding, social media graphics and abstract 3D on the other.",
+         "For over a decade I've also created and sold digital products through Creative Market, Envato, Motion Array and Yellow Images, building a sustained commercial presence across these platforms. I believe there's strength in coming together, and that teamwork is key to innovation and progress — I'm always open to new opportunities and creative collaborations."],
       cta:"Have a project in mind? Let's talk." },
     ar:{ h:"القصة والأسلوب",
       lead:"بحوّل الأفكار إلى حركة، والصور اليومية إلى قصص تستاهل المشاهدة.",
       p:["أنا مأمون البيبي، مصمم جرافيك وموشن ومونتير فيديو، أصلي من دمشق سوريا، ومقيم حالياً في إسطنبول، وعندي خبرة أكتر من 18 سنة بصناعة المحتوى البصري. شغلي بيمتد من التصميم الجرافيكي والموشن جرافيك، للمونتاج، واستخدام أدوات الذكاء الاصطناعي.",
-         "على مدار السنين اشتغلت مع <bdi class='coname'>Star Animation</bdi> | <bdi class='coname'>New Boy</bdi> | <bdi class='coname'>tareekhuna.com</bdi> | <bdi class='coname'>Reflection Media</bdi> | <bdi class='coname'>TRT Arabi</bdi>، وتنقّلت بين الحركة والثبات: من تايتلز متحركة وهوية بصرية حركية من جهة، لهوية برامج تلفزيونية وغرافيكس سوشيال ميديا وثري دي تجريدي من جهة تانية.",
-         "ولأكتر من عشر سنين، بصمم وببيع منتجات رقمية عبر <bdi class='coname'>Creative Market</bdi> | <bdi class='coname'>Envato</bdi> | <bdi class='coname'>Motion Array</bdi> | <bdi class='coname'>Yellow Images</bdi>، وبنيت حضور تجاري مستمر عبر هالمنصات. بآمن إنه في قوة بالتعاون، وإنه العمل الجماعي أساس الابتكار والتقدم — ودايماً منفتح على فرص وتعاونات إبداعية جديدة."],
+         "على مدار السنين اشتغلت مع <bdi class='chip'>Star Animation</bdi>، <bdi class='chip'>New Boy</bdi>، <bdi class='chip'>tareekhuna.com</bdi>، <bdi class='chip'>Reflection Media</bdi> و<bdi class='chip'>TRT Arabi</bdi>، وتنقّلت بين الحركة والثبات: من تايتلز متحركة وهوية بصرية حركية من جهة، لهوية برامج تلفزيونية وغرافيكس سوشيال ميديا وثري دي تجريدي من جهة تانية.",
+         "ولأكتر من عشر سنين، بصمم وببيع منتجات رقمية عبر <bdi class='chip'>Creative Market</bdi>، <bdi class='chip'>Envato</bdi>، <bdi class='chip'>Motion Array</bdi> و<bdi class='chip'>Yellow Images</bdi>، وبنيت حضور تجاري مستمر عبر هالمنصات. بآمن إنه في قوة بالتعاون، وإنه العمل الجماعي أساس الابتكار والتقدم — ودايماً منفتح على فرص وتعاونات إبداعية جديدة."],
       cta:"عندك مشروع ببالك؟ خلينا نحكي." },
     tr:{ h:"Hikaye ve yaklaşım",
       lead:"Fikirleri harekete, günlük görselleri de izlenmeye değer hikayelere dönüştürüyorum.",
       p:["Ben Maamoun Albibi, aslen Şam, Suriye'den, şu anda İstanbul'da yaşayan bir grafik ve hareketli grafik tasarımcısı ve video editörüyüm. 18 yılı aşkın görsel içerik üretme deneyimim var. Çalışmalarım grafik tasarım, motion graphics, video kurgu ve yapay zeka araçlarının kullanımını kapsıyor.",
-         "Yıllar içinde <bdi class='coname'>Star Animation</bdi> | <bdi class='coname'>New Boy</bdi> | <bdi class='coname'>tareekhuna.com</bdi> | <bdi class='coname'>Reflection Media</bdi> | <bdi class='coname'>TRT Arabi</bdi> ile çalıştım; hareket ile durağanlık arasında gidip geldim: bir yanda animasyonlu başlıklar ve marka hareketi, diğer yanda TV program kimlikleri, sosyal medya grafikleri ve soyut 3D çalışmalar.",
-         "On yılı aşkın süredir <bdi class='coname'>Creative Market</bdi> | <bdi class='coname'>Envato</bdi> | <bdi class='coname'>Motion Array</bdi> | <bdi class='coname'>Yellow Images</bdi> üzerinden dijital ürünler tasarlayıp satıyorum ve bu platformlarda sürekli bir ticari varlık oluşturdum. Bir araya gelmenin güç kattığına ve ekip çalışmasının yenilik ile ilerlemenin anahtarı olduğuna inanıyorum — yeni fırsatlara ve yaratıcı iş birliklerine her zaman açığım."],
+         "Yıllar içinde Star Animation, New Boy, tareekhuna.com, Reflection Media ve TRT Arabi ile çalıştım; hareket ile durağanlık arasında gidip geldim: bir yanda animasyonlu başlıklar ve marka hareketi, diğer yanda TV program kimlikleri, sosyal medya grafikleri ve soyut 3D çalışmalar.",
+         "On yılı aşkın süredir Creative Market, Envato, Motion Array ve Yellow Images üzerinden dijital ürünler tasarlayıp satıyorum ve bu platformlarda sürekli bir ticari varlık oluşturdum. Bir araya gelmenin güç kattığına ve ekip çalışmasının yenilik ile ilerlemenin anahtarı olduğuna inanıyorum — yeni fırsatlara ve yaratıcı iş birliklerine her zaman açığım."],
       cta:"Aklında bir proje mi var? Hadi konuşalım." },
     items:[
       {en:"Graphic Design",den:"Visual identities and layouts, including TV show and podcast branding."},
@@ -426,12 +425,11 @@ const C={
   igSize:[1080,1350],           // قياس سلايدات مشاريع السوشيال (إنستغرام 4:5) - ig:true بالمشروع بيفعّل السلايدر
   works:[ // title = اسم مشروع اختياري (فاضي = بيظهر التاج بس) · cat لازم تطابق وحدة من cats · img = صورة الكرت (لو فاضية بتظهر تكتشر ستريبات 45° سودا غامقة، sw = عرض الخط) · video = فيديو لوب (data:video/mp4... أو "test" لفيديو التجربة) · youtube = رابط يوتيوب أو الـID · imgs = صور صفحة المشروع (1920×1080) · n = عدد الإطارات المؤقتة إذا imgs فاضية: حط صورة كـ data:image/... أو خليها فاضية بتظهر الألوان
     {title:"",cat:"Motion Graphics",tag:"Brand Motion",ac:"#ff5a1f",c1:"#000000",c2:"#161616",sw:16,img:"",video:"test",youtube:"",ig:false,imgs:[],n:4,desc:"Project description: the idea, the tools used, and the result.",hide:true},
-    {title:"Showreel",cat:"Motion Graphics",tag:"Motion Graphics",ac:"#ff5a1f",c1:"#000000",c2:"#161616",sw:16,img:"https://i.ytimg.com/vi/H9FREKQ3QDw/hqdefault.jpg",video:"",youtube:"https://www.youtube.com/watch?v=H9FREKQ3QDw",ig:false,imgs:[],n:0,desc:"A selection of motion graphics work."},
-    {title:"Hadaratuna",cat:"Graphic Design",tag:"Show Branding",ac:"#c9a24b",c1:"#000000",c2:"#161616",sw:16,img:GD[0],video:"",youtube:"",ig:false,imgs:GD,n:4,desc:"I developed the visual identity for the Hadaratuna program on the Tarikhuna platform and designed layouts combining the presenter with images related to each episode. I generated the images using Hexfield and used Hexfield / Seedream to generate some decorative elements and 3D assets. I then refined and integrated these elements in Photoshop to create the final designs.",descAr:"طوّرت الهوية البصرية لبرنامج «حضارتنا» على منصة تاريخنا، وصممت كوادر تجمع المقدم بصور مرتبطة بموضوع الحلقة، بتكوينات ونِسَب مختلفة. أنشأت الصور باستخدام Hexfield، واستخدمت Hexfield / Seedream لتوليد بعض الزخارف والعناصر ثلاثية الأبعاد. بعد ذلك عالجت العناصر ودمجتها في Photoshop ضمن التصميم النهائي.",descTr:"Tarikhuna platformundaki Hadaratuna programı için görsel kimliği geliştirdim ve sunucuyu her bölümle ilgili görsellerle birleştiren tasarımlar oluşturdum. Görselleri Hexfield ile ürettim, bazı dekoratif öğeler ve 3D varlıklar için Hexfield / Seedream kullandım. Ardından bu öğeleri Photoshop'ta işleyip nihai tasarımlarda birleştirdim."},
+    {title:"Hadaratuna",cat:"Graphic Design",tag:"Show Branding",ac:"#c9a24b",c1:"#000000",c2:"#161616",sw:16,img:GD[0],video:"",youtube:"",ig:false,imgs:GD,n:4,desc:"I developed the visual identity for the Hadaratuna program on the Tarikhuna platform and designed layouts combining the presenter with images related to each episode. I generated the images using Hexfield and used Hexfield / Seedream to generate some decorative elements and 3D assets. I then refined and integrated these elements in Photoshop to create the final designs.",descAr:"طوّرت الهوية البصرية لبرنامج «حضارتنا» على منصة تاريخنا، وصممت كوادر تجمع المقدم بصور مرتبطة بموضوع الحلقة، بتكوينات ونِسَب مختلفة. أنشأت الصور باستخدام Hexfield، واستخدمت Hexfield / Seedream لتوليد بعض الزخارف والعناصر ثلاثية الأبعاد. بعد ذلك عالجت العناصر ودمجتها في Photoshop ضمن التصميم النهائي."},
     {title:"",cat:"Social Media",tag:"Social Campaign",ac:"#ff5a1f",c1:"#000000",c2:"#1c1c1c",sw:12,img:"",video:"",youtube:"",ig:true,imgs:[],n:6,desc:"Project description: the idea, the tools used, and the result.",hide:true},
-    {title:"TRT Arabi / Social Media Graphics",cat:"Social Media",tag:"Social Media",ac:"#2ec4c6",c1:"#000000",c2:"#161616",sw:16,img:SMG[0],video:"",youtube:"",ig:false,imgs:SMG,n:4,desc:"A selection of social media graphics and motion graphics I created for TRT Arabi across its social media channels, covering different topics and formats.",descAr:"مجموعة مختارة من تصاميم التواصل الاجتماعي والموشن جرافيك التي نفّذتها لـ<bdi>TRT Arabi</bdi> عبر منصات التواصل الاجتماعي الخاصة بها، تغطي مواضيع وأشكالاً متنوعة.",descTr:"TRT Arabi için sosyal medya kanallarında kullanılmak üzere hazırladığım, farklı konu ve formatları kapsayan sosyal medya grafikleri ve hareketli grafik tasarımlarından bir seçki."},
-    {title:"Explosion",cat:"Abstract 3D",tag:"Abstract 3D Render",ac:"#e8384f",c1:"#000000",c2:"#161616",sw:16,img:AB3[0],video:"",youtube:"",ig:false,imgs:AB3,n:6,link:"https://elements.envato.com/3d-explosion-capsule-particles-backgrounds-E83L8FZ",desc:"A set of high-resolution 3D backgrounds built from capsule-shaped particles in an explosive abstract composition, rendered in glossy red and black tones for a bold, cinematic look. <b style=\"color:var(--ink)\">Created with Cinema 4D and Octane Render.</b>",descAr:"مجموعة خلفيات ثلاثية الأبعاد عالية الدقة، مبنية من جسيمات كبسولية الشكل ضمن تكوين تجريدي انفجاري، بألوان حمراء وسوداء لامعة تمنحها طابعاً جريئاً وسينمائياً. <b style=\"color:var(--ink)\">تم إنتاجها باستخدام Cinema 4D وOctane Render.</b>",descTr:"Kapsül şeklindeki parçacıklardan oluşan, patlayıcı soyut bir kompozisyonla kurgulanmış yüksek çözünürlüklü 3D arka plan seti; cesur ve sinematik bir görünüm için parlak kırmızı ve siyah tonlarında render edildi. <b style=\"color:var(--ink)\">Cinema 4D ve Octane Render ile üretildi.</b>"},
-    {title:"Soft Flow",cat:"Abstract 3D",tag:"Abstract Background",ac:"#ff3d81",c1:"#000000",c2:"#161616",sw:16,img:SF[0],video:"",youtube:"",ig:false,imgs:SF,n:9,link:"https://elements.envato.com/abstract-soft-backgrounds-WNBC5GM",desc:"A set of abstract soft-flow backgrounds with glowing ribbons of color drifting through a blue and pink gradient, for a smooth, modern, dreamlike look. <b style=\"color:var(--ink)\">Created with Cinema 4D and Octane Render.</b>",descAr:"مجموعة خلفيات تجريدية بتدفق ناعم، تحتوي على أشرطة لونية متوهجة تنساب ضمن تدرّج بين الأزرق والوردي، لتمنحها إطلالة ناعمة وعصرية وحالمة. <b style=\"color:var(--ink)\">تم إنتاجها باستخدام Cinema 4D وOctane Render.</b>",descTr:"Mavi ve pembe bir gradyan içinde süzülen parlayan renk şeritleriyle, yumuşak, modern ve rüya gibi bir görünüm sunan soyut 'soft-flow' arka plan seti. <b style=\"color:var(--ink)\">Cinema 4D ve Octane Render ile üretildi.</b>"}
+    {title:"TRT Arabi / Social Media Graphics",cat:"Social Media",tag:"Social Media",ac:"#2ec4c6",c1:"#000000",c2:"#161616",sw:16,img:SMG[0],video:"",youtube:"",ig:false,imgs:SMG,n:4,desc:"A selection of social media graphics and motion graphics I created for TRT Arabi across its social media channels, covering different topics and formats."},
+    {title:"Explosion",cat:"Abstract 3D",tag:"Abstract 3D Render",ac:"#e8384f",c1:"#000000",c2:"#161616",sw:16,img:AB3[0],video:"",youtube:"",ig:false,imgs:AB3,n:6,link:"https://elements.envato.com/3d-explosion-capsule-particles-backgrounds-E83L8FZ",desc:"A set of high-resolution 3D backgrounds built from capsule-shaped particles in an explosive abstract composition, rendered in glossy red and black tones for a bold, cinematic look. <b style=\"color:var(--ink)\">Created with Cinema 4D and Octane Render.</b>"},
+    {title:"Soft Flow",cat:"Abstract 3D",tag:"Abstract Background",ac:"#ff3d81",c1:"#000000",c2:"#161616",sw:16,img:SF[0],video:"",youtube:"",ig:false,imgs:SF,n:9,link:"https://elements.envato.com/abstract-soft-backgrounds-WNBC5GM",desc:"A set of abstract soft-flow backgrounds with glowing ribbons of color drifting through a blue and pink gradient, for a smooth, modern, dreamlike look. <b style=\"color:var(--ink)\">Created with Cinema 4D and Octane Render.</b>"}
   ],
   stats:[{n:3,s:"K+",l:"Templates published"},{n:15,s:"+",l:"Years of experience"},{n:10,s:"+",l:"Marketplaces"}],
   contactTitle:"Let's work together",
@@ -535,15 +533,9 @@ function openP(i,push){
   const slides=w.ig?(w.imgs.length?w.imgs.map((u,k)=>igf(k,u)):Array.from({length:w.n},(_,k)=>igf(k,''))):[];
   const igh=w.ig?`<div class="ig"><div class="igw"><div class="igt">${slides.join('')}</div><span class="igc"></span><span class="igh"><span class="hm">Swipe</span> →</span><div class="igd"><button class="igb p" aria-label="Previous slide">‹</button><div class="igdt"></div><button class="igb n" aria-label="Next slide">›</button></div></div></div>`:'';
   const im=w.ig?[]:w.imgs.length?w.imgs.map(u=>`<div class="rv"><img src="${u}" alt=""></div>`):Array.from({length:w.n},(_,k)=>`<div class="rv" style="background:repeating-linear-gradient(45deg,${w.c1} 0 ${w.sw}px,${w.c2} ${w.sw}px ${w.sw*2}px);display:grid;place-items:center;color:#8a8a8a;font-weight:900;font-size:clamp(18px,3vw,36px);direction:ltr">1920×1080 · 0${k+1}</div>`);
-  const hasI18n=!!(w.descAr||w.descTr);
-  const pvDesc=hasI18n?({en:w.desc,ar:w.descAr||w.desc,tr:w.descTr||w.desc}[abLang]||w.desc):w.desc;
-  const pvMoreMap={en:'More',ar:'المزيد',tr:'Daha fazla'},pvLessMap={en:'Less',ar:'أقل',tr:'Daha az'};
-  pv.innerHTML=`<div class="pvh"><small><button class="pvb" aria-label="Back"><b>←</b><span>Back<i>/</i></span><em>${w.title?w.tag:w.cat}</em></button></small><h2>${w.title||w.tag}</h2>${hasI18n?`<div class="langsw pvl"><button data-l="en" class="${abLang==='en'?'on':''}">EN</button><button data-l="ar" class="${abLang==='ar'?'on':''}">AR</button><button data-l="tr" class="${abLang==='tr'?'on':''}">TR</button></div>`:''}<p class="pvdesc-full${abLang==='ar'?' lang-ar':''}" id="pvdesc">${pvDesc}</p><button class="descmore" id="descmore" type="button"><span>${pvMoreMap[abLang]||'More'}</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2"><path d="M6 9l6 6 6-6"/></svg></button>${w.link?`<a class="pl" href="${w.link}" target="_blank" rel="noopener">View Product ↗</a>`:''}</div>${igh}<div class="pvi">${media}${im.join('')}</div><div class="pvf"><h3>${C.contactTitle}</h3><a href="#contact" id="pfc" class="ctb">Contact us →</a><div class="soc2">${socHTML}</div></div>`;
+  pv.innerHTML=`<div class="pvh"><small><button class="pvb" aria-label="Back"><b>←</b><span>Back<i>/</i></span><em>${w.title?w.tag:w.cat}</em></button></small><h2>${w.title||w.tag}</h2><p class="pvdesc-full">${w.desc}</p>${w.link?`<a class="pl" href="${w.link}" target="_blank" rel="noopener">View Product ↗</a>`:''}</div>${igh}<div class="pvi">${media}${im.join('')}</div><div class="pvf"><h3>${C.contactTitle}</h3><a href="#contact" id="pfc" class="ctb">Contact us →</a><div class="soc2">${socHTML}</div></div>`;
   if(typeof pvStop==='function')pvStop();pv.classList.add('open');pv.scrollTop=0;pv.style.setProperty('--ac',w.ac||'var(--a)');pv.dataset.ac=w.ac||'';document.documentElement.style.setProperty('--ac',w.ac||'var(--a)');
   $('.pvb',pv).onclick=closeP;
-  function pvMeasure(){var dEl=$('#pvdesc',pv),mb=$('#descmore',pv);if(!dEl||!mb)return;mb.classList.remove('show');mb.classList.remove('open');var spInit=mb.querySelector('span');if(spInit)spInit.textContent=(pvMoreMap&&pvMoreMap[abLang])||'More';dEl.style.maxHeight='';dEl.classList.add('collapsed');requestAnimationFrame(function(){if(dEl.scrollHeight>dEl.clientHeight+4){mb.classList.add('show');mb.onclick=function(){var isOpen=mb.classList.toggle('open');var lblLess={en:'Less',ar:'أقل',tr:'Daha az'}[abLang]||'Less';var lblMore={en:'More',ar:'المزيد',tr:'Daha fazla'}[abLang]||'More';if(isOpen){dEl.style.maxHeight=dEl.scrollHeight+'px';dEl.classList.remove('collapsed');mb.querySelector('span').textContent=lblLess;setTimeout(function(){dEl.style.maxHeight='none'},450)}else{dEl.style.maxHeight=dEl.scrollHeight+'px';requestAnimationFrame(function(){dEl.style.maxHeight='3.4em';dEl.classList.add('collapsed')});mb.querySelector('span').textContent=lblMore}}}else{dEl.classList.remove('collapsed')}})}
-  pvMeasure();
-  if(hasI18n){$$('.langsw.pvl button',pv).forEach(function(b){b.onclick=function(){abLang=b.dataset.l;var d={en:w.desc,ar:w.descAr||w.desc,tr:w.descTr||w.desc}[abLang]||w.desc;var dEl=$('#pvdesc',pv);dEl.innerHTML=d;dEl.classList.toggle('lang-ar',abLang==='ar');$$('.langsw.pvl button',pv).forEach(function(x){x.classList.toggle('on',x===b)});pvMeasure()}})}
   if(push){const cat=w.cat?slugify(w.cat):'all';try{history.pushState({pi:i},'','#'+cat+'/'+i)}catch(e){}}
   $$('.pvi>div:not(.vid),.igt>div',pv).forEach(d=>d.onclick=()=>openLB(d));
   if(w.ig)bindIG();$('#pfc').onclick=e=>{e.preventDefault();openC(1)};
@@ -628,17 +620,11 @@ new IntersectionObserver(e=>{vis=e[0].isIntersecting}).observe(h);
 const hd=$('header'),hs=()=>hd.classList.toggle('solid',scrollY>8);addEventListener('scroll',hs,{passive:true});hs();
 
 /* تبديل الكلمة مع كل لفة: بيصير لما الحروف تكون من الجنب فما بينشاف التبديل */
-function fitTag(){const h1=$('.hero h1'),tag=$('.tag');if(!h1||!tag)return;
-  const st=tag.style.cssText;tag.style.display='none';const maxW=h1.getBoundingClientRect().width;tag.style.cssText=st;if(!maxW)return;
-  tag.style.cssText=st+';position:absolute;visibility:hidden;max-width:none;overflow:visible;font-size:100px';
-  const nat=tag.getBoundingClientRect().width;tag.style.cssText=st;if(!nat)return;
-  tag.style.fontSize=Math.max(9,Math.min(100*maxW/nat,48)).toFixed(2)+'px'}
-requestAnimationFrame(fitTag);addEventListener('resize',fitTag);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitTag);
 {const W3=C.words3d,T3=C.title3d,ext=$('.ext');let wi=0;
 const fsz=w=>`clamp(40px,min(11vw,${(55/([...w].length*.62)).toFixed(1)}vw),170px)`;
 function swap(){wi=(wi+1)%W3.length;const w=W3[wi],c=[...w];
   $$('.ly').forEach(l=>{l.innerHTML=l.classList.contains('f')?c.map(x=>`<span style="animation:none;opacity:1;transform:none">${x}</span>`).join(''):c.map(x=>`<span>${x}</span>`).join('')});
-  $('.hero h1').style.fontSize=fsz(w);fitTag()}
+  $('.hero h1').style.fontSize=fsz(w)}
 if(T3.spin!=='none'&&W3.length>1){const f=T3.spin==='180'?.27:.425,ms=T3.seconds*1000;
   setTimeout(swap,4800+f*ms);
   ext.addEventListener('animationiteration',e=>{if(e.target===ext)setTimeout(swap,f*ms)})}}
@@ -652,22 +638,12 @@ function bindForm(f){const st=$('#cfs',f);f.onsubmit=async e=>{e.preventDefault(
     catch(x){st.textContent='Could not send. Please try again.'}}
   else{st.textContent='Opening your email app…';window.open(`mailto:${C.email}?subject=${encodeURIComponent('Message from '+d.name)}&body=${encodeURIComponent(d.message+'\n\n'+d.name+' ('+d.email+')')}`,'_self')}}}
 function openC(push){
-  pv.innerHTML=`<div class="ab cpg"><h2 class="abt"><button class="abback" aria-label="Back"><span class="abk-arr">‹</span><span class="abk-txt">Back</span><span class="abk-sep">/</span>Contact</button></h2><p class="lead rv" style="max-width:780px">${C.contactTitle}. Tell me about your project and I'll get back to you.</p>${formHTML()}<div class="soc2 rv" style="margin-top:8vh">${socHTML}</div><div class="bizcard rv"><h3>Business Card</h3><div class="bizqr"><div class="bizq"><b>Portfolio</b><div class="bizqbox" id="bizq-site"></div><span>Scan to open maamounalbibi.com</span></div><div class="bizq"><b>Save contact</b><div class="bizqbox" id="bizq-vcard"></div><span>Scan to add to contacts</span></div></div><div class="bizrow"><span class="bl">Site</span><span class="bv">maamounalbibi.com</span><button class="bizcp" data-copy="maamounalbibi.com" type="button">Copy</button></div><div class="bizrow"><span class="bl">Phone</span><span class="bv">+90 553 174 8019</span><button class="bizcp" data-copy="+905531748019" type="button">Copy</button></div></div></div>`;
+  pv.innerHTML=`<div class="ab cpg"><h2 class="abt"><button class="abback" aria-label="Back"><span class="abk-arr">‹</span><span class="abk-txt">Back</span><span class="abk-sep">/</span>Contact</button></h2><p class="lead rv" style="max-width:780px">${C.contactTitle}. Tell me about your project and I'll get back to you.</p>${formHTML()}<div class="soc2 rv" style="margin-top:8vh">${socHTML}</div></div>`;
   if(typeof pvStop==='function')pvStop();pv.classList.add('open');pv.scrollTop=0;pv.dataset.ac='';document.documentElement.style.removeProperty('--ac');
   if(push){try{history.pushState(null,'','#contact')}catch(x){}}
   $('.abback',pv).onclick=closeP;
   bindForm($('#cf'));
   $$('.rv',pv).forEach(x=>io.observe(x));
-  (function(){
-    if(typeof QRCode==='undefined')return;
-    var VCARD="BEGIN:VCARD\r\nVERSION:3.0\r\nN:Albibi;Maamoun;;;\r\nFN:Maamoun Albibi\r\nTITLE:Motion Graphics & Abstract 3D Artist\r\nTEL;TYPE=CELL,VOICE:+905531748019\r\nURL:https://maamounalbibi.com\r\nEND:VCARD\r\n";
-    function mk(id,txt){var el=$('#'+id,pv);if(!el)return;try{new QRCode(el,{text:txt,width:128,height:128,colorDark:"#111111",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M})}catch(e){el.textContent="QR unavailable"}}
-    mk('bizq-site','https://maamounalbibi.com');
-    mk('bizq-vcard',VCARD);
-    $$('.bizcp',pv).forEach(function(btn){btn.onclick=function(){var val=btn.getAttribute('data-copy');var done=function(){var old=btn.textContent;btn.textContent='Copied';btn.classList.add('cp-on');setTimeout(function(){btn.textContent=old;btn.classList.remove('cp-on')},1400)};
-      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(val).then(done).catch(function(){fallbackCp(val,done)})}else{fallbackCp(val,done)}}});
-    function fallbackCp(text,cb){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta);cb()}
-  })();
 }
 let abLang='en';
 $('#ctb').onclick=e=>{e.preventDefault();openC(1)};
@@ -677,7 +653,8 @@ function openA(push){
   const adots=pics.length>1?`<div class="abdots">${pics.map(()=>'<button></button>').join('')}</div>`:'';
   const gal=`<div class="bkw rv"><div class="bks">${BOOKS.map(b=>`<figure class="bk" style="--ar:${b.ar}"><img src="${b.u}" alt="${b.n}"></figure>`).join('')}</div></div>`;
   pv.innerHTML=`<div class="ab${abLang==='ar'?' lang-ar':''}"><h2 class="abt"><button class="abback" aria-label="Back"><span class="abk-arr">‹</span><span class="abk-txt">Back</span><span class="abk-sep">/</span>About</button></h2>
-<div class="abr"><div class="rv"><div class="abp">${pic}</div>${adots}</div><div class="rv"><div class="langsw ab-langsw"><button data-l="en" class="${abLang==='en'?'on':''}">EN</button><button data-l="ar" class="${abLang==='ar'?'on':''}">AR</button><button data-l="tr" class="${abLang==='tr'?'on':''}">TR</button></div><p class="lead" id="ab-lead">${e.lead}</p><div class="col"><h3 id="ab-h">${e.h}</h3><div id="ab-p">${e.p.map(t=>`<p>${t}</p>`).join('')}</div></div></div></div>
+<div class="langsw rv"><button data-l="en" class="${abLang==='en'?'on':''}">EN</button><button data-l="ar" class="${abLang==='ar'?'on':''}">AR</button><button data-l="tr" class="${abLang==='tr'?'on':''}">TR</button></div>
+<div class="abr"><div class="rv"><div class="abp">${pic}</div>${adots}</div><div class="rv"><p class="lead" id="ab-lead">${e.lead}</p><div class="col"><h3 id="ab-h">${e.h}</h3><div id="ab-p">${e.p.map(t=>`<p>${t}</p>`).join('')}</div></div></div></div>
 <div class="bkh"><h3 class="bkt rv">My Inspiration Books</h3>${gal}</div>
 <div class="cta rv"><p class="lead" id="ab-cta">${e.cta}</p><a href="#" id="gt">Get in touch →</a><div class="soc2">${socHTML}</div></div></div>`;
   if(typeof pvStop==='function')pvStop();pv.classList.add('open');pv.scrollTop=0;pv.dataset.ac='';document.documentElement.style.removeProperty('--ac');
