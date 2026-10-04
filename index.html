@@ -5,7 +5,7 @@
 <meta name="p:domain_verify" content="b323de21cce64152a465f7a57c5007e4"/>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Cpath d='M22 15 L22 85 L58 85 Q80 85 80 67 Q80 54 67 50 Q78 46 78 34 Q78 15 58 15 Z M38 28 L55 28 Q64 28 64 36 Q64 44 55 44 L38 44 Z M38 57 L57 57 Q68 57 68 66 Q68 75 57 75 L38 75 Z' fill='%23FF6B35'/%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Maamoun Albibi / v232</title>
+<title>Maamoun Albibi / v233</title>
 <meta name="description" content="Maamoun Albibi — Motion Graphics, Graphic Design, Social Media and Abstract 3D artist based in Istanbul. Browse templates and creative work on Envato, Motion Array and Creative Market.">
 <meta name="keywords" content="Maamoun Albibi, motion graphics, graphic design, social media design, abstract 3D, portfolio, Istanbul, Envato, Motion Array, Creative Market, مأمون البيبي, موشن جرافيك, تصميم جرافيك, سوشيال ميديا, ثري دي, بورتفوليو, إسطنبول">
 <meta name="author" content="Maamoun Albibi">
@@ -446,10 +446,10 @@ const C={
   about:"I work on Motion Graphics and Graphic Design projects, and I really love collage. If you love collage too, come work with me.",
   worksTitle:"Works",
   cols:2,                            // عدد الأعمدة: 1 = تحت بعض، 2 = صفين جنب بعض
-  cats:["Motion Graphics","Graphic Design","Social Media","Abstract 3D","AI Creator"],   // الكاتيجوريز (بتبدّل الأسماء)
+  cats:["Motion Graphics","Graphic Design","Social Media","Abstract 3D","Concept"],   // الكاتيجوريز (بتبدّل الأسماء)
   igSize:[1080,1350],           // قياس سلايدات مشاريع السوشيال (إنستغرام 4:5) - ig:true بالمشروع بيفعّل السلايدر
   works:[ // title = اسم مشروع اختياري (فاضي = بيظهر التاج بس) · cat لازم تطابق وحدة من cats · img = صورة الكرت (لو فاضية بتظهر تكتشر ستريبات 45° سودا غامقة، sw = عرض الخط) · video = فيديو لوب (data:video/mp4... أو "test" لفيديو التجربة) · youtube = رابط يوتيوب أو الـID · imgs = صور صفحة المشروع (1920×1080) · n = عدد الإطارات المؤقتة إذا imgs فاضية: حط صورة كـ data:image/... أو خليها فاضية بتظهر الألوان
-    {title:"",cat:"AI Creator",tag:"AI Creator",ac:"#ff5a1f",c1:"#000000",c2:"#161616",sw:16,img:"",video:"",youtube:"",ig:false,imgs:[],n:4,desc:"Project description: the idea, the tools used, and the result.",hide:true},
+    {title:"",cat:"Concept",tag:"Concept",ac:"#ff5a1f",c1:"#000000",c2:"#161616",sw:16,img:"",video:"",youtube:"",ig:false,imgs:[],n:4,desc:"Project description: the idea, the tools used, and the result.",hide:true},
     {title:"",cat:"Motion Graphics",tag:"Brand Motion",ac:"#ff5a1f",c1:"#000000",c2:"#161616",sw:16,img:"",video:"test",youtube:"",ig:false,imgs:[],n:4,desc:"Project description: the idea, the tools used, and the result.",hide:true},
     {hide:true,title:"Vimeo Test",cat:"Motion Graphics",tag:"Vimeo Test",ac:"#ff5a1f",c1:"#000000",c2:"#161616",sw:16,img:"",video:"",youtube:"",vids:[{vm:"1211496822"}],ig:false,imgs:[],n:0,desc:"Vimeo player test."},
     {title:"Showreel",cat:"Motion Graphics",tag:"Motion Graphics",ac:"#ff5a1f",c1:"#000000",c2:"#161616",sw:16,img:"https://i.ytimg.com/vi/H9FREKQ3QDw/hqdefault.jpg",video:"",youtube:"https://www.youtube.com/watch?v=H9FREKQ3QDw",ig:false,imgs:[],n:0,desc:"A selection of motion graphics work."},
@@ -486,6 +486,7 @@ document.documentElement.style.cssText+=`--ig:${(C.igSize[0]/C.igSize[1]).toFixe
 const cyc=C.tickerItems.map(x=>`<span>${x}</span><span class="st">✦</span>`).join('');const half=Array(4).fill(cyc).join('');$('#tkd').innerHTML=half+half;
 const tkSpd=()=>{const d=$('#tkd');d.style.animationDuration=(d.scrollWidth/2/C.tickerSpeed).toFixed(1)+'s'};tkSpd();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(tkSpd);addEventListener('resize',tkSpd);
 $('#nl').innerHTML=`<button id="logo">${C.navName}</button>`;$('#nr').innerHTML=`<button id="pf"><span class="t"><b>${C.navMenu}</b><b>Close</b></span><span class="ic"><b>▾</b><b>✕</b></span></button>`;
+C.cats=C.cats.filter(k=>C.works.some(w=>w.cat===k&&!w.hide)); // فئة فاضية ما بتظهر لحد ما ينضاف لها مشروع
 document.body.insertAdjacentHTML('beforeend',`<div id="pm">${['All',...C.cats].map((c,i)=>`<button data-i="${i}"><i class="dt"></i>${c}</button>`).join('')}<button data-a="1"><i class="dt"></i>About</button><button data-ct="1"><i class="dt"></i>Contact</button></div>`);
 const pm=$('#pm'),hdr=$('header');
 let rdy;const setM=on=>{clearTimeout(rdy);pm.classList.toggle('ready',false);if(on)rdy=setTimeout(()=>pm.classList.add('ready'),650);pm.classList.toggle('show',on);hdr.classList.toggle('open',on);$('#pf').classList.toggle('on',on);document.documentElement.style.overflow=on?'hidden':'';if(on){document.documentElement.style.removeProperty('--ac')}else if(pv.classList.contains('open')&&pv.dataset.ac){document.documentElement.style.setProperty('--ac',pv.dataset.ac)}};
