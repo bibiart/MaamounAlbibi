@@ -5,7 +5,7 @@
 <meta name="p:domain_verify" content="b323de21cce64152a465f7a57c5007e4"/>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Cpath d='M22 15 L22 85 L58 85 Q80 85 80 67 Q80 54 67 50 Q78 46 78 34 Q78 15 58 15 Z M38 28 L55 28 Q64 28 64 36 Q64 44 55 44 L38 44 Z M38 57 L57 57 Q68 57 68 66 Q68 75 57 75 L38 75 Z' fill='%23FF6B35'/%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Maamoun Albibi / v193</title>
+<title>Maamoun Albibi / v194</title>
 <meta name="description" content="Maamoun Albibi — Motion Graphics, Graphic Design, Social Media and Abstract 3D artist based in Istanbul. Browse templates and creative work on Envato, Motion Array and Creative Market.">
 <meta name="keywords" content="Maamoun Albibi, motion graphics, graphic design, social media design, abstract 3D, portfolio, Istanbul, Envato, Motion Array, Creative Market, مأمون البيبي, موشن جرافيك, تصميم جرافيك, سوشيال ميديا, ثري دي, بورتفوليو, إسطنبول">
 <meta name="author" content="Maamoun Albibi">
@@ -588,7 +588,7 @@ function openP(i,push){
       if(S.dur>0){S.cur=p*S.dur;cmd('seekTo',[S.cur,true]);ui()}};
     var drag=false;bar.onpointerdown=function(e){e.stopPropagation();drag=true;try{bar.setPointerCapture(e.pointerId)}catch(x){}seek(e);wake()};
     bar.onpointermove=function(e){if(drag)seek(e)};bar.onpointerup=bar.onpointercancel=function(){drag=false};
-    box.addEventListener('mousemove',wake);box.addEventListener('touchstart',wake,{passive:true});
+    box.addEventListener('mousemove',wake);box.addEventListener('touchstart',wake,{passive:true});box.addEventListener('mouseleave',function(){clearTimeout(idleT);if(S.playing)idleT=setTimeout(function(){box.classList.add('idle')},500)});$$('.ytb',box).forEach(function(x){x.onmousedown=function(e){e.preventDefault()}});var active=true;var onpd=function(e){if(!document.body.contains(fr)){document.removeEventListener('pointerdown',onpd);document.removeEventListener('keydown',onkd,true);return}active=box.contains(e.target)};var seekBy=function(d){if(S.dur<=0)return;S.cur=Math.max(0,Math.min(S.dur,S.cur+d));cmd('seekTo',[S.cur,true]);ui();wake()};var onkd=function(e){if(!document.body.contains(fr)){document.removeEventListener('keydown',onkd,true);document.removeEventListener('pointerdown',onpd);return}var inFS=(document.fullscreenElement||document.webkitFullscreenElement)===box;if(!active&&!inFS)return;if(e.ctrlKey||e.metaKey||e.altKey)return;var k=e.key;if(k===' '||k==='Spacebar'||k==='k'||k==='K'){e.preventDefault();toggle()}else if(k==='ArrowRight'){e.preventDefault();e.stopPropagation();seekBy(5)}else if(k==='ArrowLeft'){e.preventDefault();e.stopPropagation();seekBy(-5)}else if(k==='m'||k==='M'){e.preventDefault();bmu.click()}else if((k==='f'||k==='F')&&bfs){e.preventDefault();bfs.click()}};document.addEventListener('pointerdown',onpd);document.addEventListener('keydown',onkd,true);
     ui();wake();
   }});
 })();
