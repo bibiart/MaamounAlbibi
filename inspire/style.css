@@ -153,20 +153,20 @@ header{animation:enter-header 1.2s .15s cubic-bezier(.16,1,.3,1) backwards}
 .hero h1 .letter:nth-child(5){--order:4;animation-delay:.81s,-2.6s}
 .hero h1 .letter:nth-child(6){--order:5;animation-delay:.9s,-3.25s}
 .hero h1 .letter:nth-child(7){--order:6;animation-delay:.99s,-3.9s}
-.side.left{animation:side-arrive 1.4s .6s cubic-bezier(.16,1,.3,1) backwards;--slide:-45px}
-.side.right{animation:side-arrive 1.4s .75s cubic-bezier(.16,1,.3,1) backwards;--slide:45px}
+.side.left span{animation:side-arrive 1.4s .6s cubic-bezier(.16,1,.3,1) backwards;--slide:-45px}
+.side.right span{animation:side-arrive 1.4s .75s cubic-bezier(.16,1,.3,1) backwards;--slide:45px}
 .go-original{animation:enter-copy 1.3s 1.15s cubic-bezier(.16,1,.3,1) backwards}
 .foot{animation:badge-arrive 1.5s 1.1s cubic-bezier(.16,1,.3,1) backwards}
 .sound-toggle{animation:sound-arrive 1.3s 1.3s cubic-bezier(.16,1,.3,1) backwards}
 .particles,.dots{animation:layer-arrive 1.8s .6s ease-out backwards}
 .ambient-equalizer{animation:spectrum-arrive 1.8s 1.25s ease-out backwards}
 @keyframes letter-arrive{from{opacity:0;transform:translateY(.3em) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes side-arrive{from{opacity:0;transform:translateX(var(--slide)) rotate(180deg)}to{opacity:1;transform:translateX(0) rotate(180deg)}}
+@keyframes side-arrive{from{opacity:0}to{opacity:1}}
 @keyframes badge-arrive{from{opacity:0;transform:translateX(45px) scale(.9)}to{opacity:1;transform:translateX(0) scale(1)}}
 @keyframes sound-arrive{from{opacity:0;transform:translate(-50%,30px)}to{opacity:1;transform:translate(-50%,0)}}
 @keyframes layer-arrive{from{opacity:0}to{opacity:1}}
 @keyframes spectrum-arrive{from{opacity:0;transform:translateY(35px)}to{opacity:.1;transform:translateY(0)}}
-@media(prefers-reduced-motion:reduce){header,.hero h1,.hero p,.hero .cta,.hero h1 .letter,.side,.go-original,.foot,.sound-toggle,.particles,.dots,.ambient-equalizer{animation:none!important}}
+@media(prefers-reduced-motion:reduce){header,.hero h1,.hero p,.hero .cta,.hero h1 .letter,.side,.side span,.go-original,.foot,.sound-toggle,.particles,.dots,.ambient-equalizer{animation:none!important}}
 .space-orbit{position:absolute;inset:0;display:block;animation:space-turn var(--orbit-time) linear var(--delay) infinite;animation-direction:var(--orbit-direction);will-change:transform}
 .particle-node .particle{animation:space-shimmer 7s ease-in-out var(--delay) infinite alternate;transform:translateX(var(--orbit-radius));background:#fff0f9;box-shadow:0 0 6px 1px #ffe0f055}
 @keyframes space-turn{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
@@ -248,6 +248,6 @@ header{animation:enter-header 1.2s .15s cubic-bezier(.16,1,.3,1) backwards}
 
 /* Mobile text proportions and alignment with the INSPIRE title. */
 @media(max-width:700px){
- .side{top:calc(38% + 9.5vw);font-size:14px;transform:translateY(-50%) rotate(180deg)}
+ .side{top:calc(38% + 9.5vw + 6px);font-size:14px;transform:translateY(-50%) rotate(180deg)}
  .hero p{font-size:17px;line-height:1.45;max-width:360px;margin-top:22px;padding:0 12px}
 }

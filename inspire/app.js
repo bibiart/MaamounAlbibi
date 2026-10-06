@@ -21,7 +21,7 @@ document.addEventListener('dragstart',e=>{if(e.target.closest('.stage,.grid'))e.
 
 function replayIntro(){
  tx=ty=x=y=0;stage.style.setProperty('--mx',0);stage.style.setProperty('--my',0);
- const elements=[...document.querySelectorAll('.reveal,header,.hero h1,.hero p,.hero .cta,.hero .letter,.side,.go-original,.foot,.sound-toggle,.particles,.dots,.ambient-equalizer')];
+ const elements=[...document.querySelectorAll('.reveal,header,.hero h1,.hero p,.hero .cta,.hero .letter,.side span,.go-original,.foot,.sound-toggle,.particles,.dots,.ambient-equalizer')];
  for(const el of elements)el.style.animation='none';
  void stage.offsetWidth;
  for(const el of elements)el.style.animation='';
