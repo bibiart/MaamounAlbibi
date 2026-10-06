@@ -1,3 +1,20 @@
+// Keep header and footer inside the visible viewport as tablet browser chrome changes.
+function syncVisibleViewport(){
+ const viewport=window.visualViewport;
+ if(viewport && Math.abs(viewport.scale-1)>.01)return;
+ const fullscreen=!!document.fullscreenElement;
+ const height=fullscreen?window.innerHeight:(viewport?.height||window.innerHeight);
+ const top=fullscreen?0:(viewport?.offsetTop||0);
+ document.documentElement.style.setProperty('--viewport-height',height+'px');
+ document.documentElement.style.setProperty('--viewport-top',top+'px');
+}
+syncVisibleViewport();
+window.addEventListener('resize',syncVisibleViewport);
+window.addEventListener('pageshow',syncVisibleViewport);
+document.addEventListener('fullscreenchange',syncVisibleViewport);
+window.visualViewport?.addEventListener('resize',syncVisibleViewport);
+window.visualViewport?.addEventListener('scroll',syncVisibleViewport);
+
 const stage=document.querySelector('.stage'),gallery=document.querySelector('#gallery');
 let paused=matchMedia('(prefers-reduced-motion: reduce)').matches,x=0,y=0,tx=0,ty=0,dustX=0,dustY=0,frame=0,pointerInside=false;
 const pinkObjects=[...document.querySelectorAll(".object.pink")].map((node,i)=>({node,angle:0,direction:i===0?1:-1}));
@@ -152,14 +169,56 @@ document.getElementById('links').onclick=()=>linkDetails.showModal();
 linkDetails.querySelector('.close').onclick=()=>linkDetails.close();
 linkDetails.addEventListener('click',e=>{if(e.target===linkDetails){const b=linkDetails.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)linkDetails.close()}});
 
-// Alternate the browser icon without changing the on-page artwork.
+// Browser B follows the music palette while retaining the gentle white pulse.
 const brandFavicon=document.getElementById('brand-favicon');
-let faviconTimer=0,faviconWhite=false;
+const faviconTemplate="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg id=\"Layer_2\" data-name=\"Layer 2\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 241.65 243.01\">\n  <g id=\"Layer_1-2\" data-name=\"Layer 1\">\n    <path fill=\"#c01e75\" d=\"M227.08,143.57c30.98,36.62,9.57,87.9-35.97,97.1-8.19,1.84-16.34,2.43-24.59,2.33-13.52.02-35.87-.14-57.42-.15-30.7-.01-59.52-.32-89.98-.23-11.76.25-18.14-4.77-18.68-16.44-.88-51.03-.03-143.04-.37-189.58C.22,26.82-.53,14.75.87,6.06,1.38,2.07,4.21-.29,8.36.03c25.68.11,121.45.19,168.1.33,15.1-.72,29.66,4.19,41.85,13.18,25.34,18.59,30.63,59.51,10.02,84.34-6.87,9.04-16.93,13.53-26,19.54-8,6.44,6.8,10.9,11.96,14.92,4.71,3.09,8.98,6.79,12.66,11.07l.13.15Z\"/>\n  </g>\n</svg>";
+let faviconTimer=0,faviconWhite=false,faviconColor='rgb(192,30,117)',faviconKey='',faviconUpdated=0;
+function renderFavicon(force=false){
+ const color=faviconWhite?'#ffffff':faviconColor;
+ if(color===faviconKey||(!force&&performance.now()-faviconUpdated<180))return;
+ faviconKey=color;faviconUpdated=performance.now();
+ brandFavicon.href='data:image/svg+xml,'+encodeURIComponent(faviconTemplate.replace('#c01e75',color));
+}
 function updateFavicon(){
  clearInterval(faviconTimer);faviconTimer=0;
- if(document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches){brandFavicon.href='assets/b-icon-pink.svg';faviconWhite=false;return}
- faviconTimer=setInterval(()=>{faviconWhite=!faviconWhite;brandFavicon.href=faviconWhite?'assets/b-icon-white.svg':'assets/b-icon-pink.svg'},1800);
+ if(document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches){faviconWhite=false;renderFavicon(true);return}
+ renderFavicon(true);
+ faviconTimer=setInterval(()=>{faviconWhite=!faviconWhite;renderFavicon(true)},1800);
 }
 document.addEventListener('visibilitychange',updateFavicon);
 matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change',updateFavicon);
 updateFavicon();
+
+// Divide the soundtrack into equal pink, green and orange chapters.
+const musicPalettes=[
+ {rgb:[192,30,117],matrix:[1,0,0,0,0, 0,1,0,0,0, 0,0,1,0,0, 0,0,0,1,0]},
+ {rgb:[104,184,43],matrix:[0,0,1,0,0, 1,0,0,0,0, 0,1,0,0,0, 0,0,0,1,0]},
+ {rgb:[240,132,40],matrix:[1,0,0,0,0, 0,0,1,0,0, 0,1,0,0,0, 0,0,0,1,0]}
+];
+function paletteAt(time,duration){
+ if(!Number.isFinite(duration)||duration<=0)return {from:0,to:0,mix:0};
+ const fade=Math.min(3,duration/12);
+ for(let i=1;i<3;i++){
+  const boundary=duration*i/3;
+  if(time<boundary-fade/2)return {from:i-1,to:i-1,mix:0};
+  if(time<boundary+fade/2){const t=(time-boundary+fade/2)/fade;return {from:i-1,to:i,mix:t*t*(3-2*t)}}
+ }
+ return {from:2,to:2,mix:0};
+}
+let paletteFrame=0;
+function updateMusicPalette(){
+ const {from,to,mix}=paletteAt(soundtrack.currentTime,soundtrack.duration);
+ const a=musicPalettes[from],b=musicPalettes[to];
+ const lerp=(x,y)=>x+(y-x)*mix;
+ const rgb=a.rgb.map((v,i)=>Math.round(lerp(v,b.rgb[i])));
+ document.documentElement.style.setProperty('--accent-rgb',rgb.join(' '));
+ faviconColor='rgb('+rgb.join(',')+')';renderFavicon();
+ document.getElementById('music-color-matrix').setAttribute('values',a.matrix.map((v,i)=>lerp(v,b.matrix[i]).toFixed(5)).join(' '));
+ document.getElementById('music-saturation').setAttribute('values',(1-.04*(from===0?mix:1)).toFixed(4));
+}
+function animateMusicPalette(){paletteFrame=0;updateMusicPalette();if(!soundtrack.paused&&!document.hidden)paletteFrame=requestAnimationFrame(animateMusicPalette)}
+soundtrack.addEventListener('play',()=>{if(!paletteFrame)animateMusicPalette()});
+soundtrack.addEventListener('pause',()=>{cancelAnimationFrame(paletteFrame);paletteFrame=0;updateMusicPalette()});
+for(const event of ['loadedmetadata','durationchange','seeked','timeupdate','ended'])soundtrack.addEventListener(event,updateMusicPalette);
+document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(paletteFrame);paletteFrame=0;if(!document.hidden)animateMusicPalette()});
+updateMusicPalette();
