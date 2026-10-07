@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="p:domain_verify" content="b323de21cce64152a465f7a57c5007e4"/>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 241.65 243.01%22%3E%3Cpath fill=%22%23ff5a1f%22 d=%22M227.08,143.57c30.98,36.62,9.57,87.9-35.97,97.1-8.19,1.84-16.34,2.43-24.59,2.33-13.52.02-35.87-.14-57.42-.15-30.7-.01-59.52-.32-89.98-.23-11.76.25-18.14-4.77-18.68-16.44-.88-51.03-.03-143.04-.37-189.58C.22,26.82-.53,14.75.87,6.06,1.38,2.07,4.21-.29,8.36.03c25.68.11,121.45.19,168.1.33,15.1-.72,29.66,4.19,41.85,13.18,25.34,18.59,30.63,59.51,10.02,84.34-6.87,9.04-16.93,13.53-26,19.54-8,6.44,6.8,10.9,11.96,14.92,4.71,3.09,8.98,6.79,12.66,11.07l.13.15Z%22/%3E%3C/svg%3E">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Al Quds | Maamoun Albibi</title>
 <meta name="description" content="Motion graphics for a program about the tunnels of Al Quds (Jerusalem) in Palestine. The work was produced in Photoshop and After Effects, with scenes generated using Hexfield / Nano Banana.">
@@ -45,6 +45,9 @@
   ],
   "knowsAbout": ["Motion Graphics", "Graphic Design", "Social Media Design", "Abstract 3D", "Video Editing", "Brand Identity"]
 }
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"Maamoun Albibi","alternateName":["مأمون البيبي","Maamoun Albibi Portfolio"],"url":"https://maamounalbibi.com/","inLanguage":["en","ar","tr"],"publisher":{"@type":"Person","name":"Maamoun Albibi","url":"https://maamounalbibi.com"}}
 </script>
 <script type="application/ld+json">
 {
@@ -249,7 +252,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,#pv::-webkit-scrollbar,#lb::-web
 .sl{display:inline-flex;align-items:center;gap:8px;position:relative;padding:6px 0;font-size:clamp(14px,1.4vw,18px);font-weight:900;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:inherit;transition:color .3s}
 .sl::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:2px;background:var(--a);transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.2,.9,.2,1)}
 .sl i{font-style:normal;transition:transform .3s}
-.sl:hover{color:var(--a)}.sl:hover::after{transform:scaleX(1)}.sl:hover i{transform:translate(3px,-3px)}
+.sl:hover{color:var(--a)}#fnav a{color:inherit;text-decoration:none;transition:color .2s}#fnav a:hover{color:var(--a)}.sl:hover::after{transform:scaleX(1)}.sl:hover i{transform:translate(3px,-3px)}
 .contact .soc a.sl{margin:0;border:0;word-break:normal;color:var(--bg)}
 .contact .soc a.sl:hover{color:var(--a);background:none}
 .msoc{display:flex;flex-wrap:wrap;gap:8px 32px;margin-top:5vh}
@@ -535,7 +538,7 @@ $('#app').innerHTML=`
 <section class="works" id="works"><div class="wh"><h2>${C.worksTitle}</h2><div class="filters">${['All',...C.cats].map((c,i)=>`<button class="${i?'':'on'}" data-c="${i?c:''}">${CL(c)}</button>`).join('')}</div></div>
 <div class="grid" id="gr" style="--cols:${C.cols}">${C.works.map((w,i)=>w.hide?'':`<div class="card rv${w.home?'':' hide'}" data-i="${i}" data-c="${w.cat}" data-home="${w.home?1:0}" data-ho="${typeof w.home==='number'?w.home:0}" style="--ac:${w.ac||"var(--a)"};order:${typeof w.home==='number'?w.home:0}"><div class="pic" style="background:repeating-linear-gradient(45deg,${w.c1} 0 ${w.sw}px,${w.c2} ${w.sw}px ${w.sw*2}px)">${w.cv?`<video src="${w.cv}"${w.img?` poster="${w.img}"`:''} autoplay muted loop playsinline disablepictureinpicture preload="auto"></video>`:w.img?`<img src="${w.img}" alt="${(w.title||w.tag)+" — "+w.cat}">`:``}</div></div>`).join('')}</div></section>
 <section class="stats">${C.stats.map(s=>`<div class="rv"><b data-n="${s.n}" data-s="${s.s}" data-p="${s.p||0}">${s.p?"0".repeat(s.p-1)+"0":"0"}</b><span>${s.l}</span></div>`).join('')}</section>
-<section class="contact" id="ct"><div><h2 id="ch">${C.contactTitle}</h2><a href="#contact" id="ctb" class="ctb">Contact us →</a><div class="soc">${socHTML}</div></div></section><footer style="text-align:center;padding:32px 5vw;font-size:clamp(11px,1.1vw,14px);color:var(--mute);letter-spacing:.1em;text-transform:uppercase"><span style="display:inline-block;padding:6px 14px 5px;transition:background .25s,color .25s;cursor:default" onmouseenter="this.style.background='var(--a)';this.style.color='#000'" onmouseleave="this.style.background='';this.style.color=''">Designed &amp; Built By Maamoun AlBiBi | 2026</span></footer><div id="pv"></div>`;
+<section class="contact" id="ct"><div><h2 id="ch">${C.contactTitle}</h2><a href="#contact" id="ctb" class="ctb">Contact us →</a><div class="soc">${socHTML}</div></div></section><footer style="text-align:center;padding:32px 5vw;font-size:clamp(11px,1.1vw,14px);color:var(--mute);letter-spacing:.1em;text-transform:uppercase"><nav id="fnav" aria-label="Pages" style="display:flex;justify-content:center;gap:clamp(14px,3vw,34px);margin-bottom:18px"><a href="/about/" data-n="a">About</a><a href="/contact/" data-n="c">Contact</a><a href="/blog/" target="_blank" rel="noopener">Blog</a></nav><span style="display:inline-block;padding:6px 14px 5px;transition:background .25s,color .25s;cursor:default" onmouseenter="this.style.background='var(--a)';this.style.color='#000'" onmouseleave="this.style.background='';this.style.color=''">Designed &amp; Built By Maamoun AlBiBi | 2026</span></footer><div id="pv"></div>`;
 
 const words=$$('.about p span'),ob1=$('.ob1'),ab=$('#ab'),ct=$('#ct'),ch=$('#ch');
 let mx=0,my=0,sy=scrollY,lt=performance.now();
@@ -914,7 +917,7 @@ function openC(push){
   })();
 }
 let abLang='en';
-$('#ctb').onclick=e=>{e.preventDefault();openC(1)};
+$('#ctb').onclick=e=>{e.preventDefault();openC(1)};$$('#fnav a[data-n]').forEach(a=>a.onclick=e=>{e.preventDefault();if(a.dataset.n==='a')openA(1);else openC(1)});
 function openA(push){
   const A=C.aboutPage,e=A[abLang]||A.en;
   const pics=[A.photo,A.photo2].filter(Boolean);const pic=pics.length?`<div class="abtr">${pics.map(u=>`<div><img src="${u}" alt="Maamoun Albibi"></div>`).join('')}</div>`:'YOUR PHOTO';
