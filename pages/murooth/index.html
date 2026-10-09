@@ -744,7 +744,7 @@ const vdec=(box,pb)=>{const b=pb.querySelector('.ytdur b');if(b&&box._d)b.textCo
      +(canFS?'<button class="ytb" data-a="fs" type="button" aria-label="Full screen">'+IC.fs+'</button>':'')+'</div>';
     var fr=box.querySelector('iframe'),sh=box.querySelector('.ytsh'),bpp=box.querySelector('[data-a=pp]'),bmu=box.querySelector('[data-a=mu]'),bfs=box.querySelector('[data-a=fs]'),bar=box.querySelector('.ytp'),fill=bar.querySelector('i'),tt=box.querySelector('.ytt');
     var S={playing:true,muted:false,vol:1,cur:0,dur:0,got:false},idleT=0,V=null;
-    var send=function(o){try{fr.contentWindow.postMessage(JSON.stringify(o),'*')}catch(e){}};
+    var P=null;var send=function(o){try{if(P){var m=o.method,r=null;if(m==='play')r=P.play();else if(m==='pause')r=P.pause();else if(m==='setVolume')r=P.setVolume(o.value);else if(m==='setCurrentTime')r=P.setCurrentTime(o.value);if(r&&r.catch)r.catch(function(){});if(m==='play'||m==='pause'||m==='setVolume'||m==='setCurrentTime')return}fr.contentWindow.postMessage(JSON.stringify(o),'*')}catch(e){}};
     var ui=function(){bpp.innerHTML=S.playing?IC.pause:IC.play;bmu.innerHTML=S.muted?IC.mute:IC.vol;if(V)V.set(S.muted?0:S.vol);
       fill.style.width=(S.dur>0?Math.min(100,S.cur/S.dur*100):0)+'%';tt.textContent=fmt(S.cur)+(S.dur>0?' / '+fmt(S.dur):'')};
     var wake=function(){box.classList.remove('idle');clearTimeout(idleT);if(S.playing)idleT=setTimeout(function(){box.classList.add('idle')},3000)};
@@ -761,6 +761,11 @@ const vdec=(box,pb)=>{const b=pb.querySelector('.ytdur b');if(b&&box._d)b.textCo
       else if(e==='timeupdate'||e==='progress'){if(typeof n.seconds==='number')S.cur=n.seconds;if(typeof n.duration==='number'&&n.duration>0)S.dur=n.duration}
       ui()};
     window.addEventListener('message',onm);
+    vimeoSDK(function(VM){if(!document.body.contains(fr))return;try{P=new VM.Player(fr);
+      P.on('timeupdate',function(x){S.got=true;if(typeof x.seconds==='number')S.cur=x.seconds;if(x.duration>0)S.dur=x.duration;ui()});
+      P.on('play',function(){var was=S.playing;S.playing=true;if(!was)wake();ui()});P.on('pause',function(){S.playing=false;wake();ui()});
+      P.on('ended',function(){setTimeout(function(){if(document.body.contains(fr))back()},350)});
+      P.getDuration().then(function(du){if(du>0){S.dur=du;ui()}}).catch(function(){})}catch(e){P=null}});
     var sub=function(){['play','playing','pause','ended','timeupdate'].forEach(function(x){send({method:'addEventListener',value:x})})};
     var tries=0,iv=setInterval(function(){if(!document.body.contains(fr)||S.got||tries++>25){clearInterval(iv);return}sub()},400);
     fr.addEventListener('load',sub);
@@ -884,6 +889,13 @@ let last=0;(function L(t){requestAnimationFrame(L);if(!vis||document.hidden||scr
 const hd=$('header'),hs=()=>hd.classList.toggle('solid',scrollY>8);addEventListener('scroll',hs,{passive:true});hs();
 
 
+
+/* مكتبة Vimeo الرسمية (Player SDK): بتتحمل أول مرة بتشغّل فيها فيديو Vimeo بس */
+function vimeoSDK(cb){if(window.Vimeo&&window.Vimeo.Player){cb(window.Vimeo);return}
+  var q=window.__vmq||(window.__vmq=[]);q.push(cb);if(window.__vml)return;window.__vml=1;
+  var sc=document.createElement('script');sc.src='https://player.vimeo.com/api/player.js';
+  sc.onload=function(){var l=window.__vmq;window.__vmq=[];l.forEach(function(f){try{f(window.Vimeo)}catch(e){}})};sc.onerror=function(){window.__vml=0;window.__vmq=[]};
+  document.head.appendChild(sc)}
 /* تحميل صور المشروع واحدة واحدة: الظاهر على الشاشة أولاً + 4 صور قدّامك، مع خلفية لامعة لحد ما تنزل */
 function pvLazy(root){
   var T='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
