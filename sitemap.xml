@@ -43,12 +43,6 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://maamounalbibi.com/pages/trt-kids-animation/</loc>
-    <lastmod>2026-10-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://maamounalbibi.com/pages/al-quds/</loc>
     <lastmod>2026-10-06</lastmod>
     <changefreq>monthly</changefreq>
@@ -61,7 +55,25 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://maamounalbibi.com/pages/inquisition/</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://maamounalbibi.com/pages/trt-kids-animation/</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://maamounalbibi.com/pages/polygon-tunnel-backgrounds/</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://maamounalbibi.com/pages/showreel-2024/</loc>
     <lastmod>2026-10-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
