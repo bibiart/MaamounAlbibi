@@ -222,3 +222,54 @@ soundtrack.addEventListener('pause',()=>{cancelAnimationFrame(paletteFrame);pale
 for(const event of ['loadedmetadata','durationchange','seeked','timeupdate','ended'])soundtrack.addEventListener(event,updateMusicPalette);
 document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(paletteFrame);paletteFrame=0;if(!document.hidden)animateMusicPalette()});
 updateMusicPalette();
+
+// v26: stronger local water refraction with explicit pixel bounds. Existing artwork transforms stay independent.
+function waterVector(dx,dy,radius,phase,strength,dragX,dragY){
+ const distance=Math.hypot(dx,dy),r=distance/radius;
+ if(r>=1||strength<=0)return [0,0];
+ const falloff=(1-r*r)**2;
+ const wave=Math.sin(r*13-phase)*.32*falloff*strength;
+ return [(distance?dx/distance:0)*wave+dragX*.10*falloff*strength,
+         (distance?dy/distance:0)*wave+dragY*.10*falloff*strength];
+}
+(()=>{
+ const art=document.querySelector('.art'),map=document.getElementById('water-map');
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)'),fine=matchMedia('(any-pointer: fine)');
+ const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+ if(!art||!map||!ctx)return;
+ let raf=0,lastFrame=0,lastMove=0,lastX=0,lastY=0,tx=0,ty=0,cx=0,cy=0,strength=0,energy=0,dragX=0,dragY=0,ready=false;
+ const enabled=()=>fine.matches&&!reduced.matches&&!document.hidden;
+ function stop(){cancelAnimationFrame(raf);raf=0;strength=energy=0;ready=false;art.classList.remove('water-active')}
+ function draw(now){
+  raf=0;if(!enabled()){stop();return}
+  if(now-lastFrame<1000/30){raf=requestAnimationFrame(draw);return}
+  const dt=Math.min(.06,(now-lastFrame)/1000||1/30);lastFrame=now;
+  const smoothing=1-Math.exp(-dt*10);cx+=(tx-cx)*smoothing;cy+=(ty-cy)*smoothing;
+  energy*=Math.exp(-dt*2.1);strength+=(energy-strength)*(1-Math.exp(-dt*8));
+  if(now-lastMove>2600&&strength<.008){stop();return}
+  const box=stage.getBoundingClientRect();if(!box.width||!box.height){stop();return}
+  const filter=document.getElementById('pointer-water');
+  filter.setAttribute('width',box.width);filter.setAttribute('height',box.height);
+  map.setAttribute('width',box.width);map.setAttribute('height',box.height);
+  canvas.width=256;canvas.height=Math.max(64,Math.min(320,Math.round(256*box.height/box.width)));
+  const pixels=ctx.createImageData(canvas.width,canvas.height),data=pixels.data;
+  const radius=Math.min(235,Math.max(160,box.width*.13));
+  for(let py=0;py<canvas.height;py++)for(let px=0;px<canvas.width;px++){
+   const [vx,vy]=waterVector((px+.5)*box.width/canvas.width-cx,(py+.5)*box.height/canvas.height-cy,radius,now*.004,strength,dragX,dragY);
+   const i=(py*canvas.width+px)*4;data[i]=Math.round(127.5+vx*255);data[i+1]=Math.round(127.5+vy*255);data[i+2]=128;data[i+3]=255;
+  }
+  ctx.putImageData(pixels,0,0);map.setAttribute('href',canvas.toDataURL('image/png'));art.classList.add('water-active');
+  raf=requestAnimationFrame(draw);
+ }
+ stage.addEventListener('pointermove',event=>{
+  if(event.pointerType==='touch'||!enabled())return;
+  const box=stage.getBoundingClientRect(),now=performance.now();tx=event.clientX-box.left;ty=event.clientY-box.top;
+  if(!ready){cx=tx;cy=ty;lastX=tx;lastY=ty;ready=true}
+  const dx=tx-lastX,dy=ty-lastY,speed=Math.hypot(dx,dy),length=Math.max(1,speed);
+  dragX=dx/length;dragY=dy/length;energy=Math.min(1,energy+.28+speed*.035);
+  lastX=tx;lastY=ty;lastMove=now;if(!raf){lastFrame=now-34;raf=requestAnimationFrame(draw)}
+ },{passive:true});
+ stage.addEventListener('pointerleave',()=>{energy=0;lastMove=performance.now()-1000});
+ window.addEventListener('blur',stop);window.addEventListener('resize',stop);
+ document.addEventListener('visibilitychange',stop);reduced.addEventListener('change',stop);fine.addEventListener('change',stop);
+})();

@@ -298,3 +298,6 @@ body{position:fixed;inset:0}
 .info-dialog .work-links small{font-size:14px;letter-spacing:1px;line-height:1.4}
 .info-dialog .work-links a:hover{border-color:#ffffff45}
 @media(max-width:700px){.info-dialog .work-links a{font-size:17px}.info-dialog .work-links small{font-size:13px}}
+
+/* v25: local refraction only on decorative artwork, never on text or controls. */
+@media(any-pointer:fine) and (prefers-reduced-motion:no-preference){.art.water-active{filter:url(#pointer-water)}}
