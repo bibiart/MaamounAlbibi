@@ -223,53 +223,89 @@ for(const event of ['loadedmetadata','durationchange','seeked','timeupdate','end
 document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(paletteFrame);paletteFrame=0;if(!document.hidden)animateMusicPalette()});
 updateMusicPalette();
 
-// v26: stronger local water refraction with explicit pixel bounds. Existing artwork transforms stay independent.
+
+// v27: smooth local liquid distortion, plus independent expanding click waves.
 function waterVector(dx,dy,radius,phase,strength,dragX,dragY){
  const distance=Math.hypot(dx,dy),r=distance/radius;
  if(r>=1||strength<=0)return [0,0];
  const falloff=(1-r*r)**2;
- const wave=Math.sin(r*13-phase)*.32*falloff*strength;
+ const wave=Math.sin(r*8-phase)*.38*falloff*strength;
  return [(distance?dx/distance:0)*wave+dragX*.10*falloff*strength,
          (distance?dy/distance:0)*wave+dragY*.10*falloff*strength];
 }
+function clickWaveVector(dx,dy,age){
+ const duration=1800,t=age/duration;
+ if(t<0||t>=1)return [0,0];
+ const distance=Math.hypot(dx,dy),radius=12+360*t,width=30+18*t,q=(distance-radius)/width;
+ if(Math.abs(q)>3||distance<.01)return [0,0];
+ const wave=q*Math.exp(-q*q)*.78*(1-t)**1.3;
+ return [dx/distance*wave,dy/distance*wave];
+}
 (()=>{
- const art=document.querySelector('.art'),map=document.getElementById('water-map');
+ const art=document.querySelector('.art'),map=document.getElementById('water-map'),filter=document.getElementById('pointer-water');
  const reduced=matchMedia('(prefers-reduced-motion: reduce)'),fine=matchMedia('(any-pointer: fine)');
  const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
- if(!art||!map||!ctx)return;
- let raf=0,lastFrame=0,lastMove=0,lastX=0,lastY=0,tx=0,ty=0,cx=0,cy=0,strength=0,energy=0,dragX=0,dragY=0,ready=false;
+ if(!art||!map||!filter||!ctx)return;
+ let raf=0,lastFrame=0,lastMove=0,lastPointer=0,lastX=0,lastY=0,tx=0,ty=0,cx=0,cy=0,strength=0,energy=0;
+ let dragX=0,dragY=0,targetDragX=0,targetDragY=0,phase=0,ready=false,box,pixels,fieldX,fieldY;
+ const ripples=[];
  const enabled=()=>fine.matches&&!reduced.matches&&!document.hidden;
- function stop(){cancelAnimationFrame(raf);raf=0;strength=energy=0;ready=false;art.classList.remove('water-active')}
+ function stop(){cancelAnimationFrame(raf);raf=0;strength=energy=0;ready=false;dragX=dragY=targetDragX=targetDragY=0;ripples.length=0;art.classList.remove('water-active')}
+ function configure(){
+  box=stage.getBoundingClientRect();if(!box.width||!box.height)return false;
+  canvas.width=320;canvas.height=Math.max(64,Math.min(400,Math.round(320*box.height/box.width)));
+  pixels=ctx.createImageData(canvas.width,canvas.height);fieldX=new Float32Array(canvas.width*canvas.height);fieldY=new Float32Array(fieldX.length);
+  filter.setAttribute('width',box.width);filter.setAttribute('height',box.height);
+  map.setAttribute('width',box.width);map.setAttribute('height',box.height);return true;
+ }
+ function start(){if(!raf&&enabled()&&configure()){lastFrame=performance.now();raf=requestAnimationFrame(draw)}}
+ function addField(x,y,radius,vector){
+  const sx=box.width/canvas.width,sy=box.height/canvas.height;
+  const x0=Math.max(0,Math.floor((x-radius)/sx)),x1=Math.min(canvas.width-1,Math.ceil((x+radius)/sx));
+  const y0=Math.max(0,Math.floor((y-radius)/sy)),y1=Math.min(canvas.height-1,Math.ceil((y+radius)/sy));
+  for(let py=y0;py<=y1;py++)for(let px=x0;px<=x1;px++){
+   const v=vector((px+.5)*sx-x,(py+.5)*sy-y),i=py*canvas.width+px;
+   fieldX[i]+=v[0];fieldY[i]+=v[1];
+  }
+ }
  function draw(now){
   raf=0;if(!enabled()){stop();return}
-  if(now-lastFrame<1000/30){raf=requestAnimationFrame(draw);return}
-  const dt=Math.min(.06,(now-lastFrame)/1000||1/30);lastFrame=now;
-  const smoothing=1-Math.exp(-dt*10);cx+=(tx-cx)*smoothing;cy+=(ty-cy)*smoothing;
-  energy*=Math.exp(-dt*2.1);strength+=(energy-strength)*(1-Math.exp(-dt*8));
-  if(now-lastMove>2600&&strength<.008){stop();return}
-  const box=stage.getBoundingClientRect();if(!box.width||!box.height){stop();return}
-  const filter=document.getElementById('pointer-water');
-  filter.setAttribute('width',box.width);filter.setAttribute('height',box.height);
-  map.setAttribute('width',box.width);map.setAttribute('height',box.height);
-  canvas.width=256;canvas.height=Math.max(64,Math.min(320,Math.round(256*box.height/box.width)));
-  const pixels=ctx.createImageData(canvas.width,canvas.height),data=pixels.data;
-  const radius=Math.min(235,Math.max(160,box.width*.13));
-  for(let py=0;py<canvas.height;py++)for(let px=0;px<canvas.width;px++){
-   const [vx,vy]=waterVector((px+.5)*box.width/canvas.width-cx,(py+.5)*box.height/canvas.height-cy,radius,now*.004,strength,dragX,dragY);
-   const i=(py*canvas.width+px)*4;data[i]=Math.round(127.5+vx*255);data[i+1]=Math.round(127.5+vy*255);data[i+2]=128;data[i+3]=255;
+  const dt=Math.min(.05,Math.max(.001,(now-lastFrame)/1000));lastFrame=now;phase+=dt*.8;
+  const smoothing=1-Math.exp(-dt*9),directionSmoothing=1-Math.exp(-dt*5);
+  cx+=(tx-cx)*smoothing;cy+=(ty-cy)*smoothing;
+  dragX+=(targetDragX-dragX)*directionSmoothing;dragY+=(targetDragY-dragY)*directionSmoothing;
+  energy*=Math.exp(-dt*1.8);strength+=(energy-strength)*(1-Math.exp(-dt*7));
+  while(ripples.length&&now-ripples[0].start>=1800)ripples.shift();
+  if(now-lastMove>2800&&strength<.006&&!ripples.length){stop();return}
+  fieldX.fill(0);fieldY.fill(0);
+  const radius=Math.min(285,Math.max(180,box.width*.15));
+  if(strength>.001)addField(cx,cy,radius,(dx,dy)=>waterVector(dx,dy,radius,phase,strength,dragX,dragY));
+  for(const ripple of ripples){const age=now-ripple.start;addField(ripple.x,ripple.y,12+360*age/1800+150,(dx,dy)=>clickWaveVector(dx,dy,age))}
+  const data=pixels.data;
+  for(let i=0;i<fieldX.length;i++){
+   const k=i*4;data[k]=Math.round(127.5+Math.max(-.48,Math.min(.48,fieldX[i]))*255);
+   data[k+1]=Math.round(127.5+Math.max(-.48,Math.min(.48,fieldY[i]))*255);data[k+2]=128;data[k+3]=255;
   }
   ctx.putImageData(pixels,0,0);map.setAttribute('href',canvas.toDataURL('image/png'));art.classList.add('water-active');
   raf=requestAnimationFrame(draw);
  }
  stage.addEventListener('pointermove',event=>{
   if(event.pointerType==='touch'||!enabled())return;
-  const box=stage.getBoundingClientRect(),now=performance.now();tx=event.clientX-box.left;ty=event.clientY-box.top;
-  if(!ready){cx=tx;cy=ty;lastX=tx;lastY=ty;ready=true}
-  const dx=tx-lastX,dy=ty-lastY,speed=Math.hypot(dx,dy),length=Math.max(1,speed);
-  dragX=dx/length;dragY=dy/length;energy=Math.min(1,energy+.28+speed*.035);
-  lastX=tx;lastY=ty;lastMove=now;if(!raf){lastFrame=now-34;raf=requestAnimationFrame(draw)}
+  const bounds=stage.getBoundingClientRect(),now=performance.now();tx=event.clientX-bounds.left;ty=event.clientY-bounds.top;
+  if(!ready){cx=tx;cy=ty;lastX=tx;lastY=ty;lastPointer=now;ready=true}
+  const dx=tx-lastX,dy=ty-lastY,distance=Math.hypot(dx,dy),length=Math.max(1,distance);
+  const speed=distance/Math.max(8,now-lastPointer)*16.67;
+  if(distance>.4){targetDragX=dx/length;targetDragY=dy/length}
+  energy=Math.max(energy,Math.min(1,.35+speed*.07));
+  lastX=tx;lastY=ty;lastPointer=now;lastMove=now;start();
  },{passive:true});
- stage.addEventListener('pointerleave',()=>{energy=0;lastMove=performance.now()-1000});
+ stage.addEventListener('click',event=>{
+  if(!enabled()||event.detail===0||event.pointerType==='touch'||event.sourceCapabilities?.firesTouchEvents)return;
+  const bounds=stage.getBoundingClientRect(),now=performance.now();
+  ripples.push({x:event.clientX-bounds.left,y:event.clientY-bounds.top,start:now});
+  if(ripples.length>4)ripples.shift();lastMove=now;start();
+ },{passive:true});
+ stage.addEventListener('pointerleave',()=>{energy=0;targetDragX=targetDragY=0});
  window.addEventListener('blur',stop);window.addEventListener('resize',stop);
  document.addEventListener('visibilitychange',stop);reduced.addEventListener('change',stop);fine.addEventListener('change',stop);
 })();
