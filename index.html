@@ -5,7 +5,7 @@
 <meta name="p:domain_verify" content="b323de21cce64152a465f7a57c5007e4"/>
 <link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Maamoun Albibi / v9</title>
+<title>Maamoun Albibi / v10</title>
 <meta name="description" content="Maamoun Albibi — Motion Graphics, Graphic Design, Social Media and Abstract 3D artist based in Istanbul. Browse templates and creative work on Envato, Motion Array and Creative Market.">
 <meta name="keywords" content="Maamoun Albibi, motion graphics, graphic design, social media design, abstract 3D, portfolio, Istanbul, Envato, Motion Array, Creative Market, مأمون البيبي, موشن جرافيك, تصميم جرافيك, سوشيال ميديا, ثري دي, بورتفوليو, إسطنبول">
 <meta name="author" content="Maamoun Albibi">
@@ -839,6 +839,8 @@ addEventListener('popstate',e=>{
 new MutationObserver(()=>{if(pv.classList.contains('open'))return;document.documentElement.style.removeProperty('--ac');pv.style.removeProperty('--ac');$$('iframe',pv).forEach(f=>f.remove());$$('video',pv).forEach(v=>{try{v.pause()}catch(x){}})}).observe(pv,{attributes:true,attributeFilter:['class']});
 addEventListener('keydown',e=>{if(e.key==='Escape')closeP()});
 $$('.card').forEach(c=>c.onclick=()=>openP(+c.dataset.i,1));
+/* فتح الرابط المباشر (#cat/N, #about, #contact) عند تحميل الصفحة */
+{const go=()=>{if(location.hash.length>1){try{dispatchEvent(new PopStateEvent('popstate',{state:null}))}catch(e){}}};if(document.readyState==='complete')setTimeout(go,0);else addEventListener('load',()=>setTimeout(go,0))}
 
 /* ===== جزيئات خفيفة: Canvas 2D بدون GPU ثقيل، بتوقف لما تطلع من الهيرو ===== */
 {const h=$('.hero'),cv=document.createElement('canvas');cv.id='gl';h.prepend(cv);
