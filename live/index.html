@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Particle Grid</title>
+<style>
+  html,body{margin:0;height:100%;background:#0b0d12;overflow:hidden;font-family:system-ui,sans-serif}
+  canvas{display:block;width:100vw;height:100vh}
+  #qrBox{position:fixed;bottom:20px;left:20px;background:#fff;padding:10px;border-radius:12px;text-align:center;color:#111;font-size:12px;direction:ltr;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+  #qr{width:140px;height:140px}
+  #status{margin-top:6px;font-weight:600}
+  #hint{position:fixed;top:16px;right:20px;color:#8a93a6;font-size:13px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hint">حرّك الماوس / أو امسح الـ QR وتحكم بيدك</div>
+<div id="qrBox"><div id="qr"></div><div id="status">Waiting...</div></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// ---------- Canvas / Particles ----------
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+let W, H, DPR, P = [];
+const SPACING = 26;
+
+function resize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = W * DPR; cv.height = H * DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  build();
+}
+function build(){
+  P = [];
+  const cols = Math.floor(W / SPACING), rows = Math.floor(H / SPACING);
+  const ox = (W - (cols-1)*SPACING)/2, oy = (H - (rows-1)*SPACING)/2;
+  for(let j=0;j<rows;j++) for(let i=0;i<cols;i++){
+    const x = ox + i*SPACING, y = oy + j*SPACING;
+    P.push({hx:x, hy:y, x, y, vx:0, vy:0});
+  }
+}
+addEventListener('resize', resize);
+
+// ---------- Pointer (mouse or hand) ----------
+// mode: 'open' = repel, 'fist' = attract
+const ptr = { x:-9999, y:-9999, tx:-9999, ty:-9999, mode:'open', last:0 };
+function setPointer(nx, ny, mode){
+  ptr.tx = nx * W; ptr.ty = ny * H;
+  ptr.mode = mode || 'open';
+  ptr.last = performance.now();
+}
+addEventListener('mousemove', e => setPointer(e.clientX/W, e.clientY/H, 'open'));
+addEventListener('mousedown', () => { ptr.mode = 'fist'; });
+addEventListener('mouseup',   () => { ptr.mode = 'open'; });
+addEventListener('touchmove', e => { const t=e.touches[0]; setPointer(t.clientX/W, t.clientY/H, 'open'); }, {passive:true});
+
+// ---------- Animation ----------
+const R = 150;
+function frame(){
+  const now = performance.now();
+  const active = now - ptr.last < 600;
+  // smooth pointer
+  if (ptr.x < -9000) { ptr.x = ptr.tx; ptr.y = ptr.ty; }
+  ptr.x += (ptr.tx - ptr.x) * 0.35;
+  ptr.y += (ptr.ty - ptr.y) * 0.35;
+
+  ctx.clearRect(0,0,W,H);
+  for (const p of P){
+    // spring back home
+    p.vx += (p.hx - p.x) * 0.06;
+    p.vy += (p.hy - p.y) * 0.06;
+
+    if (active){
+      const dx = p.x - ptr.x, dy = p.y - ptr.y;
+      const d = Math.hypot(dx, dy);
+      if (d < R && d > 0.01){
+        const f = (1 - d/R);
+        const k = (ptr.mode === 'fist' ? -1 : 1) * f * f * 3.2;
+        p.vx += (dx/d) * k;
+        p.vy += (dy/d) * k;
+      }
+    }
+    p.vx *= 0.86; p.vy *= 0.86;
+    p.x += p.vx; p.y += p.vy;
+
+    const disp = Math.hypot(p.x - p.hx, p.y - p.hy);
+    const t = Math.min(disp / 60, 1);
+    const r = 1.6 + t * 2.6;
+    ctx.fillStyle = `hsl(${200 + t*120}, ${40 + t*50}%, ${55 + t*30}%)`;
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.2832); ctx.fill();
+  }
+
+  if (active){
+    ctx.strokeStyle = ptr.mode === 'fist' ? 'rgba(255,120,120,.6)' : 'rgba(120,200,255,.5)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(ptr.x, ptr.y, 18, 0, 6.2832); ctx.stroke();
+  }
+  requestAnimationFrame(frame);
+}
+resize(); frame();
+
+// ---------- QR + PeerJS ----------
+const statusEl = document.getElementById('status');
+const code = 'pg-' + Math.random().toString(36).slice(2, 8);
+const peer = new Peer(code);
+
+peer.on('open', id => {
+  const base = location.href.replace(/[^\/]*$/, '');
+  const url = base + 'phone.html?id=' + id;
+  new QRCode(document.getElementById('qr'), { text: url, width:140, height:140 });
+  statusEl.textContent = 'Scan to connect';
+  if (location.protocol === 'file:') statusEl.textContent = 'ارفعه على GitHub Pages';
+});
+peer.on('connection', conn => {
+  statusEl.textContent = 'Connected ✓';
+  conn.on('data', d => {
+    if (d && typeof d.x === 'number') setPointer(d.x, d.y, d.mode);
+  });
+  conn.on('close', () => statusEl.textContent = 'Scan to connect');
+});
+peer.on('error', e => { statusEl.textContent = 'Error: ' + e.type; });
+</script>
+</body>
+</html>
