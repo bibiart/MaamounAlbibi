@@ -845,6 +845,8 @@ addEventListener('popstate',e=>{
 new MutationObserver(()=>{if(pv.classList.contains('open'))return;document.documentElement.style.removeProperty('--ac');pv.style.removeProperty('--ac');$$('iframe',pv).forEach(f=>f.remove());$$('video',pv).forEach(v=>{try{v.pause()}catch(x){}})}).observe(pv,{attributes:true,attributeFilter:['class']});
 addEventListener('keydown',e=>{if(e.key==='Escape')closeP()});
 $$('.card').forEach(c=>c.onclick=()=>openP(+c.dataset.i,1));
+/* فتح الرابط المباشر (#cat/N, #about, #contact) عند تحميل الصفحة */
+{const go=()=>{if(location.hash.length>1){try{dispatchEvent(new PopStateEvent('popstate',{state:null}))}catch(e){}}};if(document.readyState==='complete')setTimeout(go,0);else addEventListener('load',()=>setTimeout(go,0))}
 
 /* ===== جزيئات خفيفة: Canvas 2D بدون GPU ثقيل، بتوقف لما تطلع من الهيرو ===== */
 {const h=$('.hero'),cv=document.createElement('canvas');cv.id='gl';h.prepend(cv);
