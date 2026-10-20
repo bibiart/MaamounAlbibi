@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -7,15 +7,15 @@
 <style>
   html,body{margin:0;height:100%;background:#0b0d12;color:#e8ecf4;font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center}
   #wrap{position:relative;width:min(90vw,420px);aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#000}
-  video,canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+  video,canvas#o{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
   button{font-size:18px;padding:14px 28px;border:0;border-radius:12px;background:#4aa3ff;color:#fff;font-weight:600}
   #msg{font-size:15px;color:#9aa4b8;min-height:22px;padding:0 16px}
 </style>
 </head>
 <body>
 <div id="wrap"><video id="v" playsinline muted></video><canvas id="o"></canvas></div>
-<div id="msg">اضغط ابدأ، وحرّك يدك أمام الكاميرا</div>
-<button id="go">ابدأ</button>
+<div id="msg">Press Start, then move your hand in front of the camera</div>
+<button id="go">Start</button>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
@@ -25,17 +25,22 @@ const video = document.getElementById('v');
 const oc = document.getElementById('o'), octx = oc.getContext('2d');
 const id = new URLSearchParams(location.search).get('id');
 
-let conn = null;
-if (!id) msg.textContent = 'امسح الـ QR من شاشة العرض';
+let conn = null, streaming = false, lastSend = 0;
+if (!id) msg.textContent = 'Scan the QR code from the display screen';
 
 function connect(){
   const peer = new Peer();
   peer.on('open', () => {
     conn = peer.connect(id, { reliable:false });
-    conn.on('open', () => msg.textContent = 'متصل ✓ حرّك يدك');
-    conn.on('close', () => msg.textContent = 'انقطع الاتصال');
+    conn.on('open', () => msg.textContent = 'Connected ✓ Move your hand');
+    conn.on('close', () => msg.textContent = 'Disconnected');
+    conn.on('data', d => {
+      if (d && 'stream' in d){
+        streaming = !!d.stream;
+      }
+    });
   });
-  peer.on('error', e => msg.textContent = 'خطأ بالاتصال: ' + e.type);
+  peer.on('error', e => msg.textContent = 'Connection error: ' + e.type);
 }
 
 function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
@@ -46,20 +51,34 @@ function onResults(res){
   const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
   if (!lm) return;
 
-  // palm center
   const c = lm[9];
-  // open / fist: avg fingertip distance to wrist vs palm size
   const palm = dist(lm[0], lm[9]) || 0.1;
   const tips = [8,12,16,20];
   const avg = tips.reduce((s,i)=> s + dist(lm[i], lm[0]), 0) / tips.length;
   const mode = (avg / palm) < 1.25 ? 'fist' : 'open';
 
-  // front camera is mirrored on screen, so flip x to match what the person sees
   const x = 1 - c.x, y = c.y;
   if (conn && conn.open) conn.send({ x, y, mode });
 
   octx.fillStyle = mode === 'fist' ? '#ff7878' : '#78c8ff';
   for (const p of lm){ octx.beginPath(); octx.arc(p.x*oc.width, p.y*oc.height, 4, 0, 6.28); octx.fill(); }
+}
+
+// small grayscale frame for the "Camera" mode on the display
+const sc = document.createElement('canvas');
+const sctx = sc.getContext('2d', { willReadFrequently:true });
+function sendFrame(now){
+  if (!streaming || !conn || !conn.open || !video.videoWidth) return;
+  if (now - lastSend < 90) return;
+  lastSend = now;
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const fw = Math.round(Math.sqrt(7000 * vw / vh)), fh = Math.round(fw * vh / vw);
+  sc.width = fw; sc.height = fh;
+  sctx.drawImage(video, 0, 0, fw, fh);
+  const d = sctx.getImageData(0, 0, fw, fh).data;
+  const out = new Uint8Array(fw * fh);
+  for (let i = 0, k = 0; i < out.length; i++, k += 4) out[i] = (d[k]*77 + d[k+1]*151 + d[k+2]*28) >> 8;
+  conn.send({ f: out, w: fw, h: fh });
 }
 
 document.getElementById('go').onclick = async () => {
@@ -73,15 +92,18 @@ document.getElementById('go').onclick = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:640, height:480 }, audio:false });
     video.srcObject = stream; await video.play();
     document.getElementById('go').style.display = 'none';
-    msg.textContent = 'جاري الاتصال...';
+    msg.textContent = 'Connecting...';
 
     const loop = async () => {
-      if (video.readyState >= 2) await hands.send({ image: video });
+      if (video.readyState >= 2){
+        await hands.send({ image: video });
+        sendFrame(performance.now());
+      }
       requestAnimationFrame(loop);
     };
     loop();
   } catch(e){
-    msg.textContent = 'ما قدرت أفتح الكاميرا: ' + e.message;
+    msg.textContent = 'Could not open the camera: ' + e.message;
   }
 };
 </script>

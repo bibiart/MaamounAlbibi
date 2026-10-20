@@ -1,126 +1,407 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Particle Grid</title>
 <style>
-  html,body{margin:0;height:100%;background:#0b0d12;overflow:hidden;font-family:system-ui,sans-serif}
+  html,body{margin:0;height:100%;background:#0b0d12;overflow:hidden;font-family:system-ui,sans-serif;color:#cdd5e5}
   canvas{display:block;width:100vw;height:100vh}
+  #panel{position:fixed;top:14px;left:14px;display:flex;flex-direction:column;gap:8px;padding:10px;width:200px;background:rgba(20,24,34,.72);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);border-radius:12px;direction:ltr;font-size:12px}
+  #panel .row{display:flex;gap:6px}
+  #panel button{flex:1;padding:7px 6px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#cdd5e5;border-radius:8px;cursor:pointer;font-size:12px}
+  #panel button:hover{background:rgba(255,255,255,.12)}
+  #panel button.on{background:#4aa3ff;border-color:#4aa3ff;color:#fff}
+  #panel label{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  #panel input[type=range]{flex:1;min-width:0}
+  #hint{position:fixed;top:16px;right:20px;color:#8a93a6;font-size:13px;text-align:right;line-height:1.7;direction:ltr}
+  #note{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);color:#8a93a6;font-size:18px;pointer-events:none;text-align:center}
   #qrBox{position:fixed;bottom:20px;left:20px;background:#fff;padding:10px;border-radius:12px;text-align:center;color:#111;font-size:12px;direction:ltr;box-shadow:0 8px 30px rgba(0,0,0,.4)}
   #qr{width:140px;height:140px}
   #status{margin-top:6px;font-weight:600}
-  #hint{position:fixed;top:16px;right:20px;color:#8a93a6;font-size:13px}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="hint">حرّك الماوس / أو امسح الـ QR وتحكم بيدك</div>
+
+<div id="panel">
+  <div class="row">
+    <button id="bGrid" class="on">Grid</button>
+    <button id="bImage">Image</button>
+    <button id="bCam">Camera</button>
+  </div>
+  <div class="row">
+    <button id="bLoad">Load Image</button>
+    <button id="bInv">Invert</button>
+  </div>
+  <label>Density <input id="rDen" type="range" min="2000" max="12000" step="500" value="7000"></label>
+  <div class="row">
+    <button id="bPal">Palette</button>
+    <button id="bFit">Fit</button>
+  </div>
+  <input id="file" type="file" accept="image/*" style="display:none">
+</div>
+
+<div id="hint">Move the mouse / hand: points gather<br>Click / fist: points scatter<br>H hide panel · Q hide QR · F fullscreen</div>
+<div id="note"></div>
 <div id="qrBox"><div id="qr"></div><div id="status">Waiting...</div></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-// ---------- Canvas / Particles ----------
-const cv = document.getElementById('c');
-const ctx = cv.getContext('2d');
-let W, H, DPR, P = [];
-const SPACING = 26;
+const $ = id => document.getElementById(id);
+const cv = $('c'), ctx = cv.getContext('2d');
+
+let W = 0, H = 0, DPR = 1;
+let N = 0, hx, hy, px, py, vx, vy, w, wc, g, lb, nxt, bk, sz;
+let mode = 'grid', invert = false, fit = 'contain';
+let density = 7000, SP = 16, LINKD = 25;
+let userImg = null, imgBuilt = false;
+let lastFrame = null, camLo = 0, camHi = 255, camInit = false;
+
+// ---------- Palettes ----------
+const PALS = [
+  { pt: t => `hsl(${200 + t*120},${45 + t*45}%,${52 + t*34}%)`, ln: '120,200,255' },
+  { pt: t => `hsl(0,0%,${40 + t*60}%)`,                         ln: '235,240,255' },
+  { pt: t => `hsl(${15 + t*40},${80}%,${45 + t*45}%)`,           ln: '255,170,90'  },
+  { pt: t => `hsl(${150 + t*40},${50 + t*40}%,${45 + t*40}%)`,   ln: '120,255,190' },
+];
+let palIdx = 0, ptCols = [], lnCols = [];
+function setPalette(i){
+  palIdx = i % PALS.length;
+  const p = PALS[palIdx];
+  ptCols = []; for (let b = 0; b < 10; b++) ptCols.push(p.pt(b/9));
+  const al = [0.10, 0.22, 0.42, 0.70];
+  lnCols = al.map(a => `rgba(${p.ln},${a})`);
+}
+setPalette(0);
+
+// ---------- Memory ----------
+function alloc(n){
+  N = n;
+  hx = new Float32Array(n); hy = new Float32Array(n);
+  px = new Float32Array(n); py = new Float32Array(n);
+  vx = new Float32Array(n); vy = new Float32Array(n);
+  w  = new Float32Array(n); wc = new Float32Array(n); g = new Float32Array(n);
+  lb = new Uint8Array(n);   bk = new Uint8Array(n);   sz = new Float32Array(n);
+  nxt = new Int32Array(n);
+}
+
+// ---------- Build: Grid ----------
+function buildGrid(){
+  const s = Math.sqrt(W * H / density); SP = s;
+  const cols = Math.max(2, Math.round(W / s)), rows = Math.max(2, Math.round(H / s));
+  const sx = W / cols, sy = H / rows;
+  alloc(cols * rows);
+  let k = 0;
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++, k++){
+    hx[k] = (i + 0.5) * sx + (Math.random() - 0.5) * sx * 0.6;
+    hy[k] = (j + 0.5) * sy + (Math.random() - 0.5) * sy * 0.6;
+    px[k] = hx[k]; py[k] = hy[k];
+  }
+  const init = mode === 'camera' ? 0 : 1;
+  w.fill(init); wc.fill(init);
+  LINKD = s * 1.55;
+  imgBuilt = false;
+}
+
+// ---------- Build: Image (stratified sampling by brightness) ----------
+function buildImage(){
+  const im = userImg, cw = im.cw, ch = im.ch;
+  const sc = Math.min(W * 0.9 / cw, H * 0.9 / ch);
+  const dw = cw * sc, dh = ch * sc, ox = (W - dw) / 2, oy = (H - dh) / 2;
+  const wt = new Float32Array(cw * ch); let sum = 0;
+  for (let k = 0; k < wt.length; k++){
+    let b = invert ? 1 - im.lum[k] : im.lum[k];
+    b = Math.pow(b, 1.4) * im.al[k];
+    wt[k] = b; sum += b;
+  }
+  const mean = Math.max(0.02, sum / wt.length);
+  const s0 = Math.sqrt(dw * dh * mean / density);
+  const ax = [], ay = [], av = [];
+  for (let yy = 0; yy < dh; yy += s0) for (let xx = 0; xx < dw; xx += s0){
+    const rx = xx + Math.random() * s0, ry = yy + Math.random() * s0;
+    if (rx >= dw || ry >= dh) continue;
+    const v = wt[((ry / dh * ch) | 0) * cw + ((rx / dw * cw) | 0)];
+    if (Math.random() < v){ ax.push(ox + rx); ay.push(oy + ry); av.push(v); }
+  }
+  if (ax.length < 50){ buildGrid(); return; }
+  alloc(ax.length);
+  for (let k = 0; k < N; k++){
+    hx[k] = px[k] = ax[k]; hy[k] = py[k] = ay[k];
+    lb[k] = Math.min(9, (av[k] * 10) | 0);
+  }
+  w.fill(1); wc.fill(1);
+  SP = s0; LINKD = Math.max(8, Math.min(60, s0 * 1.9));
+  imgBuilt = true;
+}
+
+function build(){
+  if (mode === 'image' && userImg) buildImage(); else buildGrid();
+  if (mode === 'camera') applyFrame();
+  setNote();
+}
+function setNote(){
+  let t = '';
+  if (mode === 'image' && !userImg) t = 'Drag an image here, or press Load Image';
+  if (mode === 'camera' && !lastFrame) t = 'Scan the QR with your phone, press Start, and your image will appear here';
+  $('note').textContent = t;
+}
+
+// ---------- Camera frames (from phone) ----------
+function applyFrame(){
+  if (!lastFrame || mode !== 'camera') return;
+  const { f, fw, fh } = lastFrame;
+  let mn = 255, mx = 0;
+  for (let k = 0; k < f.length; k++){ const v = f[k]; if (v < mn) mn = v; if (v > mx) mx = v; }
+  if (!camInit){ camLo = mn; camHi = mx; camInit = true; }
+  camLo += (mn - camLo) * 0.15; camHi += (mx - camHi) * 0.15;
+  const rng = Math.max(20, camHi - camLo);
+  const sc = fit === 'cover' ? Math.max(W / fw, H / fh) : Math.min(W / fw, H / fh);
+  const dw = fw * sc, dh = fh * sc, ox = (W - dw) / 2, oy = (H - dh) / 2;
+  for (let i = 0; i < N; i++){
+    const u = (hx[i] - ox) / dw, v = (hy[i] - oy) / dh;
+    if (u < 0 || u >= 1 || v < 0 || v >= 1){ w[i] = 0; continue; }
+    const col = Math.floor((1 - u) * fw), row = Math.floor(v * fh);   // mirrored like a selfie
+    let l = (f[row * fw + col] - camLo) / rng;
+    l = l < 0 ? 0 : l > 1 ? 1 : l;
+    if (invert) l = 1 - l;
+    let t = (l - 0.3) / 0.55; t = t < 0 ? 0 : t > 1 ? 1 : t;
+    w[i] = t * t * (3 - 2 * t);
+  }
+}
+
+// ---------- Image loading ----------
+function prepImage(im){
+  const sc = Math.min(1, 700 / Math.max(im.width, im.height));
+  const cw = Math.max(8, Math.round(im.width * sc)), ch = Math.max(8, Math.round(im.height * sc));
+  const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+  const cx = c.getContext('2d', { willReadFrequently: true });
+  cx.drawImage(im, 0, 0, cw, ch);
+  let d;
+  try { d = cx.getImageData(0, 0, cw, ch).data; }
+  catch (e) { $('note').textContent = 'Could not read the image (open the page from the online link, not from the file directly)'; return; }
+  const lum = new Float32Array(cw * ch), al = new Float32Array(cw * ch), hist = new Uint32Array(256);
+  let cnt = 0, msum = 0;
+  for (let k = 0; k < cw * ch; k++){
+    const a = d[k*4+3] / 255, l = (0.3 * d[k*4] + 0.59 * d[k*4+1] + 0.11 * d[k*4+2]) / 255;
+    lum[k] = l; al[k] = a;
+    if (a > 0.5){ hist[(l * 255) | 0]++; cnt++; msum += l; }
+  }
+  let lo = 0, hi = 255, acc = 0;
+  for (let i = 0; i < 256; i++){ acc += hist[i]; if (acc >= cnt * 0.02){ lo = i; break; } }
+  acc = 0;
+  for (let i = 0; i < 256; i++){ acc += hist[i]; if (acc >= cnt * 0.98){ hi = i; break; } }
+  const rng = Math.max(10, hi - lo);
+  for (let k = 0; k < lum.length; k++){ const v = (lum[k] * 255 - lo) / rng; lum[k] = v < 0 ? 0 : v > 1 ? 1 : v; }
+  userImg = { cw, ch, lum, al };
+  invert = cnt > 0 && (msum / cnt) > 0.62;            // bright background → invert automatically
+  $('bInv').classList.toggle('on', invert);
+  setMode('image');
+}
+function loadImageURL(url){ const im = new Image(); im.onload = () => prepImage(im); im.src = url; }
+function loadImageFile(file){ if (file) loadImageURL(URL.createObjectURL(file)); }
+
+// ---------- UI ----------
+function setMode(m){
+  mode = m;
+  $('bGrid').classList.toggle('on', m === 'grid');
+  $('bImage').classList.toggle('on', m === 'image');
+  $('bCam').classList.toggle('on', m === 'camera');
+  sendStream();
+  build();
+}
+$('bGrid').onclick = () => setMode('grid');
+$('bImage').onclick = () => setMode('image');
+$('bCam').onclick = () => setMode('camera');
+$('bLoad').onclick = () => $('file').click();
+$('file').onchange = e => loadImageFile(e.target.files[0]);
+$('bInv').onclick = () => { invert = !invert; $('bInv').classList.toggle('on', invert); build(); };
+$('bPal').onclick = () => setPalette(palIdx + 1);
+$('bFit').onclick = () => { fit = fit === 'contain' ? 'cover' : 'contain'; $('bFit').textContent = 'Fit: ' + fit; applyFrame(); };
+$('bFit').textContent = 'Fit: contain';
+$('rDen').oninput = e => { density = +e.target.value; build(); };
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop', e => { e.preventDefault(); loadImageFile(e.dataTransfer.files[0]); });
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === '1') setMode('grid'); else if (k === '2') setMode('image'); else if (k === '3') setMode('camera');
+  else if (k === 'i') $('bInv').click();
+  else if (k === 'c') $('bPal').click();
+  else if (k === 'h'){ $('panel').style.display = $('panel').style.display === 'none' ? '' : 'none'; $('hint').style.display = $('panel').style.display; }
+  else if (k === 'q'){ $('qrBox').style.display = $('qrBox').style.display === 'none' ? '' : 'none'; }
+  else if (k === 'f'){ document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+});
+
+// ---------- Pointer ----------
+const ptr = { x: -9999, y: -9999, tx: -9999, ty: -9999, mode: 'open', last: 0, s: 0 };
+let mouseDown = false;
+function setPointer(nx, ny, m){ ptr.tx = nx * W; ptr.ty = ny * H; ptr.mode = m || 'open'; ptr.last = performance.now(); }
+addEventListener('mousemove', e => setPointer(e.clientX / W, e.clientY / H, mouseDown ? 'fist' : 'open'));
+cv.addEventListener('mousedown', () => { mouseDown = true; ptr.mode = 'fist'; });
+addEventListener('mouseup', () => { mouseDown = false; ptr.mode = 'open'; });
+cv.addEventListener('touchmove', e => { const t = e.touches[0]; setPointer(t.clientX / W, t.clientY / H, 'open'); }, { passive: true });
+
+// ---------- Links (spatial hash) ----------
+let head = new Int32Array(1);
+const LCAP = 70000;
+const la = [0,1,2,3].map(() => new Float32Array(LCAP * 4));
+const lc = new Int32Array(4);
+
+function test(i, j){
+  const dx = px[i] - px[j], dy = py[i] - py[j], d2 = dx*dx + dy*dy;
+  const gij = g[i] > g[j] ? g[i] : g[j];
+  const th = LINKD * (1 - 0.5 * gij);
+  if (d2 >= th * th) return;
+  const d = Math.sqrt(d2);
+  const a = (1 - d / th) * (0.25 + 0.75 * gij) * Math.min(wc[i], wc[j]);
+  const b = a > 0.55 ? 3 : a > 0.32 ? 2 : a > 0.14 ? 1 : a > 0.04 ? 0 : -1;
+  if (b < 0 || lc[b] >= LCAP * 4) return;
+  const arr = la[b], k = lc[b];
+  arr[k] = px[i]; arr[k+1] = py[i]; arr[k+2] = px[j]; arr[k+3] = py[j];
+  lc[b] = k + 4;
+}
+const OFF = [[1,0],[-1,1],[0,1],[1,1]];
+function drawLinks(){
+  const cell = LINKD, gw = Math.ceil(W / cell) + 2, gh = Math.ceil(H / cell) + 2;
+  if (head.length < gw * gh) head = new Int32Array(gw * gh);
+  head.fill(-1, 0, gw * gh);
+  for (let i = 0; i < N; i++){
+    if (wc[i] < 0.25) continue;
+    let cx = (px[i] / cell) | 0, cy = (py[i] / cell) | 0;
+    cx = cx < 0 ? 0 : cx >= gw ? gw - 1 : cx; cy = cy < 0 ? 0 : cy >= gh ? gh - 1 : cy;
+    const ci = cy * gw + cx; nxt[i] = head[ci]; head[ci] = i;
+  }
+  lc.fill(0);
+  for (let cy = 0; cy < gh; cy++) for (let cx = 0; cx < gw; cx++){
+    let i = head[cy * gw + cx];
+    while (i !== -1){
+      let j = nxt[i];
+      while (j !== -1){ test(i, j); j = nxt[j]; }
+      for (let o = 0; o < 4; o++){
+        const nx = cx + OFF[o][0], ny = cy + OFF[o][1];
+        if (nx < 0 || nx >= gw || ny >= gh) continue;
+        j = head[ny * gw + nx];
+        while (j !== -1){ test(i, j); j = nxt[j]; }
+      }
+      i = nxt[i];
+    }
+  }
+  ctx.lineWidth = 1;
+  for (let b = 0; b < 4; b++){
+    if (!lc[b]) continue;
+    ctx.strokeStyle = lnCols[b]; ctx.beginPath();
+    const arr = la[b];
+    for (let k = 0; k < lc[b]; k += 4){ ctx.moveTo(arr[k], arr[k+1]); ctx.lineTo(arr[k+2], arr[k+3]); }
+    ctx.stroke();
+  }
+}
+
+// ---------- Frame loop ----------
+function frame(now){
+  const t = now * 0.001;
+  const active = now - ptr.last < 600;
+  if (ptr.x < -9000){ ptr.x = ptr.tx; ptr.y = ptr.ty; }
+  ptr.x += (ptr.tx - ptr.x) * 0.4; ptr.y += (ptr.ty - ptr.y) * 0.4;
+  ptr.s += ((active ? 1 : 0) - ptr.s) * 0.12;
+
+  const R = Math.min(W, H) * 0.27, R2 = R * R;
+  const pull = 0.6 * ptr.s, push = R * 0.5 * ptr.s, fist = ptr.mode === 'fist';
+  const amp = SP * 0.06, dref = Math.max(30, R * 0.35);
+  const base = Math.max(1, Math.min(3.2, SP * 0.11));
+  const isImg = mode === 'image' && imgBuilt, isCam = mode === 'camera';
+
+  for (let i = 0; i < N; i++){
+    let tx = hx[i] + Math.sin(t * 0.8 + hy[i] * 0.013) * amp;
+    let ty = hy[i] + Math.cos(t * 0.7 + hx[i] * 0.011) * amp;
+    let gi = 0;
+    if (ptr.s > 0.01){
+      const dx = ptr.x - hx[i], dy = ptr.y - hy[i], d2 = dx*dx + dy*dy;
+      if (d2 < R2){
+        const d = Math.sqrt(d2), q = 1 - d / R, qq = q * q;
+        gi = qq * ptr.s;
+        if (fist){ if (d > 0.01){ tx -= dx / d * qq * push; ty -= dy / d * qq * push; } }
+        else { tx += dx * qq * pull; ty += dy * qq * pull; }   // gather → dense vertex cluster
+      }
+    }
+    g[i] = gi;
+    vx[i] = (vx[i] + (tx - px[i]) * 0.09) * 0.82;
+    vy[i] = (vy[i] + (ty - py[i]) * 0.09) * 0.82;
+    px[i] += vx[i]; py[i] += vy[i];
+    wc[i] += (w[i] - wc[i]) * 0.25;
+
+    const ddx = px[i] - hx[i], ddy = py[i] - hy[i];
+    const dt = Math.min(1, Math.sqrt(ddx*ddx + ddy*ddy) / dref);
+    let b, s;
+    if (isImg){ b = Math.min(9, Math.floor(lb[i] * 0.55 + dt * 4.5)); s = base * (0.8 + 1.4 * dt + 0.5 * lb[i] / 9); }
+    else if (isCam){ b = Math.min(9, Math.floor(wc[i] * 5 + dt * 4.99)); s = wc[i] < 0.05 ? 0 : base * (0.35 + 0.9 * wc[i]) * (0.8 + 1.4 * dt); }
+    else { b = Math.floor(dt * 9.99); s = base * (0.8 + 1.6 * dt); }
+    bk[i] = b; sz[i] = s;
+  }
+
+  ctx.clearRect(0, 0, W, H);
+  drawLinks();
+  for (let b = 0; b < 10; b++){
+    ctx.fillStyle = ptCols[b];
+    for (let i = 0; i < N; i++){
+      if (bk[i] !== b) continue;
+      const s = sz[i]; if (s <= 0) continue;
+      ctx.fillRect(px[i] - s / 2, py[i] - s / 2, s, s);
+    }
+  }
+  if (ptr.s > 0.05){
+    ctx.strokeStyle = fist ? 'rgba(255,120,120,.6)' : 'rgba(120,200,255,.5)';
+    ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(ptr.x, ptr.y, 18, 0, 6.2832); ctx.stroke();
+  }
+  requestAnimationFrame(frame);
+}
 
 function resize(){
   DPR = Math.min(window.devicePixelRatio || 1, 2);
   W = innerWidth; H = innerHeight;
   cv.width = W * DPR; cv.height = H * DPR;
-  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   build();
 }
-function build(){
-  P = [];
-  const cols = Math.floor(W / SPACING), rows = Math.floor(H / SPACING);
-  const ox = (W - (cols-1)*SPACING)/2, oy = (H - (rows-1)*SPACING)/2;
-  for(let j=0;j<rows;j++) for(let i=0;i<cols;i++){
-    const x = ox + i*SPACING, y = oy + j*SPACING;
-    P.push({hx:x, hy:y, x, y, vx:0, vy:0});
-  }
-}
 addEventListener('resize', resize);
+resize(); requestAnimationFrame(frame);
 
-// ---------- Pointer (mouse or hand) ----------
-// mode: 'open' = repel, 'fist' = attract
-const ptr = { x:-9999, y:-9999, tx:-9999, ty:-9999, mode:'open', last:0 };
-function setPointer(nx, ny, mode){
-  ptr.tx = nx * W; ptr.ty = ny * H;
-  ptr.mode = mode || 'open';
-  ptr.last = performance.now();
-}
-addEventListener('mousemove', e => setPointer(e.clientX/W, e.clientY/H, 'open'));
-addEventListener('mousedown', () => { ptr.mode = 'fist'; });
-addEventListener('mouseup',   () => { ptr.mode = 'open'; });
-addEventListener('touchmove', e => { const t=e.touches[0]; setPointer(t.clientX/W, t.clientY/H, 'open'); }, {passive:true});
-
-// ---------- Animation ----------
-const R = 150;
-function frame(){
-  const now = performance.now();
-  const active = now - ptr.last < 600;
-  // smooth pointer
-  if (ptr.x < -9000) { ptr.x = ptr.tx; ptr.y = ptr.ty; }
-  ptr.x += (ptr.tx - ptr.x) * 0.35;
-  ptr.y += (ptr.ty - ptr.y) * 0.35;
-
-  ctx.clearRect(0,0,W,H);
-  for (const p of P){
-    // spring back home
-    p.vx += (p.hx - p.x) * 0.06;
-    p.vy += (p.hy - p.y) * 0.06;
-
-    if (active){
-      const dx = p.x - ptr.x, dy = p.y - ptr.y;
-      const d = Math.hypot(dx, dy);
-      if (d < R && d > 0.01){
-        const f = (1 - d/R);
-        const k = (ptr.mode === 'fist' ? -1 : 1) * f * f * 3.2;
-        p.vx += (dx/d) * k;
-        p.vy += (dy/d) * k;
-      }
-    }
-    p.vx *= 0.86; p.vy *= 0.86;
-    p.x += p.vx; p.y += p.vy;
-
-    const disp = Math.hypot(p.x - p.hx, p.y - p.hy);
-    const t = Math.min(disp / 60, 1);
-    const r = 1.6 + t * 2.6;
-    ctx.fillStyle = `hsl(${200 + t*120}, ${40 + t*50}%, ${55 + t*30}%)`;
-    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.2832); ctx.fill();
-  }
-
-  if (active){
-    ctx.strokeStyle = ptr.mode === 'fist' ? 'rgba(255,120,120,.6)' : 'rgba(120,200,255,.5)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(ptr.x, ptr.y, 18, 0, 6.2832); ctx.stroke();
-  }
-  requestAnimationFrame(frame);
-}
-resize(); frame();
+const qimg = new URLSearchParams(location.search).get('img');
+if (qimg) loadImageURL(qimg);
 
 // ---------- QR + PeerJS ----------
-const statusEl = document.getElementById('status');
+const statusEl = $('status');
+const conns = [];
+function sendStream(){ for (const c of conns) if (c.open) { try { c.send({ stream: mode === 'camera' }); } catch(e){} } }
+setInterval(sendStream, 1500);   // keep phone in sync even if a message is dropped
+
+function handle(d){
+  if (!d) return;
+  if (d.f){
+    lastFrame = { f: new Uint8Array(d.f), fw: d.w, fh: d.h };
+    if (mode === 'camera'){ applyFrame(); setNote(); }
+  } else if (typeof d.x === 'number'){
+    setPointer(d.x, d.y, d.mode);
+  }
+}
+function updStatus(){
+  const n = conns.filter(c => c.open).length;
+  statusEl.textContent = n ? 'Connected ✓' : 'Scan to connect';
+}
+
 const code = 'pg-' + Math.random().toString(36).slice(2, 8);
 const peer = new Peer(code);
-
 peer.on('open', id => {
-  const base = location.href.replace(/[^\/]*$/, '');
-  const url = base + 'phone.html?id=' + id;
-  new QRCode(document.getElementById('qr'), { text: url, width:140, height:140 });
-  statusEl.textContent = 'Scan to connect';
-  if (location.protocol === 'file:') statusEl.textContent = 'ارفعه على GitHub Pages';
+  const base = location.href.replace(/[?#].*$/, '').replace(/[^\/]*$/, '');
+  new QRCode($('qr'), { text: base + 'phone.html?id=' + id, width: 140, height: 140 });
+  statusEl.textContent = location.protocol === 'file:' ? 'Upload to GitHub Pages' : 'Scan to connect';
 });
 peer.on('connection', conn => {
-  statusEl.textContent = 'Connected ✓';
-  conn.on('data', d => {
-    if (d && typeof d.x === 'number') setPointer(d.x, d.y, d.mode);
-  });
-  conn.on('close', () => statusEl.textContent = 'Scan to connect');
+  conns.push(conn);
+  const onOpen = () => { updStatus(); try { conn.send({ stream: mode === 'camera' }); } catch(e){} };
+  if (conn.open) onOpen(); else conn.on('open', onOpen);
+  conn.on('data', handle);
+  conn.on('close', () => { const k = conns.indexOf(conn); if (k >= 0) conns.splice(k, 1); updStatus(); });
 });
 peer.on('error', e => { statusEl.textContent = 'Error: ' + e.type; });
 </script>
