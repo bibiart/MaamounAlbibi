@@ -26,23 +26,21 @@
 
 <div id="panel">
   <div class="row">
-    <button id="bGrid" class="on">Grid</button>
-    <button id="bImage">Image</button>
-    <button id="bCam">Camera</button>
+    <button id="bGrid">Grid</button>
+    <button id="bCam" class="on">Live Camera</button>
   </div>
   <div class="row">
-    <button id="bLoad">Load Image</button>
     <button id="bInv">Invert</button>
+    <button id="bPal">Palette</button>
   </div>
   <label>Density <input id="rDen" type="range" min="2000" max="12000" step="500" value="7000"></label>
+  <label>Level <input id="rLvl" type="range" min="0.2" max="0.8" step="0.01" value="0.5"></label>
   <div class="row">
-    <button id="bPal">Palette</button>
     <button id="bFit">Fit</button>
   </div>
-  <input id="file" type="file" accept="image/*" style="display:none">
 </div>
 
-<div id="hint">Move the mouse / hand: points gather<br>Click / fist: points scatter<br>H hide panel · Q hide QR · F fullscreen</div>
+<div id="hint">Move the mouse / hand: points gather<br>Click / fist: points scatter<br>1 Grid · 2 Live Camera · I invert · C colors<br>H hide panel · Q hide QR · F fullscreen</div>
 <div id="note"></div>
 <div id="qrBox"><div id="qr"></div><div id="status">Waiting...</div></div>
 
@@ -54,9 +52,8 @@ const cv = $('c'), ctx = cv.getContext('2d');
 
 let W = 0, H = 0, DPR = 1;
 let N = 0, hx, hy, px, py, vx, vy, w, wc, g, lb, nxt, bk, sz;
-let mode = 'grid', invert = false, fit = 'contain';
+let mode = 'camera', invert = false, fit = 'contain', level = 0.5;
 let density = 7000, SP = 16, LINKD = 25;
-let userImg = null, imgBuilt = false;
 let lastFrame = null, camLo = 0, camHi = 255, camInit = false;
 
 // ---------- Palettes ----------
@@ -102,49 +99,16 @@ function buildGrid(){
   const init = mode === 'camera' ? 0 : 1;
   w.fill(init); wc.fill(init);
   LINKD = s * 1.55;
-  imgBuilt = false;
-}
-
-// ---------- Build: Image (stratified sampling by brightness) ----------
-function buildImage(){
-  const im = userImg, cw = im.cw, ch = im.ch;
-  const sc = Math.min(W * 0.9 / cw, H * 0.9 / ch);
-  const dw = cw * sc, dh = ch * sc, ox = (W - dw) / 2, oy = (H - dh) / 2;
-  const wt = new Float32Array(cw * ch); let sum = 0;
-  for (let k = 0; k < wt.length; k++){
-    let b = invert ? 1 - im.lum[k] : im.lum[k];
-    b = Math.pow(b, 1.4) * im.al[k];
-    wt[k] = b; sum += b;
-  }
-  const mean = Math.max(0.02, sum / wt.length);
-  const s0 = Math.sqrt(dw * dh * mean / density);
-  const ax = [], ay = [], av = [];
-  for (let yy = 0; yy < dh; yy += s0) for (let xx = 0; xx < dw; xx += s0){
-    const rx = xx + Math.random() * s0, ry = yy + Math.random() * s0;
-    if (rx >= dw || ry >= dh) continue;
-    const v = wt[((ry / dh * ch) | 0) * cw + ((rx / dw * cw) | 0)];
-    if (Math.random() < v){ ax.push(ox + rx); ay.push(oy + ry); av.push(v); }
-  }
-  if (ax.length < 50){ buildGrid(); return; }
-  alloc(ax.length);
-  for (let k = 0; k < N; k++){
-    hx[k] = px[k] = ax[k]; hy[k] = py[k] = ay[k];
-    lb[k] = Math.min(9, (av[k] * 10) | 0);
-  }
-  w.fill(1); wc.fill(1);
-  SP = s0; LINKD = Math.max(8, Math.min(60, s0 * 1.9));
-  imgBuilt = true;
 }
 
 function build(){
-  if (mode === 'image' && userImg) buildImage(); else buildGrid();
+  buildGrid();
   if (mode === 'camera') applyFrame();
   setNote();
 }
 function setNote(){
   let t = '';
-  if (mode === 'image' && !userImg) t = 'Drag an image here, or press Load Image';
-  if (mode === 'camera' && !lastFrame) t = 'Scan the QR with your phone, press Start, and your image will appear here';
+  if (mode === 'camera' && !lastFrame) t = 'Scan the QR with your phone and press Start. Your live image will form here.';
   $('note').textContent = t;
 }
 
@@ -166,66 +130,30 @@ function applyFrame(){
     let l = (f[row * fw + col] - camLo) / rng;
     l = l < 0 ? 0 : l > 1 ? 1 : l;
     if (invert) l = 1 - l;
-    let t = (l - 0.3) / 0.55; t = t < 0 ? 0 : t > 1 ? 1 : t;
+    let t = (l - (level - 0.22)) / 0.44; t = t < 0 ? 0 : t > 1 ? 1 : t;
     w[i] = t * t * (3 - 2 * t);
   }
 }
-
-// ---------- Image loading ----------
-function prepImage(im){
-  const sc = Math.min(1, 700 / Math.max(im.width, im.height));
-  const cw = Math.max(8, Math.round(im.width * sc)), ch = Math.max(8, Math.round(im.height * sc));
-  const c = document.createElement('canvas'); c.width = cw; c.height = ch;
-  const cx = c.getContext('2d', { willReadFrequently: true });
-  cx.drawImage(im, 0, 0, cw, ch);
-  let d;
-  try { d = cx.getImageData(0, 0, cw, ch).data; }
-  catch (e) { $('note').textContent = 'Could not read the image (open the page from the online link, not from the file directly)'; return; }
-  const lum = new Float32Array(cw * ch), al = new Float32Array(cw * ch), hist = new Uint32Array(256);
-  let cnt = 0, msum = 0;
-  for (let k = 0; k < cw * ch; k++){
-    const a = d[k*4+3] / 255, l = (0.3 * d[k*4] + 0.59 * d[k*4+1] + 0.11 * d[k*4+2]) / 255;
-    lum[k] = l; al[k] = a;
-    if (a > 0.5){ hist[(l * 255) | 0]++; cnt++; msum += l; }
-  }
-  let lo = 0, hi = 255, acc = 0;
-  for (let i = 0; i < 256; i++){ acc += hist[i]; if (acc >= cnt * 0.02){ lo = i; break; } }
-  acc = 0;
-  for (let i = 0; i < 256; i++){ acc += hist[i]; if (acc >= cnt * 0.98){ hi = i; break; } }
-  const rng = Math.max(10, hi - lo);
-  for (let k = 0; k < lum.length; k++){ const v = (lum[k] * 255 - lo) / rng; lum[k] = v < 0 ? 0 : v > 1 ? 1 : v; }
-  userImg = { cw, ch, lum, al };
-  invert = cnt > 0 && (msum / cnt) > 0.62;            // bright background → invert automatically
-  $('bInv').classList.toggle('on', invert);
-  setMode('image');
-}
-function loadImageURL(url){ const im = new Image(); im.onload = () => prepImage(im); im.src = url; }
-function loadImageFile(file){ if (file) loadImageURL(URL.createObjectURL(file)); }
 
 // ---------- UI ----------
 function setMode(m){
   mode = m;
   $('bGrid').classList.toggle('on', m === 'grid');
-  $('bImage').classList.toggle('on', m === 'image');
   $('bCam').classList.toggle('on', m === 'camera');
   sendStream();
   build();
 }
 $('bGrid').onclick = () => setMode('grid');
-$('bImage').onclick = () => setMode('image');
 $('bCam').onclick = () => setMode('camera');
-$('bLoad').onclick = () => $('file').click();
-$('file').onchange = e => loadImageFile(e.target.files[0]);
 $('bInv').onclick = () => { invert = !invert; $('bInv').classList.toggle('on', invert); build(); };
 $('bPal').onclick = () => setPalette(palIdx + 1);
 $('bFit').onclick = () => { fit = fit === 'contain' ? 'cover' : 'contain'; $('bFit').textContent = 'Fit: ' + fit; applyFrame(); };
 $('bFit').textContent = 'Fit: contain';
 $('rDen').oninput = e => { density = +e.target.value; build(); };
-addEventListener('dragover', e => e.preventDefault());
-addEventListener('drop', e => { e.preventDefault(); loadImageFile(e.dataTransfer.files[0]); });
+$('rLvl').oninput = e => { level = +e.target.value; applyFrame(); };
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
-  if (k === '1') setMode('grid'); else if (k === '2') setMode('image'); else if (k === '3') setMode('camera');
+  if (k === '1') setMode('grid'); else if (k === '2') setMode('camera');
   else if (k === 'i') $('bInv').click();
   else if (k === 'c') $('bPal').click();
   else if (k === 'h'){ $('panel').style.display = $('panel').style.display === 'none' ? '' : 'none'; $('hint').style.display = $('panel').style.display; }
@@ -309,7 +237,7 @@ function frame(now){
   const pull = 0.6 * ptr.s, push = R * 0.5 * ptr.s, fist = ptr.mode === 'fist';
   const amp = SP * 0.06, dref = Math.max(30, R * 0.35);
   const base = Math.max(1, Math.min(3.2, SP * 0.11));
-  const isImg = mode === 'image' && imgBuilt, isCam = mode === 'camera';
+  const isCam = mode === 'camera';
 
   for (let i = 0; i < N; i++){
     let tx = hx[i] + Math.sin(t * 0.8 + hy[i] * 0.013) * amp;
@@ -333,8 +261,7 @@ function frame(now){
     const ddx = px[i] - hx[i], ddy = py[i] - hy[i];
     const dt = Math.min(1, Math.sqrt(ddx*ddx + ddy*ddy) / dref);
     let b, s;
-    if (isImg){ b = Math.min(9, Math.floor(lb[i] * 0.55 + dt * 4.5)); s = base * (0.8 + 1.4 * dt + 0.5 * lb[i] / 9); }
-    else if (isCam){ b = Math.min(9, Math.floor(wc[i] * 5 + dt * 4.99)); s = wc[i] < 0.05 ? 0 : base * (0.35 + 0.9 * wc[i]) * (0.8 + 1.4 * dt); }
+    if (isCam){ b = Math.min(9, Math.floor(wc[i] * 5 + dt * 4.99)); s = wc[i] < 0.05 ? 0 : base * (0.35 + 0.9 * wc[i]) * (0.8 + 1.4 * dt); }
     else { b = Math.floor(dt * 9.99); s = base * (0.8 + 1.6 * dt); }
     bk[i] = b; sz[i] = s;
   }
@@ -366,8 +293,6 @@ function resize(){
 addEventListener('resize', resize);
 resize(); requestAnimationFrame(frame);
 
-const qimg = new URLSearchParams(location.search).get('img');
-if (qimg) loadImageURL(qimg);
 
 // ---------- QR + PeerJS ----------
 const statusEl = $('status');
@@ -375,10 +300,12 @@ const conns = [];
 function sendStream(){ for (const c of conns) if (c.open) { try { c.send({ stream: mode === 'camera' }); } catch(e){} } }
 setInterval(sendStream, 1500);   // keep phone in sync even if a message is dropped
 
+let gotFrames = false;
 function handle(d){
   if (!d) return;
   if (d.f){
-    lastFrame = { f: new Uint8Array(d.f), fw: d.w, fh: d.h };
+    if (!gotFrames){ gotFrames = true; updStatus(); }
+    lastFrame ={ f: new Uint8Array(d.f), fw: d.w, fh: d.h };
     if (mode === 'camera'){ applyFrame(); setNote(); }
   } else if (typeof d.x === 'number'){
     setPointer(d.x, d.y, d.mode);
@@ -386,11 +313,17 @@ function handle(d){
 }
 function updStatus(){
   const n = conns.filter(c => c.open).length;
-  statusEl.textContent = n ? 'Connected ✓' : 'Scan to connect';
+  if (!n) gotFrames = false;
+  statusEl.textContent = n ? (gotFrames ? 'Live ✓' : 'Connected ✓') : 'Scan to connect';
 }
 
 const code = 'pg-' + Math.random().toString(36).slice(2, 8);
-const peer = new Peer(code);
+const peer = new Peer(code, { config: { iceServers: [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'turn:openrelay.metered.ca:80',  username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
+] } });
 peer.on('open', id => {
   const base = location.href.replace(/[?#].*$/, '').replace(/[^\/]*$/, '');
   new QRCode($('qr'), { text: base + 'phone.html?id=' + id, width: 140, height: 140 });
@@ -398,6 +331,7 @@ peer.on('open', id => {
 });
 peer.on('connection', conn => {
   conns.push(conn);
+  statusEl.textContent = 'Phone linking...';
   const onOpen = () => { updStatus(); try { conn.send({ stream: mode === 'camera' }); } catch(e){} };
   if (conn.open) onOpen(); else conn.on('open', onOpen);
   conn.on('data', handle);
