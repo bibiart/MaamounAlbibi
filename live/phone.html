@@ -6,7 +6,9 @@
 <title>Hand Controller</title>
 <style>
   html,body{margin:0;height:100%;background:#0b0d12;color:#e8ecf4;font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center}
-  #wrap{position:relative;width:min(90vw,420px);aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#000}
+  #wrap{position:relative;width:min(90vw,420px);aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:#000;touch-action:none;user-select:none;-webkit-user-select:none}
+  .rip{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;border:2px solid rgba(120,200,255,.9);pointer-events:none;animation:rip .7s ease-out forwards}
+  @keyframes rip{to{transform:scale(8);opacity:0}}
   video,canvas#o{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
   button{font-size:18px;padding:14px 28px;border:0;border-radius:12px;background:#4aa3ff;color:#fff;font-weight:600}
   #msg{font-size:15px;color:#9aa4b8;min-height:22px;padding:0 16px}
@@ -14,63 +16,81 @@
 </head>
 <body>
 <div id="wrap"><video id="v" playsinline muted></video><canvas id="o"></canvas></div>
-<div id="msg">Press Start, then move your hand in front of the camera</div>
+<div id="msg">Press Start to share your live camera with the screen</div>
 <button id="go">Start</button>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script>
 const msg = document.getElementById('msg');
+const goBtn = document.getElementById('go');
 const video = document.getElementById('v');
 const oc = document.getElementById('o'), octx = oc.getContext('2d');
 const id = new URLSearchParams(location.search).get('id');
 
-let conn = null, streaming = false, lastSend = 0;
-if (!id) msg.textContent = 'Scan the QR code from the display screen';
+const ICE = { iceServers: [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'turn:openrelay.metered.ca:80',  username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' }
+]};
 
+let peer = null, conn = null;
+let connected = false, camReady = false, streaming = false, lastSend = 0;
+
+function setMsg(t){ msg.textContent = t; }
+function showStatus(){
+  if (!id) return setMsg('Scan the QR code from the display screen');
+  if (!connected) return setMsg(camReady ? 'Camera ready. Linking to the screen...' : 'Linking to the screen...');
+  setMsg(streaming ? 'Live ✓ Tap the preview to send a wave' : 'Connected ✓ Move your hand, or tap for a wave');
+}
+if (!id) setMsg('Scan the QR code from the display screen');
+
+// ---------- Tap = shockwave on the display ----------
+const wrap = document.getElementById('wrap');
+wrap.addEventListener('pointerdown', e => {
+  const r = wrap.getBoundingClientRect();
+  const lx = e.clientX - r.left, ly = e.clientY - r.top;
+  if (conn && conn.open) conn.send({ tap: true, x: lx / r.width, y: ly / r.height });
+  const rip = document.createElement('div');
+  rip.className = 'rip'; rip.style.left = lx + 'px'; rip.style.top = ly + 'px';
+  wrap.appendChild(rip); setTimeout(() => rip.remove(), 750);
+  try { navigator.vibrate(12); } catch(_){}
+});
+
+// ---------- Link to the display ----------
 function connect(){
-  const peer = new Peer();
-  peer.on('open', () => {
-    conn = peer.connect(id, { reliable:false });
-    conn.on('open', () => msg.textContent = 'Connected ✓ Move your hand');
-    conn.on('close', () => msg.textContent = 'Disconnected');
-    conn.on('data', d => {
-      if (d && 'stream' in d){
-        streaming = !!d.stream;
-      }
-    });
+  setMsg('Reaching the server...');
+  peer = new Peer(undefined, { config: ICE });
+  peer.on('open', () => { showStatus(); link(); });
+  peer.on('disconnected', () => { try { peer.reconnect(); } catch(e){} });
+  peer.on('error', e => {
+    if (e.type === 'peer-unavailable') setMsg('Screen not found. Reload the display page, then scan the new QR.');
+    else setMsg('Connection error: ' + e.type);
   });
-  peer.on('error', e => msg.textContent = 'Connection error: ' + e.type);
+}
+function link(){
+  conn = peer.connect(id, { reliable: false });
+  conn.on('open',  () => { connected = true; showStatus(); });
+  conn.on('close', () => { connected = false; streaming = false; setMsg('Disconnected. Reload this page and scan again.'); });
+  conn.on('error', e => setMsg('Link error: ' + e));
+  conn.on('data', d => {
+    if (d && 'stream' in d){
+      const s = !!d.stream;
+      if (s !== streaming){ streaming = s; showStatus(); }
+    }
+  });
+  setTimeout(() => {
+    if (!connected) setMsg('Still linking... Make sure the display page is open, then rescan the QR. Try the same Wi-Fi on both devices.');
+  }, 12000);
 }
 
-function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
-
-function onResults(res){
-  oc.width = video.videoWidth; oc.height = video.videoHeight;
-  octx.clearRect(0,0,oc.width,oc.height);
-  const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
-  if (!lm) return;
-
-  const c = lm[9];
-  const palm = dist(lm[0], lm[9]) || 0.1;
-  const tips = [8,12,16,20];
-  const avg = tips.reduce((s,i)=> s + dist(lm[i], lm[0]), 0) / tips.length;
-  const mode = (avg / palm) < 1.25 ? 'fist' : 'open';
-
-  const x = 1 - c.x, y = c.y;
-  if (conn && conn.open) conn.send({ x, y, mode });
-
-  octx.fillStyle = mode === 'fist' ? '#ff7878' : '#78c8ff';
-  for (const p of lm){ octx.beginPath(); octx.arc(p.x*oc.width, p.y*oc.height, 4, 0, 6.28); octx.fill(); }
-}
-
-// small grayscale frame for the "Camera" mode on the display
+// ---------- Live camera frames (independent from hand tracking) ----------
 const sc = document.createElement('canvas');
-const sctx = sc.getContext('2d', { willReadFrequently:true });
-function sendFrame(now){
+const sctx = sc.getContext('2d', { willReadFrequently: true });
+function sendFrame(){
   if (!streaming || !conn || !conn.open || !video.videoWidth) return;
-  if (now - lastSend < 90) return;
-  lastSend = now;
+  if (conn.dataChannel && conn.dataChannel.bufferedAmount > 200000) return;   // don't pile up
   const vw = video.videoWidth, vh = video.videoHeight;
   const fw = Math.round(Math.sqrt(7000 * vw / vh)), fh = Math.round(fw * vh / vw);
   sc.width = fw; sc.height = fh;
@@ -78,32 +98,53 @@ function sendFrame(now){
   const d = sctx.getImageData(0, 0, fw, fh).data;
   const out = new Uint8Array(fw * fh);
   for (let i = 0, k = 0; i < out.length; i++, k += 4) out[i] = (d[k]*77 + d[k+1]*151 + d[k+2]*28) >> 8;
-  conn.send({ f: out, w: fw, h: fh });
+  try { conn.send({ f: out, w: fw, h: fh }); } catch(e){}
 }
 
-document.getElementById('go').onclick = async () => {
-  if (!id) return;
+// ---------- Hand tracking (optional, never blocks the camera) ----------
+function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+function onResults(res){
+  oc.width = video.videoWidth; oc.height = video.videoHeight;
+  octx.clearRect(0,0,oc.width,oc.height);
+  const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
+  if (!lm) return;
+  const c = lm[9];
+  const palm = dist(lm[0], lm[9]) || 0.1;
+  const tips = [8,12,16,20];
+  const avg = tips.reduce((s,i)=> s + dist(lm[i], lm[0]), 0) / tips.length;
+  const mode = (avg / palm) < 1.25 ? 'fist' : 'open';
+  if (conn && conn.open) conn.send({ x: 1 - c.x, y: c.y, mode });
+  octx.fillStyle = mode === 'fist' ? '#ff7878' : '#78c8ff';
+  for (const p of lm){ octx.beginPath(); octx.arc(p.x*oc.width, p.y*oc.height, 4, 0, 6.28); octx.fill(); }
+}
+function startHands(){
   try {
-    connect();
     const hands = new Hands({ locateFile: f => 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + f });
     hands.setOptions({ maxNumHands:1, modelComplexity:0, minDetectionConfidence:0.6, minTrackingConfidence:0.5 });
     hands.onResults(onResults);
-
-    const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:640, height:480 }, audio:false });
-    video.srcObject = stream; await video.play();
-    document.getElementById('go').style.display = 'none';
-    msg.textContent = 'Connecting...';
-
     const loop = async () => {
-      if (video.readyState >= 2){
-        await hands.send({ image: video });
-        sendFrame(performance.now());
-      }
+      try { if (video.readyState >= 2) await hands.send({ image: video }); } catch(e){}
       requestAnimationFrame(loop);
     };
     loop();
+  } catch(e){ console.warn('Hand tracking unavailable', e); }
+}
+
+// ---------- Start ----------
+goBtn.onclick = async () => {
+  if (!id) return;
+  goBtn.style.display = 'none';
+  connect();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:640, height:480 }, audio:false });
+    video.srcObject = stream; await video.play();
+    camReady = true; showStatus();
+    try { await navigator.wakeLock.request('screen'); } catch(e){}
+    setInterval(sendFrame, 90);
+    startHands();
   } catch(e){
-    msg.textContent = 'Could not open the camera: ' + e.message;
+    setMsg('Could not open the camera: ' + e.message);
+    goBtn.style.display = '';
   }
 };
 </script>
