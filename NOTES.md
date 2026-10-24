@@ -2,6 +2,7 @@
 
 Dated log, newest first. This repo is public: no personal or private info here.
 
+2026-10-24: Removed the Telegram link from the socials list (index, about, contact, 404 and all project pages). Version v27.
 2026-10-24: Cleaned index.html: removed 5 hidden project entries (4 empty placeholders + Soft Flow) and the unused SF image list. Project pages keep their own copy, so they still work.
 2026-10-24: Unified two project names: "Nabd Al Alam" and "Go Sport" (index + their pages). Folder names unchanged.
 2026-10-24: Project links on the home page now show the project name (#motion-graphics/al-quds) instead of a number. Old numeric links (#cat/N) still parse, but numbers shifted after the cleanup, so they may open a different project.
