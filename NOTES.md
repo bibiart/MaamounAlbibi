@@ -2,6 +2,7 @@
 
 Dated log, newest first. This repo is public: no personal or private info here.
 
+2026-10-24: Line texture opacity set to 2% (fx.stripes .02) in all pages. Version v31.
 2026-10-24: Line texture spacing changed from 3px to 5px (fx.stripeGap) in all pages. Version v30.
 2026-10-24: Softened the page line texture by 20% (fx.stripes .05 -> .04) in all pages. Version v29.
 2026-10-24: Restored the Telegram link (t.me/Maamounbi) in all pages. Version v28.
