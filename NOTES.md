@@ -2,6 +2,13 @@
 
 Dated log, newest first. This repo is public: no personal or private info here.
 
+2026-10-25: Added project "Tareekhuna" (Motion Graphics, 3 Vimeo videos + 12 images from images/tareekhuna_ar): works entry and pages/tareekhuna/index.html. Version v39.
+2026-10-25: Added project "Moon" (Motion Graphics, 1 Vimeo video): works entry and pages/moon/index.html. Version v38.
+2026-10-25: Added project "Mimar Sinan" (Motion Graphics, 1 Vimeo video): works entry and pages/mimar-sinan/index.html. Version v37.
+2026-10-25: Added project "Behance Syria" (Motion Graphics, 2014, 1 Vimeo video): works entry and pages/behance-syria/index.html. Version v36.
+2026-10-25: Added project "Seerah Al Quds" (Motion Graphics, documentary series, 1 Vimeo video): works entry, pages/seerah-al-quds/index.html and sitemap link. Version v35.
+2026-10-25: Added project "Arshif Aam" (Motion Graphics, Al Hiwar TV via Reflections, 1956 Suez segment, 2 Vimeo videos + 20 images from images/archive): works entry, pages/arshif-aam/index.html and sitemap link. Image 07 left out. Version v34.
+2026-10-25: Added project "Atrium" (Codex, real-estate website template at /lab/atrium/): works entry, pages/atrium/index.html and sitemap link. Version v33.
 2026-10-25: Name variants and keywords (Arabic / English / Turkish): About first paragraph, portrait alt text and Person schema (alternateName, jobTitle, knowsAbout) in all pages. Turkish uses dotless i (Albıbı). Version v32.
 2026-10-24: Line texture opacity set to 2% (fx.stripes .02) in all pages. Version v31.
 2026-10-24: Line texture spacing changed from 3px to 5px (fx.stripeGap) in all pages. Version v30.
