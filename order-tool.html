@@ -1,0 +1,69 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ترتيب المشاريع</title>
+<style>
+:root{--bg:#111;--card:#1b1b1b;--line:#2c2c2c;--tx:#f2efe9;--mut:#9a958b;--ac:#e8a317}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,Segoe UI,Tahoma,sans-serif;padding:24px 16px 120px}
+.w{max-width:860px;margin:auto}h1{font-size:22px;margin:0 0 4px}p.s{color:var(--mut);margin:0 0 18px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.tabs button{background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer;font:inherit}
+.tabs button.on{background:var(--ac);color:#000;border-color:var(--ac);font-weight:700}
+h2{font-size:15px;color:var(--mut);margin:22px 0 8px;font-weight:600}
+.it{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:8px;cursor:grab}
+.it.drag{opacity:.35}.it.over{border-color:var(--ac)}
+.n{width:26px;text-align:center;color:var(--mut);font-variant-numeric:tabular-nums}
+.th{width:96px;height:54px;object-fit:cover;border-radius:6px;background:#000;flex:none}
+.t{flex:1;min-width:0}.t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.t small{color:var(--mut)}
+.b{display:flex;gap:4px}.b button{background:#262626;color:var(--tx);border:1px solid var(--line);border-radius:6px;width:34px;height:34px;cursor:pointer;font:inherit}
+.b button:hover{border-color:var(--ac)}
+.bar{position:fixed;inset:auto 0 0 0;background:#0b0b0b;border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.bar button{background:var(--ac);color:#000;border:0;border-radius:8px;padding:10px 20px;font:inherit;font-weight:700;cursor:pointer}
+.bar button.g{background:#262626;color:var(--tx)}
+#ok{color:var(--ac);align-self:center;min-width:60px}
+textarea{width:100%;height:160px;background:#0b0b0b;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:20px;direction:ltr;font:12px monospace}
+</style></head><body><div class="w">
+<h1>ترتيب المشاريع</h1>
+<p class="s">اسحب المشروع لمكانه، أو استخدم الأسهم ▲▼. بالصفحة الرئيسية استخدم + / ✕ لإضافة مشروع أو إزالته. بالآخر اضغط «نسخ النتيجة» والصقها لي بالشات.</p>
+<div class="tabs" id="tabs"></div><div id="list"></div>
+<textarea id="out" readonly placeholder="النتيجة بتظهر هون"></textarea>
+</div>
+<div class="bar"><button id="copy">نسخ النتيجة</button><button class="g" id="reset">رجوع للترتيب الأصلي</button><span id="ok"></span></div>
+<script>
+const DATA=[{"slug": "al-quds", "home": 4, "title": "Al Quds", "cat": "Motion Graphics", "img": "video/alquds/Reference-alquds-5.jpg"}, {"slug": "murooth", "home": 2, "title": "Murooth", "cat": "Motion Graphics", "img": ""}, {"slug": "inquisition", "home": null, "title": "Inquisition", "cat": "Motion Graphics", "img": "https://i.vimeocdn.com/video/2210584097-9cbc1c98bc242c9de470b160e76595a5cfbe67f9420ba9741d34423a5596a8f2-d?f=webp&region=us"}, {"slug": "terminology", "home": null, "title": "Terminology", "cat": "Motion Graphics", "img": "https://i.vimeocdn.com/video/2212395575-cc5f1ba09cb068fd5af9cede8fcea1f987cdeac461168d748fc380bbb7cda83d-d?f=webp&region=us"}, {"slug": "trt-kids-animation", "home": null, "title": "TRT", "cat": "Motion Graphics", "img": "video/trt/trt-01.jpg"}, {"slug": "polygon-tunnel-backgrounds", "home": null, "title": "Polygon Tunnel Backgrounds", "cat": "Motion Graphics", "img": "https://i.vimeocdn.com/video/2134193632-60cd52f7b7f88ce910c0d9c61b585e8cf2aa948ffd1faecbb0c86746d22e342e-d?f=webp&region=us"}, {"slug": "fractal-noise-backgrounds", "home": null, "title": "Fractal Noise Backgrounds", "cat": "Motion Graphics", "img": "https://i.vimeocdn.com/video/2212418919-b4b57f117b208606a7621a3a0c2954424e81bc2597bdb502400bdbecc397a6b8-d?f=webp&region=us"}, {"slug": "red-black-plexus-shapes", "home": null, "title": "Red-Black Plexus Shapes", "cat": "Motion Graphics", "img": "https://i.vimeocdn.com/video/2213987514-70c3882883e57e4d92d580c37b47219a860222a6772237f01cf0998d5ccdd8ae-d?f=webp&region=us"}, {"slug": "iridescent-silver-twisted-shapes", "home": null, "title": "Iridescent Silver Twisted Shapes", "cat": "Motion Graphics", "img": "images/abstract-3d/silver/silver.jpg"}, {"slug": "showreel-2024", "home": null, "title": "Showreel 2024", "cat": "Motion Graphics", "img": "https://i.vimeocdn.com/video/2181684959-be9cae07353682a56134b71ba5163d2eea6af99b000ca3409f91e473863db29b-d?f=webp&region=us"}, {"slug": "hadaratuna", "home": 3, "title": "Hadaratuna", "cat": "Graphic Design", "img": "images/hadaratuna/h-01.jpg"}, {"slug": "on-this-day", "home": null, "title": "On This Day", "cat": "Graphic Design", "img": "images/al-hiwar/01/01.jpg"}, {"slug": "nabd-al-alam", "home": 5, "title": "Nabd Al Alam", "cat": "Graphic Design", "img": "images/world/world-01.jpg"}, {"slug": "go-sport", "home": null, "title": "Go Sport", "cat": "Graphic Design", "img": "pages/go1/01.jpg"}, {"slug": "vector-shapes-collection", "home": null, "title": "Vector Shapes Collection", "cat": "Graphic Design", "img": "pages/vector/01.jpg"}, {"slug": "inspire", "home": null, "title": "Inspire", "cat": "Codex", "img": "images/lab/inspire-01.jpg"}, {"slug": "trt-arabi", "home": 1, "title": "TRT Arabi / Social Media Graphics", "cat": "Social Media", "img": "images/trt-arabi/trt-arabi-01.webp"}, {"slug": "explosion", "home": 6, "title": "Explosion", "cat": "Abstract 3D", "img": "images/abstract-3d/capsule/01.jpg"}, {"slug": "polygonal-concrete-backgrounds", "home": null, "title": "Polygonal Concrete Backgrounds", "cat": "Abstract 3D", "img": "images/abstract-3d/brutalist/01.jpg"}, {"slug": "3d-soft-gradient-backgrounds", "home": null, "title": "3D Soft Gradient Backgrounds", "cat": "Abstract 3D", "img": "images/abstract-3d/3d-soft-gradient/01.jpg"}, {"slug": "atrium", "home": null, "title": "Atrium", "cat": "Codex", "img": "lab/atrium/p0.jpg"}, {"slug": "arshif-aam", "home": null, "title": "Arshif Aam", "cat": "Motion Graphics", "img": "images/archive/06.jpg"}, {"slug": "seerah-al-quds", "home": null, "title": "Seerah Al Quds", "cat": "Motion Graphics", "img": "https://i.vimeocdn.com/video/2213924563-55d4b8427caf05645c2876c875acdfc7ba150e9fdde11455233802f684f1de03-d_2400?region=us"}, {"slug": "behance-syria", "home": null, "title": "Behance Syria", "cat": "Motion Graphics", "img": "https://i.vimeocdn.com/video/2214189784-31ea9edaa73eb31697e12d0027b7dc877eec0e7670babf3e8d743416ecfb7ebf-d?f=webp&region=us"}, {"slug": "mimar-sinan", "home": null, "title": "Mimar Sinan", "cat": "Motion Graphics", "img": "https://i.vimeocdn.com/video/2212206202-5277c30a6ce5f8266c30629199d6083636da24890440db00bf88d7fcac791246-d?f=webp&region=us"}, {"slug": "moon", "home": null, "title": "Moon", "cat": "Motion Graphics", "img": "https://i.vimeocdn.com/video/2212244529-0d3e7410bf8be4b764948a37418167d3de00d08c8b9247f7250357d2faa4239c-d?f=webp&region=us"}, {"slug": "tareekhuna", "home": null, "title": "Tareekhuna", "cat": "Motion Graphics", "img": "images/tareekhuna_ar/01.jpg"}];const CATS=["Motion Graphics", "Graphic Design", "Social Media", "Abstract 3D", "Codex", "Concept"];
+const KEY='order-tool-v1';
+const orig=()=>({home:DATA.filter(d=>d.home).sort((a,b)=>a.home-b.home).map(d=>d.slug),cats:Object.fromEntries(CATS.map(c=>[c,DATA.filter(d=>d.cat===c).map(d=>d.slug)]))});
+let st;try{st=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!st||!st.home||!st.cats)st=orig();
+const by=Object.fromEntries(DATA.map(d=>[d.slug,d]));
+let tab='home';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}out()};
+function out(){document.getElementById('out').value=JSON.stringify(st)}
+function arr(){return tab==='home'?st.home:st.cats[tab]}
+function mv(a,i,j){if(j<0||j>=a.length)return;const [x]=a.splice(i,1);a.splice(j,0,x);save();draw()}
+function row(slug,i,a,extra){
+ const d=by[slug];const el=document.createElement('div');el.className='it';el.draggable=true;el.dataset.i=i;
+ el.innerHTML=`<span class="n">${i+1}</span><img class="th" src="${d.img}" alt="" onerror="this.style.visibility='hidden'"><span class="t"><b>${d.title}</b><small>${d.cat}</small></span><span class="b"></span>`;
+ const b=el.querySelector('.b');
+ const mk=(t,f)=>{const x=document.createElement('button');x.textContent=t;x.onclick=f;b.appendChild(x)};
+ mk('▲',()=>mv(a,i,i-1));mk('▼',()=>mv(a,i,i+1));
+ if(tab==='home')mk('✕',()=>{a.splice(i,1);save();draw()});
+ el.ondragstart=e=>{el.classList.add('drag');e.dataTransfer.setData('text/plain',i)};
+ el.ondragend=()=>el.classList.remove('drag');
+ el.ondragover=e=>{e.preventDefault();el.classList.add('over')};
+ el.ondragleave=()=>el.classList.remove('over');
+ el.ondrop=e=>{e.preventDefault();const f=+e.dataTransfer.getData('text/plain');mv(a,f,i)};
+ return el}
+function draw(){
+ const T=document.getElementById('tabs');T.innerHTML='';
+ [['home','الصفحة الرئيسية'],...CATS.map(c=>[c,c])].forEach(([k,l])=>{const x=document.createElement('button');x.textContent=l;if(k===tab)x.className='on';x.onclick=()=>{tab=k;draw()};T.appendChild(x)});
+ const L=document.getElementById('list');L.innerHTML='';const a=arr();
+ if(tab==='home'){const h=document.createElement('h2');h.textContent='المشاريع الظاهرة بالصفحة الرئيسية (بالترتيب)';L.appendChild(h)}
+ a.forEach((s,i)=>L.appendChild(row(s,i,a)));
+ if(tab==='home'){const h=document.createElement('h2');h.textContent='مشاريع مو ظاهرة بالرئيسية (اضغط + لإضافتها)';L.appendChild(h);
+  DATA.filter(d=>!st.home.includes(d.slug)).forEach(d=>{const el=document.createElement('div');el.className='it';el.style.cursor='default';
+   el.innerHTML=`<span class="n"></span><img class="th" src="${d.img}" alt="" onerror="this.style.visibility='hidden'"><span class="t"><b>${d.title}</b><small>${d.cat}</small></span><span class="b"><button>+</button></span>`;
+   el.querySelector('button').onclick=()=>{st.home.push(d.slug);save();draw()};L.appendChild(el)})}
+ out()}
+document.getElementById('copy').onclick=async()=>{const v=JSON.stringify(st);try{await navigator.clipboard.writeText(v)}catch(e){const o=document.getElementById('out');o.select();document.execCommand('copy')}const k=document.getElementById('ok');k.textContent='تم النسخ ✓';setTimeout(()=>k.textContent='',2000)};
+document.getElementById('reset').onclick=()=>{st=orig();save();draw()};
+draw();
+</script></body></html>
