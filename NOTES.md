@@ -2,6 +2,7 @@
 
 Dated log, newest first. This repo is public: no personal or private info here.
 
+2026-10-25: Arshif Aam: home card cover and og:image now images/archive/14.jpg. Version v44.
 2026-10-25: Arshif Aam: both video posters now use images/archive/14.jpg. Version v43.
 2026-10-25: Removed the unused "Concept" category from all pages. Sitemap refreshed: 30 URLs (added Behance Syria, Mimar Sinan, Moon, Tareekhuna), lastmod 2026-10-25. Version v42.
 2026-10-25: New home grid order (10 projects). Version v41.
