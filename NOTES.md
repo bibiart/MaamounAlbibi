@@ -2,6 +2,8 @@
 
 Dated log, newest first. This repo is public: no personal or private info here.
 
+2026-10-25: Arshif Aam: both video posters now use images/archive/14.jpg. Version v43.
+2026-10-25: Removed the unused "Concept" category from all pages. Sitemap refreshed: 30 URLs (added Behance Syria, Mimar Sinan, Moon, Tareekhuna), lastmod 2026-10-25. Version v42.
 2026-10-25: New home grid order (10 projects). Version v41.
 2026-10-25: New project order from the ordering tool: home grid (10 projects) and order inside each category. Version v40.
 2026-10-25: Added project "Tareekhuna" (Motion Graphics, 3 Vimeo videos + 12 images from images/tareekhuna_ar): works entry and pages/tareekhuna/index.html. Version v39.
