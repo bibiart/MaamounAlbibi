@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atrium — Architectural Real Estate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ecebe8; --bg2:#dddcd8; --ink:#0e0e0e; --mute:#75757a; --accent:#8a8a8a; --line:rgba(14,14,14,.16);
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{font-family:var(--sans);font-weight:300;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+
+/* ---------- Image blocks (set images in IMAGES, in the script) ---------- */
+.ph{background-size:cover;background-position:center;position:relative;overflow:hidden;background-color:#2a2a2a}
+.ph::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.22))}
+.vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* ---------- Loader ---------- */
+html.loading,html.loading body{overflow:hidden}
+#loader{position:fixed;inset:0;z-index:300;background:#0e0e0e;color:#f4f4f2;display:flex;align-items:center;justify-content:center;clip-path:inset(0 0 0 0)}
+.ld-in{width:min(440px,72vw)}
+.ld-logo{font-family:var(--serif);font-size:clamp(56px,9vw,104px);font-weight:300;line-height:1;letter-spacing:.02em;white-space:nowrap}
+.ld-logo span{display:inline-block;opacity:0;transform:translateX(-14px);animation:ldIn .6s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes ldIn{to{opacity:1;transform:none}}
+.ld-bar{height:1px;background:rgba(255,255,255,.2);margin-top:34px;overflow:hidden}
+.ld-bar i{display:block;height:100%;background:#fff;transform:scaleX(0);transform-origin:left}
+.ld-meta{display:flex;justify-content:space-between;margin-top:14px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;opacity:.7}
+
+/* ---------- Nav ---------- */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;
+  padding:30px 4vw;mix-blend-mode:difference;color:#fff;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+nav.hide{transform:translateY(-120%)}
+.logo{font-family:var(--serif);font-size:42px;letter-spacing:.03em;line-height:1}
+.links{display:flex;gap:48px;font-size:16px;letter-spacing:.2em;text-transform:uppercase}
+.links a{position:relative;padding-bottom:4px}
+.links a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:0;background:currentColor;transition:width .4s}
+.links a:hover::after,.links a.on::after{width:100%}
+
+/* ---------- Views ---------- */
+.view{display:none}
+.view.active{display:block}
+.eyebrow{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--mute)}
+h1,h2,h3{font-family:var(--serif);font-weight:300;line-height:.98}
+
+/* Hero */
+.hero{height:100vh;position:relative;overflow:hidden;color:#f4f4f2}
+.hero .bg{position:absolute;inset:0}
+.hero .inner{position:absolute;left:4vw;right:4vw;bottom:9vh;z-index:2}
+.hero h1{font-size:clamp(56px,11vw,190px);letter-spacing:-.02em}
+.hero h1 .ch{display:inline-block;opacity:0}
+.hero h1 .wrap{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.14em;margin-bottom:-.14em}
+.hero .meta{display:flex;justify-content:space-between;align-items:end;margin-top:28px;font-size:13px;letter-spacing:.08em;opacity:0}
+.hero .scroll{display:flex;align-items:center;gap:12px}
+.hero .scroll i{display:block;width:1px;height:42px;background:currentColor;transform-origin:top;animation:drip 2s infinite}
+@keyframes drip{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+/* Reveal */
+.reveal{height:100vh;position:relative;overflow:hidden;background:#000;color:#f4f4f2}
+.scene{position:absolute;inset:0}
+.reveal .cap{position:absolute;left:4vw;bottom:9vh;z-index:5;max-width:560px}
+.reveal .cap .n{font-size:11px;letter-spacing:.3em;text-transform:uppercase;opacity:.8}
+.reveal .cap h2{font-size:clamp(40px,6vw,92px);margin-top:14px}
+.reveal .cap>div{position:absolute;left:0;bottom:0;opacity:0;width:max-content;max-width:90vw}
+.reveal .cap>div:first-child{opacity:1}
+.reveal .prog{position:absolute;right:4vw;top:50%;z-index:5;height:140px;width:1px;background:rgba(255,255,255,.3);transform:translateY(-50%)}
+.reveal .prog b{position:absolute;left:0;top:0;width:1px;height:100%;background:#fff;transform-origin:top;transform:scaleY(0)}
+
+/* Numbers */
+.numbers{padding:16vh 4vw;display:grid;grid-template-columns:1fr 2fr;gap:6vw;align-items:start}
+.numbers h2{font-size:clamp(36px,4.6vw,72px)}
+.numbers h2 em{font-style:italic;color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:0}
+.stat{padding:34px 0 40px;border-top:1px solid var(--line)}
+.stat .v{font-family:var(--serif);font-size:clamp(64px,9vw,150px);line-height:1;font-weight:300}
+.stat .v small{font-size:.32em;margin-left:6px;color:var(--mute)}
+.stat .l{margin-top:10px;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--mute)}
+
+/* Horizontal gallery */
+.gallery{height:100vh;background:var(--bg2);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.gallery .head{display:flex;justify-content:space-between;align-items:end;padding:0 4vw 4vh}
+.gallery .head h2{font-size:clamp(40px,5.4vw,84px)}
+.track{display:flex;gap:2.2vw;padding:0 4vw;width:max-content;will-change:transform}
+.card{width:min(34vw,520px);flex:none}
+.card .ph{height:52vh}
+.card .frame{overflow:hidden}
+.card .row{display:flex;justify-content:space-between;align-items:baseline;margin-top:18px}
+.card h3{font-size:30px}
+.card .price{font-size:14px;letter-spacing:.06em}
+.card .loc{margin-top:6px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute)}
+.card.end{display:flex;align-items:center;width:22vw}
+.card.end a{font-family:var(--serif);font-size:clamp(34px,4vw,60px);font-style:italic;border-bottom:1px solid var(--ink)}
+
+/* CTA / footer */
+.cta{padding:18vh 4vw 8vh;text-align:center}
+.cta h2{font-size:clamp(60px,12vw,210px);letter-spacing:-.02em}
+.cta h2 em{font-style:italic;color:var(--accent)}
+.btn{display:inline-block;margin-top:44px;padding:20px 46px;border:1px solid var(--ink);border-radius:60px;font-size:12px;letter-spacing:.25em;text-transform:uppercase;position:relative;overflow:hidden;transition:color .5s;cursor:pointer;background:none;color:var(--ink);font-family:var(--sans)}
+.btn::before{content:"";position:absolute;inset:0;background:var(--ink);transform:translateY(101%);transition:transform .5s cubic-bezier(.2,.7,.2,1);z-index:-1}
+.btn:hover{color:var(--bg)}
+.btn:hover::before{transform:translateY(0)}
+footer{display:flex;justify-content:space-between;padding:26px 4vw;border-top:1px solid var(--line);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+
+/* About */
+.page{padding:22vh 4vw 12vh}
+.page h1{font-size:clamp(54px,9vw,150px);letter-spacing:-.02em;max-width:14ch}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:6vw;margin-top:12vh;align-items:start}
+.about-grid .ph{height:70vh}
+.about-grid p{font-size:18px;line-height:1.75;max-width:46ch;color:#333}
+.values{margin-top:44px;border-top:1px solid var(--line)}
+.values div{display:flex;gap:24px;padding:22px 0;border-bottom:1px solid var(--line)}
+.values span{font-size:11px;letter-spacing:.25em;color:var(--mute);padding-top:8px}
+.values h3{font-size:32px}
+.values p{font-size:14px;margin-top:6px;line-height:1.6}
+
+/* Contact */
+.contact-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:8vw;margin-top:12vh}
+.contact-grid .info p{margin-top:26px;font-size:17px;line-height:1.7;color:#333}
+.contact-grid .info .eyebrow{margin-top:44px;font-size:11px;color:var(--mute);line-height:1.2}
+form{display:flex;flex-direction:column;gap:34px}
+.field label{display:block;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--mute)}
+.field input,.field textarea{width:100%;background:none;border:none;border-bottom:1px solid var(--ink);padding:12px 0;font:inherit;font-size:20px;color:var(--ink);outline:none;resize:none}
+.field input:focus,.field textarea:focus{border-color:var(--accent)}
+.wa{font-size:13px;color:var(--mute);margin-top:-10px}
+
+/* ---------- Mouse effects: blueprint lens + cursor ---------- */
+.lens{position:absolute;inset:0;z-index:3;pointer-events:none;visibility:hidden;opacity:var(--o,0)}
+.fx.on .lens{visibility:visible}
+.ring{position:absolute;left:0;top:0;z-index:4;pointer-events:none;box-sizing:border-box;border:1px solid #fff;mix-blend-mode:difference;border-radius:50%;opacity:var(--o,0);visibility:hidden;will-change:transform}
+.fx.on .ring{visibility:visible}
+#hero,#reveal,.card .frame{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.lens-img{position:absolute;inset:0;background-size:cover;background-position:center;overflow:hidden;
+  filter:grayscale(1) invert(1) contrast(1.2)}
+.lens-tint{position:absolute;inset:0;background:#fff;opacity:.35}
+.lens-grid{position:absolute;inset:0;
+  background-image:
+   linear-gradient(rgba(0,0,0,.55) 1px,transparent 1px),
+   linear-gradient(90deg,rgba(0,0,0,.55) 1px,transparent 1px),
+   linear-gradient(rgba(0,0,0,.18) 1px,transparent 1px),
+   linear-gradient(90deg,rgba(0,0,0,.18) 1px,transparent 1px);
+  background-size:80px 80px,80px 80px,16px 16px,16px 16px;
+  background-position:var(--gx,0) var(--gy,0)}
+.cross{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;transition:opacity .35s}
+.fx.hov .cross{opacity:1}
+.cross::before,.cross::after{content:"";position:absolute;background:rgba(255,255,255,.75)}
+.cross::before{top:0;left:0;right:0;height:1px;transform:translateY(var(--cy,0px));will-change:transform}
+.cross::after{top:0;left:0;bottom:0;width:1px;transform:translateX(var(--cx,0px));will-change:transform}
+.cross span{position:absolute;left:0;top:0;transform:translate(calc(var(--cx,0px) + 14px),calc(var(--cy,0px) + 12px));will-change:transform;
+  font-size:10px;letter-spacing:.2em;color:#fff;font-family:var(--sans);text-transform:uppercase;white-space:nowrap;mix-blend-mode:difference}
+.tilt{will-change:transform;transform-style:preserve-3d}
+.frame{perspective:900px}
+
+#cursor{position:fixed;left:0;top:0;z-index:200;pointer-events:none;width:14px;height:14px;margin:-7px 0 0 -7px;
+  border:1px solid #fff;border-radius:50%;mix-blend-mode:difference;transition:width .35s,height .35s,margin .35s,background .35s}
+#cursor.big{width:64px;height:64px;margin:-32px 0 0 -32px;background:rgba(255,255,255,.12)}
+@media (hover:none){#cursor{display:none}}
+
+/* readable captions over any image */
+.reveal::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60%;z-index:4;pointer-events:none;
+  background:linear-gradient(to top,rgba(0,0,0,.62),rgba(0,0,0,0))}
+.hero::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.4;
+  background-image:linear-gradient(rgba(0,0,0,.55) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.55) 1px,transparent 1px);
+  background-size:4px 4px}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70%;z-index:1;pointer-events:none;
+  background:linear-gradient(to top,rgba(0,0,0,.6),rgba(0,0,0,0))}
+
+/* about: facts + team */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);margin-top:12vh;border-top:1px solid var(--line)}
+.facts div{padding:30px 0 0}
+.facts b{display:block;font-family:var(--serif);font-weight:300;font-size:clamp(48px,6vw,96px);line-height:1}
+.facts span{display:block;margin-top:8px;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--mute)}
+.team{margin-top:14vh}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3vw;margin-top:34px}
+.team-grid .av{height:38vh;display:flex;align-items:flex-end;padding:18px;font-family:var(--serif);font-size:54px;color:#f4f4f2;background-color:#222;background-size:cover;background-position:center;text-shadow:0 2px 24px rgba(0,0,0,.55);position:relative}
+.team-grid .av::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.45),rgba(0,0,0,0) 60%)}
+.team-grid .av span{position:relative;z-index:1}
+.team-grid h3{font-size:30px;margin-top:16px}
+.team-grid p{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--mute);margin-top:6px}
+.hours{display:flex;justify-content:space-between;max-width:320px;margin-top:8px;font-size:17px;color:#333}
+
+/* page transition curtain */
+#curtain{position:fixed;inset:0;background:var(--ink);z-index:100;transform:translateY(101%);pointer-events:none}
+
+@media (max-width:820px){
+  .numbers,.about-grid,.contact-grid,.facts,.team-grid{grid-template-columns:1fr}
+  .card{width:74vw}.card .ph{height:46vh}
+  .links{gap:22px;font-size:13px}
+  .logo{font-size:32px}
+  .gallery .head{flex-direction:column;align-items:start;gap:10px}
+  .card.end{width:50vw}
+}
+</style>
+</head>
+<body>
+
+<div id="curtain"></div>
+<div id="loader" aria-label="Loading">
+  <div class="ld-in">
+    <div class="ld-logo">Atrium</div>
+    <div class="ld-bar"><i id="ldBar"></i></div>
+    <div class="ld-meta"><span>Loading</span><span id="ldNum">000</span></div>
+  </div>
+</div>
+<script>
+/* =====================================================================
+   SETTINGS — put your own images here (file path or URL).
+   Leave empty '' to keep the built-in placeholder color.
+   ===================================================================== */
+const IMAGES = {
+  hero:   'img/building-poster.jpg',   // poster; the hero plays img/building.mp4
+  scene1: 'img/concrete-angle.jpg',    // facade
+  scene2: 'img/wood-tunnel.jpg',       // entrance
+  scene3: 'img/glass-ceiling.jpg',     // living hall
+  card1:  'img/spiral-stairs.jpg',
+  card2:  'img/stacked-tower.jpg',
+  card3:  'img/curved-tower.jpg',
+  card4:  'img/museum-hall.jpg',
+  about:  'img/white-geometry.jpg',
+  team1:  'img/wood-tunnel.jpg',
+  team2:  'img/white-geometry.jpg',
+  team3:  'img/spiral-stairs.jpg'
+};
+// optional crop per image (CSS background-position)
+const IMAGE_POS = {
+  card1:'30% 60%', card2:'50% 30%', card3:'50% 40%', card4:'50% 82%', about:'26% 50%',
+  team1:'30% 50%', team2:'82% 50%', team3:'60% 85%'
+};
+const HERO_VIDEO = 'img/building.mp4';
+const WHATSAPP_NUMBER = '902125550142'; // country code + number, no + or spaces
+
+
+/* ---------- real loader: waits for every image + the hero video to be buffered ---------- */
+(function(){
+  document.documentElement.classList.add('loading');
+  const lg=document.querySelector('.ld-logo');
+  lg.innerHTML=[...lg.textContent].map((c,i)=>`<span style="animation-delay:${(i*.08).toFixed(2)}s">${c}</span>`).join('');
+  const bar=document.getElementById('ldBar'), num=document.getElementById('ldNum');
+  const urls=[...new Set(Object.values(IMAGES))];
+  let imgDone=0, vidP=0, shown=0, finished=false, resolve;
+  window.__loaded=new Promise(r=>resolve=r);
+  urls.forEach(u=>{ const im=new Image(); im.onload=im.onerror=()=>{ imgDone++; }; im.src=u; });
+  const v=document.createElement('video'); v.muted=true; v.playsInline=true; v.preload='auto'; v.src=HERO_VIDEO;
+  const upd=()=>{ try{ if(v.duration && v.buffered.length) vidP=Math.min(1,v.buffered.end(v.buffered.length-1)/v.duration); }catch(e){} if(v.readyState>=4) vidP=1; };
+  ['progress','loadedmetadata','loadeddata','canplay','canplaythrough'].forEach(ev=>v.addEventListener(ev,upd));
+  v.addEventListener('error',()=>{ vidP=1; });
+  v.load();
+  const t0=performance.now();
+  (function tick(){
+    upd();
+    const timeout=performance.now()-t0>12000;                       // never block the site forever
+    const target=timeout?1:Math.min(1,(imgDone/urls.length)*.4+vidP*.6);
+    shown+=(target-shown)*.08;
+    bar.style.transform=`scaleX(${shown.toFixed(3)})`;
+    num.textContent=String(Math.min(100,Math.round(shown*100))).padStart(3,'0');
+    if(!finished && shown>.995 && performance.now()-t0>1300){
+      finished=true; bar.style.transform='scaleX(1)'; num.textContent='100'; resolve(); return;
+    }
+    requestAnimationFrame(tick);
+  })();
+})();
+</script>
+
+<div id="cursor"></div>
+
+<nav id="nav">
+  <a href="#/" class="logo">Atrium</a>
+  <div class="links">
+    <a href="#/about" data-link="about">About</a>
+    <a href="#/contact" data-link="contact">Contact</a>
+  </div>
+</nav>
+
+<!-- ============================ HOME ============================ -->
+<main class="view" id="view-home">
+
+  <section class="hero" id="hero">
+    <div class="bg ph" data-img="hero"><video class="vid" src="img/building.mp4" poster="img/building-poster.jpg" autoplay muted loop playsinline preload="auto"></video></div>
+    <div class="inner">
+      <h1 id="heroTitle" aria-label="Spaces worth living in">Spaces worth<br>living in</h1>
+      <div class="meta" id="heroMeta">
+        <span>Curated residences — Istanbul / Bodrum / Izmir</span>
+        <span class="scroll"><i></i>Scroll</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="reveal" id="reveal">
+    <div class="scene ph" data-img="scene1" id="s1"></div>
+    <div class="scene ph" data-img="scene2" id="s2"></div>
+    <div class="scene ph" data-img="scene3" id="s3"></div>
+    <div class="cap">
+      <div><span class="n">01 — Façade</span><h2>Light finds<br>the edge.</h2></div>
+      <div><span class="n">02 — Entrance</span><h2>A quiet<br>threshold.</h2></div>
+      <div><span class="n">03 — Living hall</span><h2>Room to<br>breathe.</h2></div>
+    </div>
+    <div class="prog"><b id="progBar"></b></div>
+  </section>
+
+  <section class="numbers" id="numbers">
+    <div>
+      <p class="eyebrow">The residence</p>
+      <h2 style="margin-top:18px">Every detail,<br><em>measured.</em></h2>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="v"><span class="count" data-to="420">0</span><small>m²</small></div><div class="l">Living area</div></div>
+      <div class="stat"><div class="v"><span class="count" data-to="5">0</span></div><div class="l">Bedrooms</div></div>
+      <div class="stat"><div class="v"><span class="count" data-to="3">0</span></div><div class="l">Floors</div></div>
+      <div class="stat"><div class="v"><span class="count" data-to="2024">0</span></div><div class="l">Year built</div></div>
+    </div>
+  </section>
+
+  <section class="gallery" id="gallery">
+    <div class="head">
+      <h2>Selected<br>properties</h2>
+      <p class="eyebrow">Drag the page — scroll to explore →</p>
+    </div>
+    <div class="track" id="track">
+      <article class="card"><div class="frame"><div class="ph" data-img="card1"></div></div>
+        <div class="row"><h3>Villa Sera</h3><span class="price">€ 2,400,000</span></div><p class="loc">Bodrum — 5 bed</p></article>
+      <article class="card"><div class="frame"><div class="ph" data-img="card2"></div></div>
+        <div class="row"><h3>The Courtyard</h3><span class="price">€ 1,150,000</span></div><p class="loc">Istanbul, Bebek — 3 bed</p></article>
+      <article class="card"><div class="frame"><div class="ph" data-img="card3"></div></div>
+        <div class="row"><h3>Stone House</h3><span class="price">€ 880,000</span></div><p class="loc">Alaçatı — 4 bed</p></article>
+      <article class="card"><div class="frame"><div class="ph" data-img="card4"></div></div>
+        <div class="row"><h3>Atelier Loft</h3><span class="price">€ 640,000</span></div><p class="loc">Istanbul, Karaköy — 2 bed</p></article>
+      <article class="card end"><a href="#/contact">Ask for the full list</a></article>
+    </div>
+  </section>
+
+  <section class="cta">
+    <p class="eyebrow">Let's talk</p>
+    <h2 style="margin-top:26px">Find your <em>space.</em></h2>
+    <a class="btn" href="#/contact">Get in touch</a>
+  </section>
+  <footer><span>© 2026 Atrium</span><span>Istanbul</span></footer>
+</main>
+
+<!-- ============================ ABOUT ============================ -->
+<main class="view" id="view-about">
+  <section class="page">
+    <p class="eyebrow">About</p>
+    <h1 style="margin-top:22px">Architecture first. Listings second.</h1>
+    <div class="about-grid">
+      <div class="ph" data-img="about"></div>
+      <div>
+        <p>Atrium is a small studio that represents a handful of homes chosen for their design — the way light enters, how a staircase turns, what the walls are made of.</p>
+        <p style="margin-top:20px">We photograph every property ourselves and tell you what it is really like to live there. No noise, only the spaces that deserve attention.</p>
+        <div class="values">
+          <div><span>01</span><div><h3>Curated</h3><p>Few properties, each one visited and chosen.</p></div></div>
+          <div><span>02</span><div><h3>Honest</h3><p>Real dimensions, real photographs, clear prices.</p></div></div>
+          <div><span>03</span><div><h3>Personal</h3><p>One person from first visit to final key.</p></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="facts">
+      <div><b>2014</b><span>Founded in Istanbul</span></div>
+      <div><b>140</b><span>Homes placed</span></div>
+      <div><b>12</b><span>Architects we work with</span></div>
+    </div>
+    <div class="team">
+      <p class="eyebrow">The studio</p>
+      <div class="team-grid">
+        <div><div class="av" data-img="team1"><span>LM</span></div><h3>Lena Marsh</h3><p>Founder / Lead advisor</p></div>
+        <div><div class="av" data-img="team2"><span>KD</span></div><h3>Kerem Dalan</h3><p>Architecture curator</p></div>
+        <div><div class="av" data-img="team3"><span>SO</span></div><h3>Selin Ordu</h3><p>Client relations</p></div>
+      </div>
+    </div>
+  </section>
+  <footer><span>© 2026 Atrium</span><span>Istanbul</span></footer>
+</main>
+
+<!-- ============================ CONTACT ============================ -->
+<main class="view" id="view-contact">
+  <section class="page">
+    <p class="eyebrow">Contact</p>
+    <h1 style="margin-top:22px">Tell us what you're looking for.</h1>
+    <div class="contact-grid">
+      <div class="info">
+        <p>Share a few lines about the space you imagine. We reply within one working day.</p>
+        <p class="eyebrow">Email</p><p style="margin-top:8px">hello@atrium.example</p>
+        <p class="eyebrow">Phone / WhatsApp</p><p style="margin-top:8px">+90 212 555 01 42</p>
+        <p class="eyebrow">Studio</p><p style="margin-top:8px">14 Meridian Passage, Karaköy<br>Istanbul, Türkiye</p>
+        <p class="eyebrow">Hours</p>
+        <div class="hours"><span>Mon – Fri</span><span>09:00 – 18:00</span></div>
+        <div class="hours"><span>Saturday</span><span>By appointment</span></div>
+      </div>
+      <form id="form">
+        <div class="field"><label>Name</label><input name="name" required></div>
+        <div class="field"><label>Email</label><input name="email" type="email" required></div>
+        <div class="field"><label>Message</label><textarea name="msg" rows="3" required></textarea></div>
+        <div><button class="btn" type="submit" style="margin-top:0">Send message</button></div>
+        <p class="wa">Opens WhatsApp with your message ready to send.</p>
+      </form>
+    </div>
+  </section>
+  <footer><span>© 2026 Atrium</span><span>Istanbul</span></footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+/* ---------- apply images ---------- */
+document.querySelectorAll('[data-img]').forEach(el=>{
+  const u = IMAGES[el.dataset.img];
+  if(u) el.style.backgroundImage = `url("${u}")`;
+  if(IMAGE_POS[el.dataset.img]) el.style.backgroundPosition = IMAGE_POS[el.dataset.img];
+});
+
+/* ---------- smooth scroll ---------- */
+gsap.registerPlugin(ScrollTrigger);
+const lenis = new Lenis({ lerp: .13, wheelMultiplier: 1.35 });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(t => lenis.raf(t*1000));
+gsap.ticker.lagSmoothing(0);
+lenis.stop();                      // scrolling is locked until the loader opens
+let introDelay = 0;                // >0 only on the very first load (after the loader)
+
+/* ---------- nav hide / show ---------- */
+const nav = document.getElementById('nav');
+lenis.on('scroll', ({direction, scroll}) => {
+  nav.classList.toggle('hide', direction === 1 && scroll > 200);
+});
+
+/* ---------- hero title split ---------- */
+(function split(){
+  const h = document.getElementById('heroTitle');
+  const lines = h.innerHTML.split('<br>');
+  h.innerHTML = lines.map(line =>
+    line.split(' ').map(w => `<span class="wrap">${[...w].map(c=>`<span class="ch">${c}</span>`).join('')}</span>`).join(' ')
+  ).join('<br>');
+})();
+
+/* ---------- HOME animations ---------- */
+function initHome(){
+  // intro
+  // title is "written" from the left, letter by letter
+  gsap.fromTo('.hero .ch',{opacity:0,x:-18},{opacity:1,x:0,duration:.6,ease:'power2.out',stagger:.05,delay:introDelay+.1});
+  gsap.to('#heroMeta',{opacity:1,duration:1,delay:introDelay+1.5});
+
+  // hero zoom + fade
+  gsap.to('.hero .inner',{yPercent:-18,opacity:0,ease:'none',
+    scrollTrigger:{trigger:'#hero',start:'top top',end:'70% top',scrub:true}});
+
+  // pinned reveal: façade -> entrance -> hall
+  gsap.set('#s2',{clipPath:'inset(100% 0% 0% 0%)'});
+  gsap.set('#s3',{clipPath:'inset(100% 0% 0% 0%)'});
+  const caps = gsap.utils.toArray('.reveal .cap > div');
+  const tl = gsap.timeline({scrollTrigger:{trigger:'#reveal',start:'top top',end:'+=210%',pin:true,scrub:.6}});
+  tl.to('#s2',{clipPath:'inset(0% 0% 0% 0%)',duration:1,ease:'power3.inOut'},0)
+    .to('#s1',{scale:1.12,duration:1,ease:'none'},0)
+    .to(caps[0],{opacity:0,y:-30,duration:.3},.15)
+    .fromTo(caps[1],{opacity:0,y:30},{opacity:1,y:0,duration:.3},.6)
+    .to({}, {duration:.4})
+    .to('#s3',{clipPath:'inset(0% 0% 0% 0%)',duration:1,ease:'power3.inOut'})
+    .to('#s2',{scale:1.12,duration:1,ease:'none'},'<')
+    .to(caps[1],{opacity:0,y:-30,duration:.3},'<+.15')
+    .fromTo(caps[2],{opacity:0,y:30},{opacity:1,y:0,duration:.3},'<+.45')
+    .to('#progBar',{scaleY:1,duration:tl.duration(),ease:'none'},0);
+  tl.to({}, {duration:.4});
+
+  // counters
+  document.querySelectorAll('.count').forEach(el=>{
+    const to = +el.dataset.to, o = {v:0};
+    gsap.to(o,{v:to,ease:'power1.out',
+      scrollTrigger:{trigger:el,start:'top 88%',end:'top 40%',scrub:.6},
+      onUpdate:()=>{ el.textContent = Math.round(o.v); }});
+  });
+  gsap.from('.stat',{opacity:0,y:50,stagger:.12,duration:1,ease:'power3.out',
+    scrollTrigger:{trigger:'.stats',start:'top 80%'}});
+
+  // horizontal gallery
+  const track = document.getElementById('track');
+  const dist = () => Math.max(0, track.scrollWidth - window.innerWidth + window.innerWidth*0.04);
+  gsap.to(track,{x:()=>-dist(),ease:'none',
+    scrollTrigger:{trigger:'#gallery',start:'top top',end:()=>'+='+Math.round(dist()*.75),pin:true,scrub:.6,invalidateOnRefresh:true}});
+
+  // CTA
+  gsap.from('.cta h2',{y:80,opacity:0,duration:1.2,ease:'power3.out',scrollTrigger:{trigger:'.cta',start:'top 70%'}});
+}
+
+/* ---------- ABOUT / CONTACT animations ---------- */
+function initPage(id){
+  gsap.from(`#view-${id} .page h1`,{y:60,opacity:0,duration:1.2,ease:'power3.out',delay:introDelay+.3});
+  gsap.from(`#view-${id} .page .eyebrow:first-child`,{opacity:0,duration:1,delay:introDelay+.2});
+  gsap.from(`#view-${id} .about-grid > *, #view-${id} .contact-grid > *`,{y:60,opacity:0,duration:1.1,stagger:.15,ease:'power3.out',
+    scrollTrigger:{trigger:`#view-${id} .about-grid, #view-${id} .contact-grid`,start:'top 85%'}});
+  gsap.from(`#view-${id} .facts > div, #view-${id} .team-grid > div`,{y:50,opacity:0,stagger:.12,duration:1,ease:'power3.out',
+    scrollTrigger:{trigger:`#view-${id} .facts, #view-${id} .team-grid`,start:'top 88%'}});
+  gsap.from('.values > div',{opacity:0,x:-30,stagger:.15,duration:.9,scrollTrigger:{trigger:'.values',start:'top 85%'}});
+}
+
+/* =====================================================================
+   MOUSE EFFECTS — blueprint lens + 3D tilt + custom cursor
+   ===================================================================== */
+(function mouseFx(){
+
+  // custom cursor (plain rAF, independent from GSAP)
+  const cur = document.getElementById('cursor');
+  let cx=innerWidth/2, cy=innerHeight/2, tx=cx, ty=cy;
+  addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY});
+  (function loop(){ cx+=(tx-cx)*.22; cy+=(ty-cy)*.22;
+    cur.style.transform=`translate(${cx}px,${cy}px)`; requestAnimationFrame(loop); })();
+
+  // blueprint lens on every image
+  const targets = document.querySelectorAll('.hero .bg, .scene, .card .ph, .about-grid .ph');
+  targets.forEach(el=>{
+    const cs = getComputedStyle(el);
+    const lens = document.createElement('div');
+    lens.className='lens';
+    lens.innerHTML = '<div class="lens-img"></div><div class="lens-tint"></div><div class="lens-grid"></div>';
+    const li = lens.firstChild;
+    li.style.backgroundImage = cs.backgroundImage;
+    li.style.backgroundColor = cs.backgroundColor;
+    li.style.backgroundPosition = cs.backgroundPosition;
+    const v = el.querySelector('video');
+    if(v){
+      const c = v.cloneNode(true); c.muted = true; c.removeAttribute('poster');
+      li.appendChild(c);
+      v.addEventListener('timeupdate',()=>{ if(Math.abs(c.currentTime-v.currentTime)>.15) c.currentTime=v.currentTime; });
+    }
+    el.appendChild(lens);
+    const cross = document.createElement('div');
+    cross.className='cross'; cross.innerHTML='<span>X 000 / Y 000</span>';
+    el.appendChild(cross);
+    const ring = document.createElement('div'); ring.className='ring'; el.appendChild(ring);
+    el.classList.add('fx');
+  });
+
+  // ===== Lens engine =====
+  // Crosshair + coordinates + ring cursor: always on hover.
+  // Invert "liquid" lens: only while pressed. It blooms fast (like pressing on water), has an organic
+  // plain circle that follows the crosshair; only opacity fades (quick in, slow out). Time-based easing.
+  const R0 = matchMedia('(max-width:820px)').matches ? 110 : 150;
+  const states = new Map(), Z = [];
+  const st = f => { if(!states.has(f)){
+      const ring=f.querySelector(':scope > .ring'); if(ring){ ring.style.width=ring.style.height=(R0*2)+'px'; }
+      states.set(f,{x:0,y:0,tx:0,ty:0,cx:0,cy:0,o:0,to:0,on:false,hov:false,lens:f.querySelector(':scope > .lens'),ring}); }
+    return states.get(f); };
+  const local = (f,e) => { const r=f.getBoundingClientRect(), k=f.offsetWidth/(r.width||1);
+    return [(e.clientX-r.left)*k,(e.clientY-r.top)*k]; };
+  const grad = (x,y,r) => `radial-gradient(circle ${r.toFixed(1)}px at ${x.toFixed(1)}px ${y.toFixed(1)}px,#000 ${(r-1).toFixed(1)}px,rgba(0,0,0,0) ${r.toFixed(1)}px)`;
+  let last = performance.now();
+  (function lensLoop(now){
+    const dt=Math.min(.1,Math.max(.001,(now-last)/1000)); last=now; const t=now/1000;
+    const kPos=1-Math.exp(-dt*9), kCross=1-Math.exp(-dt*24);
+    states.forEach((s,f)=>{
+      s.cx+=(s.tx-s.cx)*kCross; s.cy+=(s.ty-s.cy)*kCross;
+      const press=s.to>0;
+      s.o+=(s.to-s.o)*(1-Math.exp(-dt*(press?15:2.3)));                    // quick in, slow flowing out
+      const on=s.o>.01;
+      if(on!==s.on){
+        s.on=on; f.classList.toggle('on',on);
+        const main=f.querySelector(':scope > video'), c=f.querySelector('.lens-img video');
+        if(c&&main){ if(on){ c.currentTime=main.currentTime; c.play().catch(()=>{}); } else c.pause(); }
+        if(!on) f.style.setProperty('--o','0');
+      }
+      if(on){
+        const m=grad(s.cx,s.cy,R0);   // plain circle that follows the crosshair; only its opacity animates
+        s.lens.style.webkitMaskImage=m; s.lens.style.maskImage=m;
+        if(s.ring) s.ring.style.transform=`translate(${(s.cx-R0).toFixed(1)}px,${(s.cy-R0).toFixed(1)}px)`;
+        f.style.setProperty('--o',s.o.toFixed(3));
+        f.style.setProperty('--gx',(-s.x*.15).toFixed(1)+'px'); f.style.setProperty('--gy',(-s.y*.15).toFixed(1)+'px');
+      }
+      if(s.hov){
+        f.style.setProperty('--cx',s.cx.toFixed(1)+'px'); f.style.setProperty('--cy',s.cy.toFixed(1)+'px');
+        const txt=`X ${String(Math.round(s.cx)).padStart(3,'0')} / Y ${String(Math.round(s.cy)).padStart(3,'0')}`;
+        if(txt!==s.lbl){ s.lbl=txt; const lab=f.querySelector('.cross span'); if(lab) lab.textContent=txt; }
+      }
+    });
+    requestAnimationFrame(lensLoop);
+  })(last);
+
+  // ----- pointer logic -----
+  let mouseDown=false, touchHeld=false, holdT=null, activeZ=null, sx=0, sy=0;
+  const aim = (z,e,snap) => z.fx.forEach(f=>{ const s=st(f), [x,y]=local(f,e); s.tx=x; s.ty=y;
+    if(snap){ if(!s.on) { s.x=x; s.y=y; } if(!s.hov){ s.cx=x; s.cy=y; } } });
+  // the invert lens is only rendered on the visible (top) layer; hover/crosshair works on every layer
+  const press = (z,on,e) => { if(on&&e) aim(z,e,true);
+    (on&&z.pick ? z.pick() : z.fx).forEach(f=>{ const s=st(f); if(on&&e){ const [x,y]=local(f,e); s.x=x; s.y=y; } s.to=on?1:0; }); };   // lens stays where you pressed
+  const hover = (z,on) => z.fx.forEach(f=>{ const s=st(f); s.hov=on; f.classList.toggle('hov',on); });
+  const zoneAt = (x,y) => Z.find(z=>{ const r=z.zone.getBoundingClientRect(); return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom; });
+  const endPress = e => {
+    clearTimeout(holdT);
+    if(!e || e.pointerType==='mouse') mouseDown=false;
+    if(touchHeld && (!e || e.pointerType!=='mouse')){ touchHeld=false; if(activeZ) hover(activeZ,false); activeZ=null; }
+    states.forEach(s=>{ s.to=0; });
+  };
+  addEventListener('pointerup',endPress);
+  addEventListener('pointercancel',endPress);
+  addEventListener('blur',()=>endPress());
+  // Touch: after a ~0.25s press-and-hold the finger drags the lens (and can move on to other images) instead of scrolling.
+  document.addEventListener('touchmove',e=>{ if(touchHeld) e.preventDefault(); },{passive:false});
+  addEventListener('pointermove',e=>{
+    if(e.pointerType==='mouse') return;
+    if(!touchHeld){ if(holdT && Math.hypot(e.clientX-sx,e.clientY-sy)>10) clearTimeout(holdT); return; }
+    const z=zoneAt(e.clientX,e.clientY);
+    if(z!==activeZ){
+      if(activeZ){ press(activeZ,false); hover(activeZ,false); }
+      activeZ=z||null;
+      if(activeZ){ press(activeZ,true,e); hover(activeZ,true); }
+    }
+    if(activeZ) aim(activeZ,e,false);
+  });
+
+  function bindZone(zone, fxEls, tilt, pick){
+    const z={zone,fx:fxEls,pick}; Z.push(z);
+    const tiltEl = tilt ? fxEls[0] : null;
+    zone.addEventListener('pointerenter',e=>{
+      if(e.pointerType!=='mouse') return;
+      aim(z,e,true); hover(z,true); cur.classList.add('big');
+      if(mouseDown) press(z,true,e);                       // keep pressing while moving from image to image
+      if(tiltEl) gsap.to(tiltEl,{scale:1.05,duration:1.1,ease:'power3.out',overwrite:'auto'});
+    });
+    zone.addEventListener('pointerleave',e=>{
+      if(e.pointerType!=='mouse') return;
+      hover(z,false); press(z,false); cur.classList.remove('big');
+      if(tiltEl) gsap.to(tiltEl,{scale:1,rotationX:0,rotationY:0,x:0,y:0,duration:1.2,ease:'power3.out',overwrite:'auto'});
+    });
+    zone.addEventListener('pointerdown',e=>{
+      if(e.pointerType==='mouse'){ if(e.button!==0) return; mouseDown=true; press(z,true,e); return; }
+      sx=e.clientX; sy=e.clientY; clearTimeout(holdT);
+      holdT=setTimeout(()=>{
+        touchHeld=true; activeZ=z; press(z,true,{clientX:sx,clientY:sy}); hover(z,true);
+        try{ navigator.vibrate && navigator.vibrate(8); }catch(_){}
+      },250);
+    });
+    zone.addEventListener('pointermove',e=>{
+      if(e.pointerType!=='mouse') return;
+      aim(z,e,false);
+      if(tiltEl){
+        const r = tiltEl.parentElement.getBoundingClientRect();
+        const nx = (e.clientX - r.left)/r.width - .5, ny = (e.clientY - r.top)/r.height - .5;
+        gsap.to(tiltEl,{rotationY:nx*5,rotationX:-ny*5,x:nx*-8,y:ny*-8,duration:1,ease:'power3.out',overwrite:'auto'});
+      }
+    });
+  }
+
+  document.querySelectorAll('.card:not(.end) .frame').forEach(f=>bindZone(f,[f.querySelector('.ph')],false));
+  bindZone(document.getElementById('hero'),[document.querySelector('.hero .bg')],false);
+  bindZone(document.getElementById('reveal'),[...document.querySelectorAll('.reveal .scene')],false,()=>{
+    let top; document.querySelectorAll('.reveal .scene').forEach(el=>{
+      const m=/inset\(([\d.]+)%/.exec(getComputedStyle(el).clipPath||''); if(!top||!m||parseFloat(m[1])<50) top=el; });
+    return [top];
+  });
+  const ab = document.querySelector('.about-grid > .ph');
+  if(ab) bindZone(ab,[ab],false);
+
+  // cursor grows on links/buttons
+  document.querySelectorAll('a,button').forEach(a=>{
+    a.addEventListener('mouseenter',()=>cur.classList.add('big'));
+    a.addEventListener('mouseleave',()=>cur.classList.remove('big'));
+  });
+})();
+
+/* ---------- router (hash) ---------- */
+let current = null;
+function route(){
+  const h = location.hash.replace('#/','') || 'home';
+  const id = ['about','contact'].includes(h) ? h : 'home';
+  if(id === current) return;
+  const first = current === null;
+  const swap = () => {
+    ScrollTrigger.getAll().forEach(t=>t.kill(true));
+    gsap.killTweensOf(document.querySelectorAll('.view, .view *'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+id).classList.add('active');
+    document.querySelectorAll('[data-link]').forEach(a=>a.classList.toggle('on',a.dataset.link===id));
+    window.scrollTo(0,0); lenis.scrollTo(0,{immediate:true});
+    nav.classList.remove('hide');
+    current = id;
+    id === 'home' ? initHome() : initPage(id);
+    ScrollTrigger.refresh();
+  };
+  if(first){ swap(); return; }
+  gsap.timeline()
+    .set('#curtain',{y:'101%'})
+    .to('#curtain',{y:'0%',duration:.6,ease:'power3.inOut'})
+    .add(swap)
+    .to('#curtain',{y:'-101%',duration:.7,ease:'power3.inOut',delay:.1});
+}
+window.addEventListener('hashchange',route);
+
+/* ---------- opening: loader panel opens to the right, then the page text is written in ---------- */
+window.__loaded.then(()=>{
+  introDelay = .5;
+  document.documentElement.classList.remove('loading');
+  route();
+  gsap.from('nav',{opacity:0,duration:1,delay:introDelay+.2});
+  gsap.to('#loader',{clipPath:'inset(0% 0% 0% 100%)',duration:1.25,ease:'power4.inOut',
+    onComplete:()=>{ document.getElementById('loader').remove(); lenis.start(); introDelay = 0; }});
+});
+
+/* ---------- keep the hero video alive (other monitor / tab switch / off-screen) ---------- */
+(function keepVideo(){
+  const v=document.querySelector('.hero .bg > video'); if(!v) return;
+  let inView=false;
+  const play=()=>{ if(inView && !document.hidden && v.paused && !v.ended) v.play().catch(()=>{}); };
+  new IntersectionObserver(es=>{ inView=es[0].isIntersecting; inView ? play() : v.pause(); },{threshold:.05}).observe(v.parentElement);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) play(); });
+  ['focus','pageshow','online'].forEach(ev=>addEventListener(ev,play));
+  let lastMove=0; addEventListener('pointermove',()=>{ const n=performance.now(); if(n-lastMove>1500){ lastMove=n; play(); } },{passive:true});
+  v.addEventListener('pause',()=>{ if(inView && !document.hidden && !v.ended) setTimeout(play,200); });
+  ['stalled','suspend','waiting','ended'].forEach(ev=>v.addEventListener(ev,()=>setTimeout(play,500)));
+  v.addEventListener('error',()=>{ setTimeout(()=>{ v.load(); play(); },800); });
+  setInterval(play,2000);                                   // watchdog
+})();
+
+/* ---------- contact form -> WhatsApp ---------- */
+document.getElementById('form').addEventListener('submit',e=>{
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const text = `Hello Atrium,%0AName: ${encodeURIComponent(f.get('name'))}%0AEmail: ${encodeURIComponent(f.get('email'))}%0A${encodeURIComponent(f.get('msg'))}`;
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`,'_blank');
+});
+</script>
+</body>
+</html>
