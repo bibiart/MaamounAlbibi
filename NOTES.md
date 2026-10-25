@@ -2,6 +2,7 @@
 
 Dated log, newest first. This repo is public: no personal or private info here.
 
+2026-10-25: New project order from the ordering tool: home grid (10 projects) and order inside each category. Version v40.
 2026-10-25: Added project "Tareekhuna" (Motion Graphics, 3 Vimeo videos + 12 images from images/tareekhuna_ar): works entry and pages/tareekhuna/index.html. Version v39.
 2026-10-25: Added project "Moon" (Motion Graphics, 1 Vimeo video): works entry and pages/moon/index.html. Version v38.
 2026-10-25: Added project "Mimar Sinan" (Motion Graphics, 1 Vimeo video): works entry and pages/mimar-sinan/index.html. Version v37.
