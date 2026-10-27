@@ -2,6 +2,7 @@
 
 Dated log, newest first. This repo is public: no personal or private info here.
 
+2026-10-27: Performance: card videos now play only on hover (lazy load, first 8 s then restart, still image on phones); on phones/touch the page uses native scroll and skips parallax work; the per-frame animation work pauses while a project is open or nothing moved. Applied to index and all project pages. Version v45.
 2026-10-25: Arshif Aam: home card cover and og:image now images/archive/14.jpg. Version v44.
 2026-10-25: Arshif Aam: both video posters now use images/archive/14.jpg. Version v43.
 2026-10-25: Removed the unused "Concept" category from all pages. Sitemap refreshed: 30 URLs (added Behance Syria, Mimar Sinan, Moon, Tareekhuna), lastmod 2026-10-25. Version v42.
