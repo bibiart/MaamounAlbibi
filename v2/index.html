@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 46 -->
+<!-- Maamoun Albibi v2 / build 47 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="app-version" content="v2-build-36">
@@ -1346,7 +1346,7 @@ function buildStack(){
 }
 (function(){
   var S=$("lbs"),touch=matchMedia("(hover:none)").matches;
-  S.addEventListener("scroll",function(){var i=Math.round(S.scrollTop/Math.max(1,S.clientHeight));if(i!==idx&&i>=0&&i<lbItems.length)idx=i;},{passive:true});
+  S.addEventListener("scroll",function(){if(!lb.classList.contains("stack"))return;var i=Math.round(S.scrollTop/Math.max(1,S.clientHeight));if(i!==idx&&i>=0&&i<lbItems.length)idx=i;},{passive:true});
   S.addEventListener("click",function(e){
     if(e.target.tagName!=="IMG"){closeLb();return;}               // كليك على الأسود: إغلاق
     if(touch){closeLb();return;}                                   // لمس: كليك على الصورة يغلق (مثل الموقع الأول)
