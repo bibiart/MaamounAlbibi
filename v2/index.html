@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 32 -->
+<!-- Maamoun Albibi v2 / build 34 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
-<meta name="app-version" content="v2-build-32">
+<meta name="app-version" content="v2-build-34">
 <meta name="theme-color" content="#0b0b0d">
 <!-- خطوط عربية مجانية (Google Fonts، رخصة OFL). مؤقت للمقارنة: احذف الروابط غير المختارة لاحقاً -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -201,8 +201,8 @@ html[lang="ar"] .more{font-family:inherit}
 .more[hidden]{display:none}
 .ptext{position:sticky;top:24px;display:flex;flex-direction:column;gap:22px;max-height:calc(100vh - 168px);overflow:auto}
 .ptext>*{flex-shrink:0}
-.ptext{scrollbar-width:thin;scrollbar-color:rgba(239,234,224,.22) transparent;overscroll-behavior:auto;padding-bottom:6px}
-.ptext::-webkit-scrollbar{width:4px}.ptext::-webkit-scrollbar-thumb{background:rgba(239,234,224,.22);border-radius:4px}
+.ptext{scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:auto;padding-bottom:6px}
+.ptext::-webkit-scrollbar{display:none;width:0;height:0}
 .ptext p{line-height:1.9;font-size:calc(var(--fs,17) * 1px);opacity:.78}
 .ptext .lead{font-size:calc(var(--fs,17) * 1.2px);line-height:1.65;font-weight:600;opacity:1}
 .ptext dl{display:flex;flex-direction:column;border-top:1px solid #26262b}
@@ -398,7 +398,7 @@ html.introing body::after{display:none}
 #olines{position:fixed;inset:0;z-index:67;pointer-events:none;display:none}
 #olines i{position:absolute;left:0;right:0;background:#ff4d2e;will-change:transform;backface-visibility:hidden;transform:translate3d(-110vw,0,0)}
 
-#fnav{position:fixed;z-index:40;bottom:22px;inset-inline-end:22px;display:flex;gap:10px;direction:ltr;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .3s ease,transform .35s var(--out)}
+#fnav{position:fixed;z-index:40;bottom:22px;inset-inline-end:22px;display:flex;gap:10px;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .3s ease,transform .35s var(--out)}
 #fnav.show{opacity:1;pointer-events:auto;transform:none}
 #fnav button{height:46px;border-radius:99px;border:1px solid rgba(255,255,255,.28);background:rgba(18,18,22,.55);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:var(--ink);cursor:pointer;font:700 13px "Helvetica Neue",Arial,sans-serif;letter-spacing:.04em;transition:background .25s,color .25s,border-color .25s}
 html[lang="ar"] #fnav button{font-family:inherit}
@@ -814,6 +814,23 @@ function initPlayers(root){
       A.seek=function(t){try{media.currentTime=t;}catch(e){}};A.vol=function(v){media.volume=v;media.muted=(v===0);};
       A.reset=function(){try{media.pause();media.currentTime=0;}catch(e){}};
     }
+    /* معاينة سريعة عند الرول أوفر (كمبيوتر فقط): يشتغل ثانيتين صامت بس ليعرف الزائر إنه فيديو، واحد واحد */
+    if(!isVm&&window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches){
+      var pvT=0;
+      var pvStop=function(){clearTimeout(pvT);if(box._pv&&!box.classList.contains("started")){var v=box.querySelector("video");try{v.pause();v.currentTime=0;}catch(e){}box._pv=false;if(window._pvBox===box)window._pvBox=null;}};
+      box.addEventListener("pointerenter",function(){
+        if(box.classList.contains("started"))return;
+        if(window._pvBox&&window._pvBox!==box&&window._pvBox._pvStop)window._pvBox._pvStop();
+        var v=box.querySelector("video");if(!v)return;
+        v.muted=true;v.preload="auto";box._pv=true;window._pvBox=box;
+        var r=v.play();if(r&&r.catch)r.catch(function(){});
+        clearTimeout(pvT);pvT=setTimeout(pvStop,7000);   // احتياط لو التحميل بطيء
+        var onP=function(){v.removeEventListener("playing",onP);if(box._pv){clearTimeout(pvT);pvT=setTimeout(pvStop,2000);}};   // ثانيتين من لحظة بدء العرض الفعلي
+        v.addEventListener("playing",onP);
+      });
+      box.addEventListener("pointerleave",pvStop);
+      box._pvStop=pvStop;
+    }
     function announce(){document.dispatchEvent(new CustomEvent("vpplay",{detail:box}));}
     document.addEventListener("vpplay",function(e){if(!document.body.contains(box))return;if(e.detail!==box&&S.playing){A.pause();}});
     function toggle(){if(S.playing)A.pause();else{announce();A.play();}wake();}
@@ -821,6 +838,8 @@ function initPlayers(root){
       if(box.classList.contains("started")){toggle();return;}
       box.classList.add("started","ld");
       if(isVm){A.load();}else{A.load();}
+      if(box._pvStop)box._pvStop();
+      if(!isVm){var _m=box.querySelector("video");if(_m){_m.muted=false;_m.volume=1;}}
       build();S.playing=true;ui();announce();
       if(isVm){}else{A.play();}
       box.setAttribute("tabindex","0");wake();
@@ -1324,6 +1343,8 @@ function doCloseLb(){
   if(lb.classList.contains("stack")){fillLb();lb.classList.remove("stack");}
   document.body.classList.remove("lb-open");
   var ci=lbGet?lbGet(idx):null,o={duration:360,easing:EASE,fill:"forwards"};
+  if(ci){try{var sp=proj.style.display!=="none"?proj:page;var r0=ci.getBoundingClientRect();
+    if(r0.top<80||r0.bottom>innerHeight-40){sp.scrollTop+=r0.top+r0.height/2-innerHeight/2;}}catch(e){}}
   var F=lbimg.getBoundingClientRect(),done=function(){
     lbOpen=false;lb.style.display="none";lb.classList.remove("stack");$("lbs").innerHTML="";
     lb.getAnimations({subtree:true}).forEach(function(a){a.cancel();});
@@ -1384,7 +1405,7 @@ $("lbbg").onclick=closeLb;
 /* سكرول الماوس داخل العارض (حتى لو مكبّرة): ينتقل للصورة التالية / السابقة */
 var lbWheelT=0,lbAcc=0;
 lb.addEventListener("wheel",function(e){
-  if(!lbOpen||lbBusy)return;e.preventDefault();
+  if(!lbOpen||lbBusy||lbZoom)return;e.preventDefault();
   var now=performance.now();if(now-lbWheelT<520){return;}
   lbAcc+=e.deltaY;if(Math.abs(lbAcc)<30)return;
   var d=lbAcc>0?1:-1;lbAcc=0;lbWheelT=now;stepLb(d);
