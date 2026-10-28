@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 27 -->
+<!-- Maamoun Albibi v2 / build 28 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
-<meta name="app-version" content="v2-build-27">
+<meta name="app-version" content="v2-build-28">
 <meta name="theme-color" content="#0b0b0d">
 <!-- خطوط عربية مجانية (Google Fonts، رخصة OFL). مؤقت للمقارنة: احذف الروابط غير المختارة لاحقاً -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -371,7 +371,7 @@ html[lang="en"] .fpick,body.lb-open .fpick,body.onaccent .fpick{display:none}
   display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 0;direction:ltr;
   font:500 10px/1 "Courier New",monospace;letter-spacing:.24em;color:var(--ink);
   animation:ibin 1.1s cubic-bezier(.2,.7,.2,1) .5s backwards}
-@keyframes ibin{from{opacity:0;filter:blur(8px)}to{opacity:1;filter:blur(0)}}
+@keyframes ibin{from{opacity:0}to{opacity:1}}
 .ibar b{order:-1;flex:0 0 100%;height:1px;background:rgba(239,234,224,.16);position:relative;display:block;overflow:hidden}
 .ibar b::after{content:"";position:absolute;inset:0;background:var(--ink);transform-origin:left;transform:scaleX(var(--p,0))}
 .ibar span{opacity:.5}
@@ -392,6 +392,10 @@ html[lang="en"] .fpick,body.lb-open .fpick,body.onaccent .fpick{display:none}
 @media (hover:none){
   .col .desc{font-size:14px;max-width:80vw}
 }
+
+html.introing body::after{display:none}
+#olines{position:fixed;inset:0;z-index:67;pointer-events:none;display:none}
+#olines i{position:absolute;left:0;right:0;background:#ff4d2e;will-change:transform;backface-visibility:hidden;transform:translate3d(-110vw,0,0)}
 </style>
 </head>
 <body>
@@ -1423,7 +1427,7 @@ function scr(el,text,o){
   o=o||{};
   if(el._sc)el._sc();
   var dur=o.dur||520,delay=o.delay||0,n=text.length,t0=performance.now(),raf=0,stopped=false,lastRev=-1;
-  var anim=el.animate([{filter:"blur(8px)",opacity:.15},{filter:"blur(0px)",opacity:1}],
+  var anim=el.animate([{opacity:.15},{opacity:1}],
     {duration:dur,delay:delay,easing:"cubic-bezier(.2,.7,.2,1)",fill:"backwards"});
   function fin(){stopped=true;cancelAnimationFrame(raf);anim.cancel();el.textContent=text;el._sc=null;}
   function step(now){
@@ -1463,6 +1467,7 @@ function pickVariant(){
   return v;
 }
 function endIntro(){
+  document.documentElement.classList.remove("introing");
   introOn=false;introTimers.forEach(clearTimeout);cancelAnimationFrame(introRaf);
   $("intro").style.display="none";
   var bar=document.querySelector(".bar");
@@ -1481,7 +1486,7 @@ function runIntro(){
   if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches){
     intro.style.display="none";document.querySelector(".bar").style.opacity="1";return;
   }
-  introOn=true;busy=true;
+  introOn=true;busy=true;document.documentElement.classList.add("introing");
   intro.onclick=skipIntro;
   scr(words[0],"MAAMOUN",{dur:1500,delay:350});
   scr(words[1],"ALBIBI",{dur:1200,delay:1950});
@@ -1494,6 +1499,36 @@ function runIntro(){
     else introTimers.push(setTimeout(exitIntro,350));
   }
   function exitIntro(){
+    if(!introOn)return;
+    var ol=document.getElementById("olines");
+    if(!ol){ol=document.createElement("div");ol.id="olines";document.body.appendChild(ol);}
+    ol.innerHTML="";ol.style.display="block";
+    var N=8,H=100/N,bars=[],EO="cubic-bezier(.76,0,.24,1)",T0=760;
+    /* 0: اللودر يخلص ويروح بنعومة (ease) قبل ما يبلش أي شي ثاني */
+    var wd=[].slice.call(intro.querySelectorAll(".w"));
+    wd.forEach(function(w,i){w.animate([{transform:"none",opacity:1},{transform:"translate3d(0,"+(i?18:-18)+"px,0)",opacity:0}],{duration:620,delay:i*70,easing:"cubic-bezier(.65,0,.35,1)",fill:"forwards"});});
+    intro.querySelector(".cur").style.display="none";
+    intro.querySelector(".ibar").animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(8px)"}],{duration:480,easing:"cubic-bezier(.65,0,.35,1)",fill:"forwards"});
+    for(var i=0;i<N;i++){var b=document.createElement("i");b.style.top=(i*H)+"%";b.style.height=(H+.2)+"%";ol.appendChild(b);bars.push(b);}
+    /* A: خطوط رفيعة برتقالية تشق الشاشة يمين / يسار بالتناوب */
+    bars.forEach(function(b,i){
+      var from=i%2?"110vw":"-110vw";
+      b.animate([{transform:"translateX("+from+") scaleY(.02)"},{transform:"translateX(0) scaleY(.02)"}],{duration:650,delay:T0+i*70,easing:"cubic-bezier(.2,.8,.2,1)",fill:"forwards"});
+      /* B: تتخن لحد ما تملا الشاشة */
+      b.animate([{transform:"translateX(0) scaleY(.02)"},{transform:"translateX(0) scaleY(1)"}],{duration:420,delay:T0+650+N*70*.5+i*35,easing:EO,fill:"forwards",composite:"replace"});
+    });
+    var tB=T0+650+N*70*.5+N*35+420;
+    /* C+D: الحركة تبعنا تدخل تحت البرتقالي، والبرتقالي يطلع يمين / يسار */
+    introTimers.push(setTimeout(function(){exitIntro2();},tB+80));
+    introTimers.push(setTimeout(function(){
+      bars.forEach(function(b,i){
+        var to=i%2?"-110vw":"110vw";
+        b.animate([{transform:"translateX(0) scaleY(1)"},{transform:"translateX("+to+") scaleY(1)"}],{duration:750,delay:i*60,easing:EO,fill:"forwards"});
+      });
+      introTimers.push(setTimeout(function(){ol.style.display="none";ol.innerHTML="";},750+N*60+100));
+    },tB+260));
+  }
+  function exitIntro2(){
     if(!introOn)return;
     var v=pickVariant(),o={duration:900,easing:EASE,fill:"forwards"},po={duration:900,delay:150,easing:EASE,fill:"forwards"};
     var pl=intro.querySelector(".pl"),pr=intro.querySelector(".pr");
@@ -1510,7 +1545,7 @@ function runIntro(){
       pr.animate([{transform:"none"},{transform:"translateY(101%)"}],po);
     }else{                // الاسم يكبر ويذوب والخلفية تتلاشى
       words.forEach(function(w){
-        w.animate([{transform:"none",opacity:1,filter:"blur(0px)"},{transform:"scale(1.3)",opacity:0,filter:"blur(14px)"}],{duration:800,easing:EASE,fill:"forwards"});
+        w.animate([{transform:"none",opacity:1},{transform:"scale(1.3)",opacity:0}],{duration:800,easing:EASE,fill:"forwards"});
       });
       pl.animate([{opacity:1},{opacity:0}],{duration:800,delay:200,fill:"forwards"});
       pr.animate([{opacity:1},{opacity:0}],{duration:800,delay:200,fill:"forwards"});
