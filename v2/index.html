@@ -3,28 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 34 -->
+<!-- Maamoun Albibi v2 / build 37 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
-<meta name="app-version" content="v2-build-34">
+<meta name="app-version" content="v2-build-36">
 <meta name="theme-color" content="#0b0b0d">
-<!-- خطوط عربية مجانية (Google Fonts، رخصة OFL). مؤقت للمقارنة: احذف الروابط غير المختارة لاحقاً -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400..900&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400..700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400..900&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400..900&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap">
 <style>
+/* خطوط Thmanyah (ملفات من مأمون): محلية بمجلد fonts/ */
+@font-face{font-family:"Thmanyah Sans";font-weight:300;font-style:normal;font-display:swap;src:url("fonts/thmanyahsans-Light.woff") format("woff")}
+@font-face{font-family:"Thmanyah Sans";font-weight:400;font-style:normal;font-display:swap;src:url("fonts/thmanyahsans-Regular.woff") format("woff")}
+@font-face{font-family:"Thmanyah Sans";font-weight:500;font-style:normal;font-display:swap;src:url("fonts/thmanyahsans-Medium.woff") format("woff")}
+@font-face{font-family:"Thmanyah Sans";font-weight:700;font-style:normal;font-display:swap;src:url("fonts/thmanyahsans-Bold.woff") format("woff")}
+@font-face{font-family:"Thmanyah Sans";font-weight:900;font-style:normal;font-display:swap;src:url("fonts/thmanyahsans-Black.woff") format("woff")}
 @font-face{font-family:"LatinSans";font-weight:100 599;
   src:local("Helvetica Neue"),local("HelveticaNeue"),local("Helvetica"),local("Arial"),local("Liberation Sans");
   unicode-range:U+0000-024F,U+2000-206F}
 @font-face{font-family:"LatinSans";font-weight:600 900;
   src:local("Helvetica Neue Bold"),local("HelveticaNeue-Bold"),local("Helvetica-Bold"),local("Arial Bold"),local("Arial-BoldMT"),local("Liberation Sans Bold");
   unicode-range:U+0000-024F,U+2000-206F}
-:root{--out:cubic-bezier(.16,1,.3,1);--af:"Alexandria";--bg:#0b0b0d;--ink:#efeae0;--ease:cubic-bezier(.76,0,.24,1)}
+:root{--out:cubic-bezier(.16,1,.3,1);--af:"Thmanyah Sans";--bg:#0b0b0d;--ink:#efeae0;--ease:cubic-bezier(.76,0,.24,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
 body{font-family:"Helvetica Neue",Arial,"Segoe UI",Tahoma,sans-serif}
@@ -213,9 +210,8 @@ html[lang="ar"] .more{font-family:inherit}
 /* Project images: 1920 x 1080 */
 .shots{display:flex;flex-direction:column;gap:14px;min-width:0}
 .shot{position:relative;display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in}
-.srow{display:grid;gap:10px}
-.srow.n1{grid-template-columns:1fr}.srow.n2{grid-template-columns:repeat(2,1fr)}.srow.n3{grid-template-columns:repeat(3,1fr)}
-@media(max-width:480px){.srow{gap:6px}}
+.srow{display:grid;gap:10px;grid-template-columns:repeat(4,1fr)}
+@media(max-width:600px){.srow{gap:6px;grid-template-columns:repeat(2,1fr)}}
 .shot img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:#151519}
 .shot i{position:absolute;top:12px;inset-inline-start:14px;font-style:normal;font-size:12px;letter-spacing:.1em;
   background:rgba(0,0,0,.55);padding:4px 10px;border-radius:99px}
@@ -336,27 +332,6 @@ html[lang="ar"] .page h1{font-size:clamp(40px,min(7.2vw,13vh),112px)}
 #lb.zoom figure{visibility:visible}
 
 /* Font picker (مؤقت) */
-.fpick{position:fixed;top:14px;left:50%;translate:-50% 0;z-index:66;background:rgba(11,11,13,.72);color:var(--ink);
-  border:1px solid #3a3a40;border-radius:99px;padding:8px 16px;font:600 12px/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.05em;
-  cursor:pointer;direction:ltr;backdrop-filter:blur(6px);transition:opacity .3s ease,border-color .3s ease}
-.fpanel{position:fixed;top:56px;left:50%;translate:-50% 0;z-index:67;width:min(340px,92vw);background:rgba(14,14,17,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(239,234,224,.22);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:10px;color:var(--ink);font-family:"Helvetica Neue",Arial,sans-serif;direction:ltr}
-.fpanel[hidden]{display:none}
-html[lang="en"] .fpanel,body.lb-open .fpanel,body.onaccent .fpanel{display:none}
-.fp-list{display:flex;flex-direction:column;max-height:260px;overflow:auto;scrollbar-width:thin}
-.fp-list button{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:start;background:none;border:0;color:inherit;font-size:17px;padding:7px 10px;border-radius:8px;cursor:pointer}
-.fp-list button:hover{background:rgba(239,234,224,.1)}
-.fp-list button.on{background:rgba(239,234,224,.18)}
-.fp-list small{font-family:"Helvetica Neue",Arial,sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.5}
-.fp-add{display:flex;gap:6px}
-.fp-add input{flex:1;min-width:0;background:rgba(239,234,224,.08);border:1px solid rgba(239,234,224,.2);border-radius:8px;color:inherit;font:13px "Helvetica Neue",Arial,sans-serif;padding:8px 10px;outline:0}
-.fp-add input:focus{border-color:var(--ink)}
-.fp-add button,.fp-up{background:rgba(239,234,224,.12);border:1px solid rgba(239,234,224,.22);border-radius:8px;color:inherit;font:600 12px "Helvetica Neue",Arial,sans-serif;padding:8px 12px;cursor:pointer;text-align:center}
-.fp-add button:hover,.fp-up:hover{background:rgba(239,234,224,.22)}
-.fp-msg{font:12px "Helvetica Neue",Arial,sans-serif;opacity:.7;min-height:1em;direction:rtl}
-.fpick:hover{border-color:var(--ink)}
-.fpick span{opacity:.55;margin-inline-end:8px}
-html[lang="en"] .fpick,body.lb-open .fpick,body.onaccent .fpick{display:none}
-
 /* Intro */
 #intro{position:fixed;inset:0;z-index:66;cursor:pointer}
 #intro .pl,#intro .pr{position:absolute;top:0;bottom:0;width:50.5%;background:var(--bg)}
@@ -387,9 +362,7 @@ html[lang="en"] .fpick,body.lb-open .fpick,body.onaccent .fpick{display:none}
   .lbbtn{width:40px;height:40px}
 }
 @media (max-width:700px){
-  .fpick{top:auto;bottom:12px;font-size:11px;padding:7px 12px;max-width:92vw;white-space:nowrap}
-  .fpanel{top:auto;bottom:52px}
-}
+    }
 @media (hover:none){
   .col .desc{font-size:14px;max-width:80vw}
 }
@@ -414,7 +387,6 @@ body.lb-open #fnav{display:none}
   <button class="lang" id="lang" type="button">EN</button>
 </header>
 
-<button class="fpick" id="fpick" type="button" aria-label="Arabic font"></button>
 
 <div id="intro">
   <div class="pl"></div><div class="pr"></div>
@@ -482,16 +454,16 @@ var SITE={
     {id:"graphic",num:"02",color:"#efeae0",ar:"تصميم جرافيك",en:"Graphic",type:"works",
      desc:{ar:"هويات بصرية وتصاميم مطبوعة ورقمية.",en:"Visual identities, print and digital design."},
      projects:[]},
-    {id:"social",num:"03",color:"#ff7a4d",ar:"سوشيال ميديا",en:"Social",type:"works",
+    {id:"social",num:"03",color:"#ff4d2e",ar:"سوشيال ميديا",en:"Social",type:"works",
      desc:{ar:"تصاميم ومحتوى متحرك لمنصات التواصل الاجتماعي.",en:"Designs and animated content for social platforms."},
      projects:[]},
-    {id:"abstract",num:"04",color:"#b9b5ad",ar:"ثري دي تجريدي",en:"Abstract",type:"works",
+    {id:"abstract",num:"04",color:"#efeae0",ar:"ثري دي تجريدي",en:"Abstract",type:"works",
      desc:{ar:"أعمال ثلاثية الأبعاد تجريدية وخلفيات وتكسترات.",en:"Abstract 3D work, backgrounds and textures."},
      projects:[]},
-    {id:"codex",num:"05",color:"#d63a1b",ar:"Interactive",en:"Interactive",tag:"Codex",type:"works",
+    {id:"codex",num:"05",color:"#ff4d2e",ar:"Interactive",en:"Interactive",tag:"Codex",type:"works",
      desc:{ar:"أعمال فنية تفاعلية · لون · فكرة · حركة ·",en:"Interactive Art · Color · Idea · Motion ·"},
      projects:[]},
-    {id:"about",num:"06",color:"#ff9a73",ar:"عني",en:"About",tag:{ar:"/ تواصل / مدوّنة",en:"/ Contact / Blog"},type:"about",
+    {id:"about",num:"06",color:"#efeae0",ar:"عني",en:"About",tag:{ar:"/ تواصل / مدوّنة",en:"/ Contact / Blog"},type:"about",
      desc:{ar:"مصمم موشن جرافيك / جرافيك مقيم في إسطنبول.",en:"Motion / graphic designer based in Istanbul."},
      bio:{ar:"مصمم موشن جرافيك / جرافيك مقيم في إسطنبول، خبرة عشرين سنة في التصميم والموشن. هذا نص مؤقت، عدّله.",
           en:"Motion / graphic designer based in Istanbul with twenty years in design and motion. Placeholder text, edit me."},
@@ -913,16 +885,7 @@ function buildProj(l){
       function b(im,k){return '<button class="shot" type="button" data-k="'+k+'"><img src="'+im.src+'" alt="" loading="lazy" decoding="async"></button>';}
       var n=p.images.length;
       if(n<4)return p.images.map(function(im,k){return b(im,k);}).join("");
-      /* إيقاع: 2 جنب بعض ثم 1 كبيرة ثم 3 صغار ثم 1 كبيرة ثم 2 ... (كلها 16:9 ومن نفس المشروع) */
-      var PAT=[2,1,3,1],out="",i=0,r=0;
-      while(i<n){
-        var c=Math.min(PAT[r%PAT.length],n-i),rest=n-i-c;
-        if(rest===1)c=c+1<=3?c+1:c;
-        out+='<div class="srow n'+c+'">';
-        for(var j=0;j<c;j++)out+=b(p.images[i+j],i+j);
-        out+='</div>';i+=c;r++;
-      }
-      return out;
+      return '<div class="srow">'+p.images.map(function(im,k){return b(im,k);}).join("")+'</div>';
     })()+'</div></div></div>';
   (function(){var pt=proj.querySelector(".ptext");if(!pt)return;
     pt.addEventListener("wheel",function(e){
@@ -1620,85 +1583,6 @@ function runIntro(){
   tick();
 }
 
-/* ============ اختيار الخط العربي (مؤقت) ============
-   - الضغط على الشريط بالنص فوق يفتح لوحة: خطوط جاهزة / اسم خط من Google Fonts / رفع ملف خط من جهازك.
-   - الاختصار F بيبدّل بين الخطوط (بالعربي). */
-var FONTS=["Alexandria","IBM Plex Sans Arabic","Readex Pro","Cairo","Noto Kufi Arabic","Tajawal"];
-var PRESETS=FONTS.length,fi=0,GF=[];
-try{GF=JSON.parse(localStorage.getItem("gf")||"[]");}catch(e){}
-GF.forEach(function(n){if(FONTS.indexOf(n)<0)FONTS.push(n);});
-try{var fn=localStorage.getItem("fn");if(fn&&FONTS.indexOf(fn)>=0)fi=FONTS.indexOf(fn);}catch(e){}
-function fmsg(t){var m=document.querySelector("#fpanel .fp-msg");if(m)m.textContent=t||"";}
-function applyFont(){
-  var name=FONTS[fi],el=$("fpick");
-  document.documentElement.style.setProperty("--af",'"'+name+'"');
-  el.innerHTML="<span>AR FONT "+(fi+1)+"/"+FONTS.length+"</span>"+name+' <b style="opacity:.6;font-weight:600">…</b>';
-  try{localStorage.setItem("fn",name);}catch(e){}
-  var st=function(t){if(FONTS[fi]===name){var b=el.querySelector("b");if(b)b.textContent=t;}};
-  if(document.fonts&&document.fonts.load){
-    document.fonts.load('700 40px "'+name+'"','موشن').then(function(f){st(f&&f.length?"✓":"✗ غير محمّل");},function(){st("✗ غير محمّل");});
-  }
-  fpList();
-}
-function nextFont(){fi=(fi+1)%FONTS.length;applyFont();}
-function fpList(){
-  var box=document.querySelector("#fpanel .fp-list");if(!box)return;
-  box.innerHTML=FONTS.map(function(n,i){return '<button type="button" data-i="'+i+'" class="'+(i===fi?"on":"")+'" style="font-family:\''+n+'\',sans-serif">'+n+'<small>'+(i<PRESETS?"":(GF.indexOf(n)>=0?"Google":"file"))+'</small></button>';}).join("");
-}
-function addGoogleFont(raw){
-  var name=(raw||"").trim().replace(/\s+/g," ");if(!name)return;
-  if(FONTS.indexOf(name)>=0){fi=FONTS.indexOf(name);applyFont();fmsg("");return;}
-  fmsg("…");
-  var tries=[":wght@400..900",":wght@400;500;700;800;900",":wght@400;700",""],t=0;
-  (function go(){
-    var l=document.createElement("link");l.rel="stylesheet";
-    l.href="https://fonts.googleapis.com/css2?family="+encodeURIComponent(name).replace(/%20/g,"+")+tries[t]+"&display=swap";
-    l.onload=function(){
-      document.fonts.load('700 40px "'+name+'"','موشن').then(function(f){
-        FONTS.push(name);GF.push(name);fi=FONTS.length-1;
-        try{localStorage.setItem("gf",JSON.stringify(GF));}catch(e){}
-        applyFont();fmsg(f&&f.length?"":"الخط تحمّل بس ما فيه حروف عربية");
-      });
-    };
-    l.onerror=function(){l.remove();if(++t<tries.length)go();else fmsg("ما لقيت هالخط على Google Fonts (تأكد من الاسم والإنترنت)");};
-    document.head.appendChild(l);
-  })();
-}
-function addFontFile(file){
-  if(!file)return;
-  var name=file.name.replace(/\.[^.]+$/,"").replace(/[^\w؀-ۿ -]+/g," ").trim()||"Custom";
-  var rd=new FileReader();
-  rd.onload=function(){
-    var ff=new FontFace(name,rd.result,{weight:"100 900"});
-    ff.load().then(function(f){
-      document.fonts.add(f);
-      if(FONTS.indexOf(name)<0)FONTS.push(name);
-      fi=FONTS.indexOf(name);applyFont();fmsg("الملف مرفوع للتجربة بس (بيروح لما تعمل Refresh)");
-    },function(){fmsg("الملف مو خط صالح (جرّب ttf / otf / woff / woff2)");});
-  };
-  rd.readAsArrayBuffer(file);
-}
-(function(){
-  var pn=document.createElement("div");pn.id="fpanel";pn.className="fpanel";pn.hidden=true;
-  pn.innerHTML='<div class="fp-list"></div>'+
-    '<form class="fp-add"><input id="fpname" type="text" dir="ltr" autocomplete="off" spellcheck="false" placeholder="Google Font name — e.g. Amiri"><button type="submit">Load</button></form>'+
-    '<label class="fp-up"><input id="fpfile" type="file" accept=".ttf,.otf,.woff,.woff2" hidden>⬆ Upload font file (ttf / otf / woff)</label>'+
-    '<div class="fp-msg"></div>';
-  document.body.appendChild(pn);
-  pn.addEventListener("click",function(e){
-    var b=e.target.closest(".fp-list button");if(b){fi=+b.getAttribute("data-i");applyFont();fmsg("");}
-  });
-  pn.querySelector(".fp-add").onsubmit=function(e){e.preventDefault();addGoogleFont($("fpname").value);$("fpname").value="";};
-  $("fpfile").onchange=function(){addFontFile(this.files[0]);this.value="";};
-  $("fpick").onclick=function(e){e.stopPropagation();this.blur();pn.hidden=!pn.hidden;if(!pn.hidden)fpList();};
-  document.addEventListener("click",function(e){if(!pn.hidden&&!pn.contains(e.target)&&e.target!==$("fpick"))pn.hidden=true;});
-})();
-document.addEventListener("keydown",function(e){
-  if(e.ctrlKey||e.metaKey||e.altKey||introOn)return;
-  if(e.target&&/INPUT|TEXTAREA/.test(e.target.tagName))return;
-  if((e.key==="f"||e.key==="F")&&lang==="ar"&&!lbOpen){nextFont();}
-});
-applyFont();
 
 applyFs();
 applyLang();
