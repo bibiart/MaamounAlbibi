@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Sitemap تبع النسخة الجديدة v2 (صفحة وحدة فيها كل الأقسام والمشاريع).
+     ملاحظة: الصفحة حالياً عليها noindex، فجوجل ما رح يفهرسها لحد ما تنشال. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://maamounalbibi.com/v2/</loc>
+    <lastmod>2026-10-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
