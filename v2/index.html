@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 37 -->
+<!-- Maamoun Albibi v2 / build 41 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="app-version" content="v2-build-36">
@@ -15,17 +15,27 @@
 @font-face{font-family:"Thmanyah Sans";font-weight:500;font-style:normal;font-display:swap;src:url("fonts/thmanyahsans-Medium.woff") format("woff")}
 @font-face{font-family:"Thmanyah Sans";font-weight:700;font-style:normal;font-display:swap;src:url("fonts/thmanyahsans-Bold.woff") format("woff")}
 @font-face{font-family:"Thmanyah Sans";font-weight:900;font-style:normal;font-display:swap;src:url("fonts/thmanyahsans-Black.woff") format("woff")}
+@font-face{font-family:"Thmanyah Serif Display";font-weight:300;font-style:normal;font-display:swap;src:url("fonts/thmanyahserifdisplay-Light.woff") format("woff")}
+@font-face{font-family:"Thmanyah Serif Display";font-weight:400;font-style:normal;font-display:swap;src:url("fonts/thmanyahserifdisplay-Regular.woff") format("woff")}
+@font-face{font-family:"Thmanyah Serif Display";font-weight:500;font-style:normal;font-display:swap;src:url("fonts/thmanyahserifdisplay-Medium.woff") format("woff")}
+@font-face{font-family:"Thmanyah Serif Display";font-weight:700;font-style:normal;font-display:swap;src:url("fonts/thmanyahserifdisplay-Bold.woff") format("woff")}
+@font-face{font-family:"Thmanyah Serif Display";font-weight:900;font-style:normal;font-display:swap;src:url("fonts/thmanyahserifdisplay-Black.woff") format("woff")}
+@font-face{font-family:"Thmanyah Serif Text";font-weight:300;font-style:normal;font-display:swap;src:url("fonts/thmanyahseriftext-Light.woff") format("woff")}
+@font-face{font-family:"Thmanyah Serif Text";font-weight:400;font-style:normal;font-display:swap;src:url("fonts/thmanyahseriftext-Regular.woff") format("woff")}
+@font-face{font-family:"Thmanyah Serif Text";font-weight:500;font-style:normal;font-display:swap;src:url("fonts/thmanyahseriftext-Medium.woff") format("woff")}
+@font-face{font-family:"Thmanyah Serif Text";font-weight:700;font-style:normal;font-display:swap;src:url("fonts/thmanyahseriftext-Bold.woff") format("woff")}
+@font-face{font-family:"Thmanyah Serif Text";font-weight:900;font-style:normal;font-display:swap;src:url("fonts/thmanyahseriftext-Black.woff") format("woff")}
 @font-face{font-family:"LatinSans";font-weight:100 599;
   src:local("Helvetica Neue"),local("HelveticaNeue"),local("Helvetica"),local("Arial"),local("Liberation Sans");
   unicode-range:U+0000-024F,U+2000-206F}
 @font-face{font-family:"LatinSans";font-weight:600 900;
   src:local("Helvetica Neue Bold"),local("HelveticaNeue-Bold"),local("Helvetica-Bold"),local("Arial Bold"),local("Arial-BoldMT"),local("Liberation Sans Bold");
   unicode-range:U+0000-024F,U+2000-206F}
-:root{--out:cubic-bezier(.16,1,.3,1);--af:"Thmanyah Sans";--bg:#0b0b0d;--ink:#efeae0;--ease:cubic-bezier(.76,0,.24,1)}
+:root{--fd:"Thmanyah Sans";--dw:700;--tw:400;--out:cubic-bezier(.16,1,.3,1);--af:"Thmanyah Sans";--bg:#0b0b0d;--ink:#efeae0;--ease:cubic-bezier(.76,0,.24,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden}
 body{font-family:"Helvetica Neue",Arial,"Segoe UI",Tahoma,sans-serif}
-html[lang="ar"] body{font-family:"LatinSans",var(--af),"Segoe UI",Tahoma,sans-serif}
+html[lang="ar"] body{font-family:"LatinSans",var(--af),"Segoe UI",Tahoma,sans-serif;font-weight:var(--tw)}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit}
 
@@ -37,6 +47,10 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:70;opa
 .bar{position:fixed;top:0;left:0;right:0;z-index:65;display:flex;justify-content:space-between;direction:ltr;
   align-items:flex-start;padding:18px 24px;pointer-events:none;color:var(--ink)}
 .bar>*{pointer-events:auto}
+.rt{display:flex;gap:10px;align-items:flex-start}
+.hback{display:none;padding:6px 14px !important;width:auto !important;cursor:pointer;font:700 13px "Helvetica Neue",Arial,sans-serif;letter-spacing:.04em}
+.hback.show{display:block}
+html[lang="ar"] .hback{font-family:inherit}
 .bar{transition:color .3s ease}
 body.onaccent .bar{color:#0b0b0d}
 body.busy .card{pointer-events:none}
@@ -123,13 +137,11 @@ html[lang="ar"] .proj h1{line-height:1.3;padding-bottom:.1em}
   border-radius:8px;background:#151519;cursor:pointer;border:0;padding:0;text-align:start}
 .card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease)}
 .card:hover img{transform:scale(1.06)}
-.card .cap{position:absolute;inset:auto 0 0 0;padding:46px 16px 16px;background:linear-gradient(transparent,rgba(0,0,0,.78));
+.card .cap{position:absolute;inset:auto 0 0 0;padding:16px;color:#fff;mix-blend-mode:difference;
   display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:16px;font-weight:600}
-.card .cap small{opacity:.6;font-size:12px;letter-spacing:.08em;font-weight:400}
-.card::after{content:"";position:absolute;inset-inline:0;bottom:0;height:4px;background:var(--ink);transform:scaleX(0);
-  transform-origin:left;transition:transform .5s var(--ease)}
-html[dir="rtl"] .card::after{transform-origin:right}
-.card:hover::after{transform:scaleX(1)}
+.card .cap small{opacity:.75;font-size:12px;letter-spacing:.08em;font-weight:400}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 0 var(--ink);transition:box-shadow .45s cubic-bezier(.22,1,.36,1);pointer-events:none;z-index:2}
+@media (hover:hover){.card:hover::after{box-shadow:inset 0 0 0 9px var(--ink)}}
 
 .card.sel,.shot.sel{outline:3px solid var(--ink);outline-offset:5px}
 
@@ -156,7 +168,7 @@ html[dir="rtl"] .card::after{transform-origin:right}
 .vp .vposter{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .vp .vsh{position:absolute;inset:0;z-index:2;cursor:pointer}
 .vp:not(.started){cursor:pointer}
-.vp .vdur{position:absolute;right:12px;bottom:12px;z-index:3;display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:7px;background:rgba(0,0,0,.72);color:#fff;font:700 12px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:.02em;pointer-events:none;transition:background .25s,color .25s}
+.vp .vdur{position:absolute;right:12px;bottom:12px;z-index:3;display:flex;align-items:center;gap:7px;padding:6px 11px;border-radius:8px;background:rgba(0,0,0,.72);color:#fff;font:700 14.4px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:.02em;pointer-events:none;transition:background .25s,color .25s}
 .vp .vdur b{font-weight:700}.vp .vdur b:empty{display:none}
 .vp:not(.started):hover .vdur{background:var(--ac);color:#000}
 .vp.started .vdur{display:none}
@@ -371,20 +383,27 @@ html.introing body::after{display:none}
 #olines{position:fixed;inset:0;z-index:67;pointer-events:none;display:none}
 #olines i{position:absolute;left:0;right:0;background:#ff4d2e;will-change:transform;backface-visibility:hidden;transform:translate3d(-110vw,0,0)}
 
-#fnav{position:fixed;z-index:40;bottom:22px;inset-inline-end:22px;display:flex;gap:10px;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .3s ease,transform .35s var(--out)}
-#fnav.show{opacity:1;pointer-events:auto;transform:none}
-#fnav button{height:46px;border-radius:99px;border:1px solid rgba(255,255,255,.28);background:rgba(18,18,22,.55);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:var(--ink);cursor:pointer;font:700 13px "Helvetica Neue",Arial,sans-serif;letter-spacing:.04em;transition:background .25s,color .25s,border-color .25s}
-html[lang="ar"] #fnav button{font-family:inherit}
-#fnav button:hover{background:var(--ink);color:#0b0b0d;border-color:var(--ink)}
-#fback{padding:0 20px}#ftop{width:46px;font-size:20px;line-height:1}
-body.lb-open #fnav{display:none}
-@media(max-width:600px){#fnav{bottom:14px;inset-inline-end:14px}}
+/* اختيار خطوط مؤقت (ثمانية) */
+html[lang="ar"] .col .label,html[lang="ar"] .page h1,html[lang="ar"] .proj h1,html[lang="ar"] .sub,html[lang="ar"] .post .pt,html[lang="ar"] .abtxt .ablead{font-family:"LatinSans",var(--fd),"Segoe UI",Tahoma,sans-serif;font-weight:var(--dw)}
+#fpick{position:fixed;z-index:90;left:14px;bottom:14px;width:236px;background:rgba(18,18,22,.92);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 12px;color:#efeae0;font:600 11px "Helvetica Neue",Arial,sans-serif;direction:ltr}
+#fpick h4{font-size:10px;letter-spacing:.12em;opacity:.55;margin:0 0 6px;font-weight:700}
+#fpick .r{display:flex;gap:4px;margin:4px 0 8px;flex-wrap:wrap}
+#fpick button{flex:1;padding:6px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.22);background:none;color:inherit;cursor:pointer;font:inherit;white-space:nowrap}
+#fpick button.on{background:#efeae0;color:#0b0b0d;border-color:#efeae0}
+#fpick label{opacity:.7;display:block;margin-top:2px}
+#fpick .x{position:absolute;top:6px;right:8px;flex:none;border:0;padding:0 4px;font-size:14px}
+body.lb-open #fpick{display:none}
 </style>
 </head>
 <body>
+<div id="fpick"><button class="x" id="fpx" type="button">×</button><h4>TEMP · FONTS</h4>
+<label>عناوين / Display</label><div class="r" data-k="fd"><button data-v="Thmanyah Sans">Sans</button><button data-v="Thmanyah Serif Display">Serif Display</button><button data-v="Thmanyah Serif Text">Serif Text</button></div>
+<div class="r" data-k="dw"><button data-v="500">Medium</button><button data-v="700">Bold</button><button data-v="900">Black</button></div>
+<label>نصوص / Text</label><div class="r" data-k="af"><button data-v="Thmanyah Sans">Sans</button><button data-v="Thmanyah Serif Display">Serif Display</button><button data-v="Thmanyah Serif Text">Serif Text</button></div>
+<div class="r" data-k="tw"><button data-v="300">Light</button><button data-v="400">Regular</button><button data-v="500">Medium</button></div></div>
 <header class="bar" style="opacity:0">
   <a class="brand" id="brand" href="#"><span>Maamoun</span> <span>Albibi</span></a>
-  <button class="lang" id="lang" type="button">EN</button>
+  <div class="rt"><button class="lang hback" id="hback" type="button"></button><button class="lang" id="lang" type="button">EN</button></div>
 </header>
 
 
@@ -394,7 +413,6 @@ body.lb-open #fnav{display:none}
   <div class="ibar"><span id="icnt">000</span><b id="ifill"></b><span>LOADING</span></div>
 </div>
 
-<div id="fnav"><button id="fback" type="button"></button><button id="ftop" type="button" aria-label="Top">↑</button></div>
 <div id="pcur" aria-hidden="true"></div>
 <main id="cols"></main>
 <main class="page" id="page" style="display:none"></main>
@@ -786,7 +804,7 @@ function initPlayers(root){
       A.seek=function(t){try{media.currentTime=t;}catch(e){}};A.vol=function(v){media.volume=v;media.muted=(v===0);};
       A.reset=function(){try{media.pause();media.currentTime=0;}catch(e){}};
     }
-    /* معاينة سريعة عند الرول أوفر (كمبيوتر فقط): يشتغل ثانيتين صامت بس ليعرف الزائر إنه فيديو، واحد واحد */
+    /* معاينة سريعة عند الرول أوفر (كمبيوتر فقط): يشتغل صامت (أول 5 ثواني بتكرار) بس ليعرف الزائر إنه فيديو، واحد واحد */
     if(!isVm&&window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches){
       var pvT=0;
       var pvStop=function(){clearTimeout(pvT);if(box._pv&&!box.classList.contains("started")){var v=box.querySelector("video");try{v.pause();v.currentTime=0;}catch(e){}box._pv=false;if(window._pvBox===box)window._pvBox=null;}};
@@ -797,7 +815,9 @@ function initPlayers(root){
         v.muted=true;v.preload="auto";box._pv=true;window._pvBox=box;
         var r=v.play();if(r&&r.catch)r.catch(function(){});
         clearTimeout(pvT);pvT=setTimeout(pvStop,7000);   // احتياط لو التحميل بطيء
-        var onP=function(){v.removeEventListener("playing",onP);if(box._pv){clearTimeout(pvT);pvT=setTimeout(pvStop,2000);}};   // ثانيتين من لحظة بدء العرض الفعلي
+        var onP=function(){v.removeEventListener("playing",onP);if(box._pv){clearTimeout(pvT);pvT=0;}};   // يكرر أول 5 ثواني لين يطلع الماوس
+        v._pvLoop=function(){if(box._pv&&v.currentTime>=5){try{v.currentTime=0;}catch(e){}}};
+        v.removeEventListener("timeupdate",v._pvLoop);v.addEventListener("timeupdate",v._pvLoop);
         v.addEventListener("playing",onP);
       });
       box.addEventListener("pointerleave",pvStop);
@@ -876,9 +896,9 @@ function buildProj(l){
       '</div><button type="button" class="more" id="pmore" hidden></button>'+
     '</aside>'+
     '<div class="pmain">'+(p.videos||[]).map(function(v){
-      var ac=p.ac||"#efeae0",big='<span class="vdur" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><b></b></span>';
+      var ac=p.ac||"#efeae0",big='<span class="vdur" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 5v14l11-7z" fill="currentColor"/></svg><b></b></span>';
       if(v.vimeo)return '<div class="vid vp" style="--ac:'+ac+'" data-vm="'+v.vimeo+'" data-h="'+(v.h||"")+'"><img class="vposter" alt="" '+(v.poster?'src="'+v.poster+'"':'')+'>'+big+'</div>';
-      if(v.loop)return '<div class="vid"><video src="'+v.mp4+'"'+(v.poster?' poster="'+v.poster+'"':'')+' autoplay muted loop playsinline preload="none"></video></div>';
+      if(v.loop)return '<div class="vid"><video src="'+v.mp4+'"'+(v.poster?' poster="'+v.poster+'"':'')+' data-hv="1" muted playsinline preload="metadata"></video></div>';
       return '<div class="vid vp" style="--ac:'+ac+'" data-src="'+v.mp4+'"><video src="'+v.mp4+'"'+(v.poster?' poster="'+v.poster+'"':'')+' playsinline preload="none" disablepictureinpicture></video>'+big+'</div>';
     }).join("")+
     '<div class="shots">'+(function(){
@@ -1586,20 +1606,37 @@ function runIntro(){
 
 applyFs();
 applyLang();
-/* ===== أزرار عائمة: فوق / خطوة لورا (تظهر بعد ما ينزل الزائر بالصفحة) ===== */
+/* ===== زر رجوع بالشريط العلوي (يظهر داخل القسم/المشروع) ===== */
 (function(){
-  var fn=$("fnav"),fb=$("fback"),ft=$("ftop");
-  function sc(){return (proj.style.display!=="none"&&curProj)?proj:(page.style.display!=="none"?page:null);}
+  var hb=$("hback");
   function upd(){
-    var e=sc(),show=!!e&&e.scrollTop>320&&!introOn&&!lbOpen;
-    fn.classList.toggle("show",show);
-    fb.textContent=(lang==="ar"?"رجوع →":"← Back");
-    ft.setAttribute("aria-label",lang==="ar"?"للأعلى":"Top");
+    var inside=!!(curProj||cur)&&!introOn&&!lbOpen;
+    hb.classList.toggle("show",inside);
+    hb.textContent=(lang==="ar"?"رجوع →":"← Back");
   }
-  proj.addEventListener("scroll",upd,{passive:true});page.addEventListener("scroll",upd,{passive:true});
-  ft.onclick=function(){var e=sc();if(e)e.scrollTo({top:0,behavior:"smooth"});};
-  fb.onclick=function(){if(curProj)backProj();else if(cur)back();fn.classList.remove("show");};
-  setInterval(upd,400);
+  hb.onclick=function(){if(curProj)backProj();else if(cur)back();};
+  setInterval(upd,300);
+})();
+
+/* فيديو بدون بلاير: يشتغل بس عالرول أوفر (أول 5 ثواني بتكرار) */
+(function(){
+  function lp(){if(this.currentTime>=5)this.currentTime=0;}
+  proj.addEventListener("mouseover",function(e){var v=e.target.closest&&e.target.closest("video[data-hv]");if(!v||v._on)return;v._on=1;v.muted=true;v.addEventListener("timeupdate",lp);var r=v.play();if(r&&r.catch)r.catch(function(){});});
+  proj.addEventListener("mouseout",function(e){var v=e.target.closest&&e.target.closest("video[data-hv]");if(!v||!v._on||v.contains(e.relatedTarget))return;v._on=0;v.removeEventListener("timeupdate",lp);v.pause();try{v.currentTime=0;}catch(x){}});
+})();
+
+/* ===== اختيار خطوط مؤقت ===== */
+(function(){
+  var P=$("fpick"),R=document.documentElement,V={fd:"Thmanyah Sans",dw:"700",af:"Thmanyah Sans",tw:"400"};
+  try{var sv=JSON.parse(localStorage.getItem("v2fonts")||"{}");for(var k in sv)if(k in V)V[k]=sv[k];}catch(e){}
+  function ap(){
+    R.style.setProperty("--fd",'"'+V.fd+'"');R.style.setProperty("--af",'"'+V.af+'"');
+    R.style.setProperty("--dw",V.dw);R.style.setProperty("--tw",V.tw);
+    [].forEach.call(P.querySelectorAll(".r"),function(r){[].forEach.call(r.children,function(b){b.classList.toggle("on",V[r.dataset.k]===b.dataset.v);});});
+    try{localStorage.setItem("v2fonts",JSON.stringify(V));}catch(e){}
+  }
+  P.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;if(b.id==="fpx"){P.style.display="none";return;}var r=b.parentNode;V[r.dataset.k]=b.dataset.v;ap();});
+  ap();
 })();
 
 runIntro();
