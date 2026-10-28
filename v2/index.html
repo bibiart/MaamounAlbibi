@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 41 -->
+<!-- Maamoun Albibi v2 / build 45 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="app-version" content="v2-build-36">
@@ -135,13 +135,9 @@ html[lang="ar"] .proj h1{line-height:1.3;padding-bottom:.1em}
 @media (max-width:600px){.grid{grid-template-columns:1fr}}
 .card{display:block;width:100%;aspect-ratio:16/9;position:relative;overflow:hidden;
   border-radius:8px;background:#151519;cursor:pointer;border:0;padding:0;text-align:start}
-.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .9s var(--ease)}
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .63s var(--ease)}
 .card:hover img{transform:scale(1.06)}
-.card .cap{position:absolute;inset:auto 0 0 0;padding:16px;color:#fff;mix-blend-mode:difference;
-  display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:16px;font-weight:600}
-.card .cap small{opacity:.75;font-size:12px;letter-spacing:.08em;font-weight:400}
-.card::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 0 var(--ink);transition:box-shadow .45s cubic-bezier(.22,1,.36,1);pointer-events:none;z-index:2}
-@media (hover:hover){.card:hover::after{box-shadow:inset 0 0 0 9px var(--ink)}}
+.card .cap{display:none}
 
 .card.sel,.shot.sel{outline:3px solid var(--ink);outline-offset:5px}
 
@@ -392,7 +388,7 @@ html[lang="ar"] .col .label,html[lang="ar"] .page h1,html[lang="ar"] .proj h1,ht
 #fpick button.on{background:#efeae0;color:#0b0b0d;border-color:#efeae0}
 #fpick label{opacity:.7;display:block;margin-top:2px}
 #fpick .x{position:absolute;top:6px;right:8px;flex:none;border:0;padding:0 4px;font-size:14px}
-body.lb-open #fpick{display:none}
+#fpick{display:none}#fpick.open{display:block}body.lb-open #fpick{display:none !important}
 </style>
 </head>
 <body>
@@ -905,7 +901,11 @@ function buildProj(l){
       function b(im,k){return '<button class="shot" type="button" data-k="'+k+'"><img src="'+im.src+'" alt="" loading="lazy" decoding="async"></button>';}
       var n=p.images.length;
       if(n<4)return p.images.map(function(im,k){return b(im,k);}).join("");
-      return '<div class="srow">'+p.images.map(function(im,k){return b(im,k);}).join("")+'</div>';
+      /* أول كم صورة كبيرة (نسبة وتناسب مع العدد) والباقي شبكة 4 */
+      var L=n<=5?n:(n<=10?4:(n<=20?5:6));if(n-L<=2)L=n;
+      var big=p.images.slice(0,L).map(function(im,k){return b(im,k);}).join("");
+      if(L>=n)return big;
+      return big+'<div class="srow">'+p.images.slice(L).map(function(im,k){return b(im,L+k);}).join("")+'</div>';
     })()+'</div></div></div>';
   (function(){var pt=proj.querySelector(".ptext");if(!pt)return;
     pt.addEventListener("wheel",function(e){
@@ -1625,6 +1625,25 @@ applyLang();
   proj.addEventListener("mouseout",function(e){var v=e.target.closest&&e.target.closest("video[data-hv]");if(!v||!v._on||v.contains(e.relatedTarget))return;v._on=0;v.removeEventListener("timeupdate",lp);v.pause();try{v.currentTime=0;}catch(x){}});
 })();
 
+/* معاينة الفيديو على كروت الأقسام: أول 5 ثواني بتكرار عالرول أوفر */
+(function(){
+  if(!(window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches))return;
+  function lp(){if(this.currentTime>=5)this.currentTime=0;}
+  function stop(c){var v=c._pv;if(!v)return;c._pv=null;v.removeEventListener("timeupdate",lp);try{v.pause();}catch(e){}v.style.opacity=0;setTimeout(function(){if(v.parentNode&&c._pv!==v)v.remove();},300);}
+  page.addEventListener("mouseover",function(e){
+    var c=e.target.closest&&e.target.closest(".card");if(!c||c._pv||c.contains(e.relatedTarget))return;
+    var p=cur&&cur.projects&&cur.projects[+c.dataset.i];if(!p||!p.videos)return;
+    var m=null;for(var i=0;i<p.videos.length;i++)if(p.videos[i].mp4){m=p.videos[i].mp4;break;}
+    if(!m)return;
+    var v=document.createElement("video");v.src=m;v.muted=true;v.playsInline=true;v.preload="auto";
+    v.style.cssText="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s ease;pointer-events:none";
+    c.appendChild(v);c._pv=v;v.addEventListener("timeupdate",lp);
+    v.addEventListener("playing",function(){if(c._pv===v)v.style.opacity=1;});
+    var r=v.play();if(r&&r.catch)r.catch(function(){});
+  });
+  page.addEventListener("mouseout",function(e){var c=e.target.closest&&e.target.closest(".card");if(!c||c.contains(e.relatedTarget))return;stop(c);});
+})();
+
 /* ===== اختيار خطوط مؤقت ===== */
 (function(){
   var P=$("fpick"),R=document.documentElement,V={fd:"Thmanyah Sans",dw:"700",af:"Thmanyah Sans",tw:"400"};
@@ -1635,8 +1654,9 @@ applyLang();
     [].forEach.call(P.querySelectorAll(".r"),function(r){[].forEach.call(r.children,function(b){b.classList.toggle("on",V[r.dataset.k]===b.dataset.v);});});
     try{localStorage.setItem("v2fonts",JSON.stringify(V));}catch(e){}
   }
-  P.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;if(b.id==="fpx"){P.style.display="none";return;}var r=b.parentNode;V[r.dataset.k]=b.dataset.v;ap();});
+  P.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;if(b.id==="fpx"){P.classList.remove("open");return;}var r=b.parentNode;V[r.dataset.k]=b.dataset.v;ap();});
   ap();
+  document.addEventListener("keydown",function(e){if(e.ctrlKey&&e.altKey&&e.shiftKey&&(e.code==="KeyT"||(e.key||"").toLowerCase()==="t")){e.preventDefault();P.classList.toggle("open");}});
 })();
 
 runIntro();
