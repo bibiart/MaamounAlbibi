@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 11 -->
+<!-- Maamoun Albibi v2 / build 12 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
-<meta name="app-version" content="v2-build-11">
+<meta name="app-version" content="v2-build-12">
 <meta name="theme-color" content="#0b0b0d">
 <!-- خطوط عربية مجانية (Google Fonts، رخصة OFL). مؤقت للمقارنة: احذف الروابط غير المختارة لاحقاً -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -527,7 +527,7 @@ var ABT={
 };
 function aboutBody(l){
   var D=ABOUT,H="";
-  H+='<nav class="abnav ab-i">'+ABT.nav[l].map(function(t,i){return '<a href="#" data-go="'+["ab-about","ab-contact","ab-blog"][i]+'">'+t+'</a>';}).join("")+'</nav>';
+  H+='<nav class="abnav ab-i">'+ABT.nav[l].map(function(t,i){return i===2?'<a href="../blog/" target="_blank" rel="noopener">'+t+' ↗</a>':'<a href="#" data-go="'+["ab-about","ab-contact"][i]+'">'+t+'</a>';}).join("")+'</nav>';
   H+='<div class="abrow ab-i" id="ab-about"><div class="abpic"><div class="abtr">'+D.photos.map(function(u){return '<img src="'+u+'" alt="Maamoun Albibi" loading="lazy" decoding="async">';}).join("")+'</div>'+
      (D.photos.length>1?'<div class="abdots">'+D.photos.map(function(){return '<button type="button" aria-label="photo"></button>';}).join("")+'</div>':'')+
      '</div><div class="abtxt about">'+fszHtml()+'<p class="ablead">'+D.lead[l]+'</p><h3 class="abh">'+D.h[l]+'</h3>'+D.p[l].map(function(t){return '<p>'+t+'</p>';}).join("")+'<p class="abcta">'+D.cta[l]+'</p></div></div>';
@@ -544,8 +544,6 @@ function aboutBody(l){
      '<div class="bizq"><b>'+ABT.bsave[l]+'</b><div class="bizqbox" id="bizq-vcard"></div><span>'+ABT.bsavet[l]+'</span></div></div>'+
      '<button class="bizsave" id="bizsave" type="button">'+ABT.bsave[l]+'</button>'+
      '<div class="bizrow"><span class="bl">'+ABT.site[l]+'</span><span class="bv">maamounalbibi.com</span><button class="bizcp" type="button" data-copy="maamounalbibi.com">'+ABT.copy[l]+'</button></div></div>';
-  H+='<h2 class="sub" id="ab-blog">'+ABT.blog[l]+'</h2><div class="posts ab-i">'+D.posts.map(function(p){
-    return '<a class="post" href="'+p.url+'" target="_blank" rel="noopener"><span class="pd">'+p.date[l]+'</span><span class="pt">'+p.title+'</span><span class="px">'+p.text+'</span></a>';}).join("")+'</div>';
   return H;
 }
 function vcardText(full){
@@ -556,7 +554,7 @@ function vcardText(full){
   return L.map(fold).join(CR)+CR;
 }
 function bindAbout(l){
-  page.querySelectorAll(".abnav a").forEach(function(a){
+  page.querySelectorAll(".abnav a[data-go]").forEach(function(a){
     a.onclick=function(e){e.preventDefault();var t=$(a.getAttribute("data-go"));if(t)t.scrollIntoView({behavior:"smooth",block:"start"});};
   });
   var tr=page.querySelector(".abtr"),ds=page.querySelectorAll(".abdots button");
