@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 30 -->
+<!-- Maamoun Albibi v2 / build 32 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
-<meta name="app-version" content="v2-build-30">
+<meta name="app-version" content="v2-build-32">
 <meta name="theme-color" content="#0b0b0d">
 <!-- خطوط عربية مجانية (Google Fonts، رخصة OFL). مؤقت للمقارنة: احذف الروابط غير المختارة لاحقاً -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,7 +46,7 @@ body.busy .card{pointer-events:none}
 .bar::before{content:"";position:absolute;inset:0 0 -26px;z-index:-1;pointer-events:none;opacity:0;transition:opacity .3s ease;
   background:linear-gradient(var(--bg) 55%,transparent)}
 .bar.scrolled::before{opacity:1}
-body.lb-open .bar{opacity:0 !important;pointer-events:none;transition:none !important}
+body.lb-open .bar,body.lb-open .bar *{opacity:0 !important;pointer-events:none !important;transition:none !important}
 .brand{display:block;font-family:"Helvetica Neue",Arial,sans-serif;font-weight:800;
   font-size:clamp(12px,1.05vw,15px);line-height:1;letter-spacing:.04em;text-transform:uppercase}
 .brand{white-space:nowrap}
@@ -305,7 +305,7 @@ html[lang="ar"] .bizsave{font-family:inherit}
 @media(max-width:900px){.abrow{grid-template-columns:1fr}.abpic{position:static;max-width:380px}}
 
 /* Lightbox */
-#lb{position:fixed;inset:0;z-index:60;display:none;direction:ltr}
+#lb{position:fixed;inset:0;z-index:68;display:none;direction:ltr}
 #lb .bg{position:absolute;inset:0;background:rgba(8,8,10,.985)}
 #lb figure{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:60px 8vw 30px}
 #lb figure{pointer-events:none}
@@ -326,7 +326,14 @@ html[lang="ar"] .bizsave{font-family:inherit}
 #lb.zoom .lbbtn{position:fixed}
 html[lang="ar"] .page h1{font-size:clamp(40px,min(7.2vw,13vh),112px)}
 .page h1{font-size:clamp(44px,min(9.5vw,17vh),140px)}
-#lbx{top:18px;inset-inline-end:24px}
+#lbs{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;overscroll-behavior:contain;scrollbar-width:none;visibility:hidden}
+#lbs::-webkit-scrollbar{display:none}
+#lbs .lbi{height:100vh;height:100svh;display:flex;align-items:center;justify-content:center;scroll-snap-align:start;scroll-snap-stop:always;cursor:zoom-out}
+#lbs img{display:block;max-width:84vw;max-height:88vh;width:auto;height:auto;border-radius:6px;cursor:zoom-in;background:#151519}
+#lb.stack #lbs{visibility:visible}
+#lb.stack figure{visibility:hidden}
+#lb.zoom #lbs{display:none}
+#lb.zoom figure{visibility:visible}
 
 /* Font picker (مؤقت) */
 .fpick{position:fixed;top:14px;left:50%;translate:-50% 0;z-index:66;background:rgba(11,11,13,.72);color:var(--ink);
@@ -390,6 +397,15 @@ html[lang="en"] .fpick,body.lb-open .fpick,body.onaccent .fpick{display:none}
 html.introing body::after{display:none}
 #olines{position:fixed;inset:0;z-index:67;pointer-events:none;display:none}
 #olines i{position:absolute;left:0;right:0;background:#ff4d2e;will-change:transform;backface-visibility:hidden;transform:translate3d(-110vw,0,0)}
+
+#fnav{position:fixed;z-index:40;bottom:22px;inset-inline-end:22px;display:flex;gap:10px;direction:ltr;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .3s ease,transform .35s var(--out)}
+#fnav.show{opacity:1;pointer-events:auto;transform:none}
+#fnav button{height:46px;border-radius:99px;border:1px solid rgba(255,255,255,.28);background:rgba(18,18,22,.55);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:var(--ink);cursor:pointer;font:700 13px "Helvetica Neue",Arial,sans-serif;letter-spacing:.04em;transition:background .25s,color .25s,border-color .25s}
+html[lang="ar"] #fnav button{font-family:inherit}
+#fnav button:hover{background:var(--ink);color:#0b0b0d;border-color:var(--ink)}
+#fback{padding:0 20px}#ftop{width:46px;font-size:20px;line-height:1}
+body.lb-open #fnav{display:none}
+@media(max-width:600px){#fnav{bottom:14px;inset-inline-end:14px}}
 </style>
 </head>
 <body>
@@ -406,6 +422,7 @@ html.introing body::after{display:none}
   <div class="ibar"><span id="icnt">000</span><b id="ifill"></b><span>LOADING</span></div>
 </div>
 
+<div id="fnav"><button id="fback" type="button"></button><button id="ftop" type="button" aria-label="Top">↑</button></div>
 <div id="pcur" aria-hidden="true"></div>
 <main id="cols"></main>
 <main class="page" id="page" style="display:none"></main>
@@ -413,11 +430,11 @@ html.introing body::after{display:none}
 
 <div id="lb">
   <div class="bg" id="lbbg"></div>
+  <div id="lbs"></div>
   <figure>
     <img id="lbimg" alt="">
     <figcaption><h2 id="lbt"></h2><p id="lbd"></p><div class="cnt" id="lbc"></div></figcaption>
   </figure>
-  <button class="lbbtn" id="lbx" type="button" aria-label="Close">✕</button>
 </div>
 
 <script>
@@ -699,7 +716,7 @@ function clampText(tries){
       lh=parseFloat(cs.lineHeight)||parseFloat(cs.fontSize)*1.5,limit=Math.round(lh*3),
       T={more:lang==="ar"?"المزيد":"More",less:lang==="ar"?"أقل":"Less"};
   tx.style.maxHeight="none";tx.classList.remove("clamped");
-  if(tx.scrollHeight<=limit+lh*.8){btn.hidden=true;return;}
+  if(tx.scrollHeight<=lh*6.5){btn.hidden=true;return;}
   tx.style.maxHeight=limit+"px";tx.classList.add("clamped");btn.hidden=false;btn.textContent=T.more;
   btn.onclick=function(){
     if(tx.classList.contains("clamped")){tx.classList.remove("clamped");tx.style.maxHeight=tx.scrollHeight+"px";btn.textContent=T.less;}
@@ -1268,6 +1285,7 @@ function setZoom(on,fx,fy){
     lb.scrollTop=Math.max(0,(fy==null?.5:fy)*nh-innerHeight/2);
   }else{
     lbZoom=false;lb.classList.remove("zoom");lb.scrollLeft=0;lb.scrollTop=0;sizeLb(p);
+    if(lb.classList.contains("stack")){var _s=$("lbs");_s.style.scrollSnapType="none";_s.scrollTop=idx*_s.clientHeight;requestAnimationFrame(function(){_s.style.scrollSnapType="";});}
   }
 }
 function fillLb(){
@@ -1297,15 +1315,17 @@ function openLb(items,i,srcEl,getter){
     el.animate([{opacity:0,transform:"translateY(20px)"},{opacity:1,transform:"none"}],{duration:360,delay:210,easing:EASE,fill:"backwards"});
   });
   document.querySelectorAll(".lbbtn").forEach(function(b){b.animate([{opacity:0},{opacity:1}],{duration:300,delay:240,fill:"backwards"});});
+  buildStack();
 }
 function doCloseLb(){
   if(!lbOpen)return;
   lbBusy=true;setTimeout(function(){lbBusy=false;},470);
   if(lbZoom)setZoom(false);
+  if(lb.classList.contains("stack")){fillLb();lb.classList.remove("stack");}
   document.body.classList.remove("lb-open");
   var ci=lbGet?lbGet(idx):null,o={duration:360,easing:EASE,fill:"forwards"};
   var F=lbimg.getBoundingClientRect(),done=function(){
-    lbOpen=false;lb.style.display="none";
+    lbOpen=false;lb.style.display="none";lb.classList.remove("stack");$("lbs").innerHTML="";
     lb.getAnimations({subtree:true}).forEach(function(a){a.cancel();});
   };
   if(ci){
@@ -1318,15 +1338,32 @@ function doCloseLb(){
   a.onfinish=done;
 }
 function stepLb(d){
+  var S=$("lbs");if(!lb.classList.contains("stack"))return;
   if(lbZoom)setZoom(false);
-  var n=lbItems.length;idx=(idx+d+n)%n;
-  var f=lbimg.animate([{opacity:1},{opacity:0}],{duration:110,fill:"forwards"});
-  f.onfinish=function(){
-    fillLb();
-    lbimg.animate([{opacity:0,transform:"translateX("+(d*30)+"px)"},{opacity:1,transform:"none"}],{duration:210,easing:EASE});
-    f.cancel();
-  };
+  var n=lbItems.length,t=Math.max(0,Math.min(n-1,idx+d));
+  S.scrollTo({top:t*S.clientHeight,behavior:"smooth"});
 }
+/* الصور مرصوصة عمودياً بالعارض (مثل الموقع الأول): سكرول ناعم مع snap لكل صورة */
+function buildStack(){
+  var S=$("lbs");
+  S.innerHTML=lbItems.map(function(it,k){return '<div class="lbi"><img src="'+it.src+'" alt="" decoding="async"'+(Math.abs(k-idx)>1?' loading="lazy"':'')+'></div>';}).join("");
+  setTimeout(function(){
+    if(!lbOpen||lbZoom)return;
+    S.style.scrollSnapType="none";S.scrollTop=idx*S.clientHeight;
+    lb.classList.add("stack");
+    requestAnimationFrame(function(){S.style.scrollSnapType="";});
+  },440);
+}
+(function(){
+  var S=$("lbs"),touch=matchMedia("(hover:none)").matches;
+  S.addEventListener("scroll",function(){var i=Math.round(S.scrollTop/Math.max(1,S.clientHeight));if(i!==idx&&i>=0&&i<lbItems.length)idx=i;},{passive:true});
+  S.addEventListener("click",function(e){
+    if(e.target.tagName!=="IMG"){closeLb();return;}               // كليك على الأسود: إغلاق
+    if(touch){closeLb();return;}                                   // لمس: كليك على الصورة يغلق (مثل الموقع الأول)
+    var r=e.target.getBoundingClientRect();
+    fillLb();setZoom(true,(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height);   // كمبيوتر: تكبير للقياس الطبيعي
+  });
+})();
 lbimg.onclick=function(e){
   if(lbMoved){lbMoved=false;return;}
   if(lbZoom)setZoom(false);
@@ -1343,13 +1380,12 @@ lbimg.addEventListener("pointermove",function(e){
 });
 lbimg.addEventListener("pointerup",function(){lbDrag=null;});
 lbimg.addEventListener("dragstart",function(e){e.preventDefault();});
-$("lbx").onclick=closeLb;
 $("lbbg").onclick=closeLb;
 /* سكرول الماوس داخل العارض (حتى لو مكبّرة): ينتقل للصورة التالية / السابقة */
 var lbWheelT=0,lbAcc=0;
 lb.addEventListener("wheel",function(e){
   if(!lbOpen||lbBusy)return;e.preventDefault();
-  var now=performance.now();if(now-lbWheelT<420){return;}
+  var now=performance.now();if(now-lbWheelT<520){return;}
   lbAcc+=e.deltaY;if(Math.abs(lbAcc)<30)return;
   var d=lbAcc>0?1:-1;lbAcc=0;lbWheelT=now;stepLb(d);
 },{passive:false});
@@ -1410,8 +1446,8 @@ document.addEventListener("keydown",function(e){
     if(k==="Escape"){e.preventDefault();closeLb();}
     else if(dir==="right"){e.preventDefault();stepLb(rtl?-1:1);}
     else if(dir==="left"){e.preventDefault();stepLb(rtl?1:-1);}
-    else if(dir==="down"||k==="Enter"){e.preventDefault();stepLb(1);}
-    else if(dir==="up"){e.preventDefault();stepLb(-1);}
+    else if(dir==="down"||k==="Enter"||k===" "||k==="PageDown"){e.preventDefault();stepLb(1);}
+    else if(dir==="up"||k==="PageUp"){e.preventDefault();stepLb(-1);}
     return;
   }
   if(!dir&&k!=="Enter"&&k!=="Escape"&&k!=="Backspace")return;
@@ -1645,6 +1681,22 @@ applyFont();
 
 applyFs();
 applyLang();
+/* ===== أزرار عائمة: فوق / خطوة لورا (تظهر بعد ما ينزل الزائر بالصفحة) ===== */
+(function(){
+  var fn=$("fnav"),fb=$("fback"),ft=$("ftop");
+  function sc(){return (proj.style.display!=="none"&&curProj)?proj:(page.style.display!=="none"?page:null);}
+  function upd(){
+    var e=sc(),show=!!e&&e.scrollTop>320&&!introOn&&!lbOpen;
+    fn.classList.toggle("show",show);
+    fb.textContent=(lang==="ar"?"رجوع →":"← Back");
+    ft.setAttribute("aria-label",lang==="ar"?"للأعلى":"Top");
+  }
+  proj.addEventListener("scroll",upd,{passive:true});page.addEventListener("scroll",upd,{passive:true});
+  ft.onclick=function(){var e=sc();if(e)e.scrollTo({top:0,behavior:"smooth"});};
+  fb.onclick=function(){if(curProj)backProj();else if(cur)back();fn.classList.remove("show");};
+  setInterval(upd,400);
+})();
+
 runIntro();
 </script>
 </body>
