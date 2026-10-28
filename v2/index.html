@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 08 -->
+<!-- Maamoun Albibi v2 / build 10 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
-<meta name="app-version" content="v2-build-08">
+<meta name="app-version" content="v2-build-10">
 <meta name="theme-color" content="#0b0b0d">
 <!-- خطوط عربية مجانية (Google Fonts، رخصة OFL). مؤقت للمقارنة: احذف الروابط غير المختارة لاحقاً -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -88,6 +88,7 @@ html[lang="ar"] .col.on .desc{margin-top:6px}
 .col.on .num{opacity:1}
 .col .label{align-self:flex-start;min-height:1.05em;font-size:clamp(20px,min(6.6vw,calc((100vh - 96px) / var(--n,5) * .56)),110px);line-height:1.05;font-weight:700;white-space:nowrap;transition:translate .65s var(--out)}
 .col .lw{display:flex;align-items:flex-end;gap:.9rem;align-self:flex-start}
+#cols{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .col .tag{padding-bottom:.9em;font-size:clamp(11px,1.3vw,15px);font-weight:500;letter-spacing:.14em;text-transform:uppercase;opacity:.6;transition:translate .65s var(--out)}
 .col.on .tag{translate:22px 0}
 html[dir="rtl"] .col.on .tag{translate:-22px 0}
@@ -253,9 +254,12 @@ html[lang="en"] .fpick,body.lb-open .fpick,body.onaccent .fpick{display:none}
   .col .label{white-space:normal;font-size:clamp(26px,8vw,40px)}
   .lbbtn{width:40px;height:40px}
 }
+@media (max-width:700px){
+  .fpick{top:auto;bottom:12px;font-size:11px;padding:7px 12px;max-width:92vw;white-space:nowrap}
+  .fpanel{top:auto;bottom:52px}
+}
 @media (hover:none){
-  .col:active{background:var(--c);color:#0b0b0d}
-  .col .desc{display:none}
+  .col .desc{font-size:14px;max-width:80vw}
 }
 </style>
 </head>
@@ -660,7 +664,9 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
 
 /* ---- المؤشر المبكسل (يد) فوق الصفوف ---- */
 (function(){
-  var el=$("pcur");if(!el||!matchMedia("(hover:hover) and (pointer:fine)").matches)return;
+  var el=$("pcur");if(!el)return;
+  var FINE=matchMedia("(hover:hover) and (pointer:fine)").matches;
+  if(!FINE)el.style.scale=".5";
   var M=["....11........","...1221.......","...1221.......","...1221.......","...12211111...","...1221222211.",
          "1111222222221.","12212222222221","12221222222221",".1222222222221",".122222222221.","..12222222221.",
          "..1222222221..","...122222221..","...122222221..","...111111111.."];
@@ -691,6 +697,7 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
   function kick(){if(!raf){last=0;raf=requestAnimationFrame(loop);}}
   function overRow(t){return !!(t&&t.closest&&t.closest(".col"))&&!cur&&!introOn&&cols.style.display!=="none";}
   function set(v){if(v===on)return;on=v;if(v)kick();el.classList.toggle("show",v);document.body.classList.toggle("pcur-on",v);}
+  if(FINE){
   document.addEventListener("pointermove",function(e){
     if(e.pointerType==="touch")return;
     px=e.clientX;py=e.clientY;
@@ -699,6 +706,41 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
   document.documentElement.addEventListener("mouseleave",function(){set(false);});
   document.addEventListener("pointerdown",function(){if(on)el.classList.add("pop");});
   document.addEventListener("pointerup",function(){el.classList.remove("pop");});
+  }
+  /* ---- اللمس (موبايل/تابلت): الإصبع النازل = رول أوفر. اليد بتظهر فوق الإصبع، والصف تحته بيتفتح؛
+          اسحب لتغيّر الصف، ارفع إصبعك لتفتحه (أو اسحب لفوق عند الهيدر وارفع لتلغي). ---- */
+  var TOFF=84,tdown=false,swallow=0,tId=-1;
+  function tOK(){return !busy&&!cur&&!introOn&&cols.style.display!=="none";}
+  function tMove(x,y){
+    px=x;py=y-TOFF;
+    var i=slotIdx(y),c=activeRow?[].indexOf.call(cols.children,activeRow):-1;
+    if(i<0){if(activeRow)setActive(null);}
+    else if(i!==c){
+      var ok=true;
+      if(c>=0&&Math.abs(i-c)===1){var g=slotInfo(),edge=g.top+g.h*(i>c?c+1:c),d=i>c?y-edge:edge-y;if(d<8)ok=false;}
+      if(ok)setActive(cols.children[i]);
+    }
+    kick();
+  }
+  cols.addEventListener("pointerdown",function(e){
+    if(e.pointerType!=="touch"||!tOK())return;
+    tdown=true;tId=e.pointerId;set(true);el.classList.add("pop");tMove(e.clientX,e.clientY);
+  },{passive:true});
+  document.addEventListener("pointermove",function(e){
+    if(!tdown||e.pointerId!==tId)return;tMove(e.clientX,e.clientY);
+  },{passive:true});
+  function tEnd(e,open){
+    if(!tdown||e.pointerId!==tId)return;
+    tdown=false;set(false);el.classList.remove("pop");
+    var r=open&&tOK()?slotRow(e.clientY):null;
+    if(r){swallowT();r.click();}else if(!busy)setActive(null);
+  }
+  function swallowT(){swallow=performance.now()+600;}
+  document.addEventListener("pointerup",function(e){tEnd(e,true);},{passive:true});
+  document.addEventListener("pointercancel",function(e){tEnd(e,false);},{passive:true});
+  cols.addEventListener("click",function(e){
+    if(swallow&&performance.now()<swallow&&e.isTrusted){e.preventDefault();e.stopImmediatePropagation();swallow=0;}
+  },true);
   setInterval(function(){if(on&&(cur||introOn||cols.style.display==="none"))set(false);},200);
 })();
 
