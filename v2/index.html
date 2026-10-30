@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 47 -->
+<!-- Maamoun Albibi v2 / build 52 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="app-version" content="v2-build-36">
@@ -69,6 +69,7 @@ body.lb-open .bar,body.lb-open .bar *{opacity:0 !important;pointer-events:none !
 
 #cols.soft .col{transition:flex-grow 1.1s var(--out),background-color .5s ease,color .5s ease,opacity .45s ease}
 /* مؤشر مبكسل كبير فوق صفوف الصفحة الرئيسية */
+#cols{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 #pcur{position:fixed;left:0;top:0;z-index:90;pointer-events:none;width:126px;height:144px;opacity:0;will-change:transform;
   transition:opacity .18s ease;transform-origin:54px 7px}
 #pcur.show{opacity:1}
@@ -1069,7 +1070,7 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
 (function(){
   var el=$("pcur");if(!el)return;
   var FINE=matchMedia("(hover:hover) and (pointer:fine)").matches;
-  if(!FINE)el.style.scale=".5";
+  
   var M=["....11........","...1221.......","...1221.......","...1221.......","...12211111...","...1221222211.",
          "1111222222221.","12212222222221","12221222222221",".1222222222221",".122222222221.","..12222222221.",
          "..1222222221..","...122222221..","...122222221..","...111111111.."];
@@ -1078,6 +1079,7 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
     sv+='<rect x="'+x*C+'" y="'+y*C+'" width="'+C+'" height="'+C+'" fill="'+(c==="1"?"#0b0b0d":"#efeae0")+'"/>';}});
   el.innerHTML=sv+'</svg>';
   var on=false,px=0,py=0,ang=0,raf=0,last=0,HX=54,HY=7;
+  if(!FINE){el.style.width="63px";el.style.height="72px";HX=27;HY=3.5;var sv0=el.querySelector("svg");if(sv0)sv0.style.transformOrigin="27px 3.5px";}   /* نص الحجم على اللمس بدون scale (كان بيزيح مكان اليد عن الإصبع) */
   /* الماوس هو اللي بيحرّك اليد بالضبط؛ بس دورانها بيتجه نحو الكلمة الأقرب (الصف اللي فوقه) */
   function targetAngle(){
     var row=cols.querySelector(".col.on");
@@ -1100,6 +1102,72 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
   function kick(){if(!raf){last=0;raf=requestAnimationFrame(loop);}}
   function overRow(t){return !!(t&&t.closest&&t.closest(".col"))&&!cur&&!introOn&&cols.style.display!=="none";}
   function set(v){if(v===on)return;on=v;if(v)kick();el.classList.toggle("show",v);document.body.classList.toggle("pcur-on",v);}
+  /* ---- تحكم بالكيبورد: WASD يحرّك اليد الكبيرة بالصفحة الأولى، Shift أسرع، Space/Enter ضغطة ---- */
+  var KS={},kraf=0,kl=0;
+  function kOK(){return !cur&&!introOn&&!busy&&!lbOpen&&cols.style.display!=="none";}
+  function kRow(){
+    var i=slotIdx(py),c=activeRow?[].indexOf.call(cols.children,activeRow):-1;
+    if(i<0){if(activeRow)setActive(null);}
+    else if(i!==c){
+      var ok=true;
+      if(c>=0&&Math.abs(i-c)===1){var g=slotInfo(),edge=g.top+g.h*(i>c?c+1:c),d=i>c?py-edge:edge-py;if(d<8)ok=false;}
+      if(ok)setActive(cols.children[i]);
+    }
+  }
+  function kLoop(now){
+    kraf=0;var dt=Math.min(40,now-(kl||now));kl=now;
+    if(!kOK()){return;}
+    var dx=(KS.KeyD?1:0)-(KS.KeyA?1:0),dy=(KS.KeyS?1:0)-(KS.KeyW?1:0);
+    if(!dx&&!dy){kl=0;return;}
+    if(!px&&!py){px=innerWidth/2;py=innerHeight/2;}
+    var sp=(KS.fast?1600:720)*dt/1000,n=Math.sqrt(dx*dx+dy*dy);
+    px=Math.max(0,Math.min(innerWidth-2,px+dx/n*sp));py=Math.max(0,Math.min(innerHeight-2,py+dy/n*sp));
+    set(true);kRow();kick();
+    kraf=requestAnimationFrame(kLoop);
+  }
+  document.addEventListener("keydown",function(e){
+    if(e.ctrlKey||e.metaKey||e.altKey||!kOK())return;
+    var c=e.code;
+    if(c==="KeyW"||c==="KeyA"||c==="KeyS"||c==="KeyD"){
+      e.preventDefault();KS[c]=1;KS.fast=e.shiftKey;
+      if(!kraf){kl=0;kraf=requestAnimationFrame(kLoop);}
+    }else if(c==="Space"&&on&&activeRow){
+      e.preventDefault();el.classList.add("pop");activeRow.click();
+    }
+  });
+  document.addEventListener("keyup",function(e){
+    var c=e.code;if(c==="KeyW"||c==="KeyA"||c==="KeyS"||c==="KeyD")delete KS[c];
+    if(c==="Space")el.classList.remove("pop");
+    KS.fast=e.shiftKey;
+  });
+  addEventListener("blur",function(){KS={};});
+  /* ---- جويستيك / يد تحكم (Gamepad): العصا اليسار أو الأسهم = تحريك اليد، زر A = ضغطة، الزناد = أسرع ---- */
+  var gRaf=0,gl=0,gA=false,gNo=0;
+  function gLoop(now){
+    gRaf=0;var gps=[],g=null;try{gps=navigator.getGamepads?navigator.getGamepads():[];}catch(e){gNo=1;return;}   // داخل المعاينة (iframe) الجويستيك ممنوع: نوقف بهدوء
+    for(var i=0;i<gps.length;i++)if(gps[i]&&gps[i].connected){g=gps[i];break;}
+    if(!g){gl=0;return;}
+    var dt=Math.min(40,now-(gl||now));gl=now;
+    gRaf=requestAnimationFrame(gLoop);
+    if(!kOK())return;
+    var bt=function(n){return !!(g.buttons[n]&&g.buttons[n].pressed);};
+    var ax=g.axes[0]||0,ay=g.axes[1]||0,m=Math.sqrt(ax*ax+ay*ay);
+    if(m<.2){ax=ay=0;m=0;}else{var f=(Math.min(1,m)-.2)/.8/m;ax*=f;ay*=f;}   // منطقة ميتة 20%
+    var dx=ax+(bt(15)?1:0)-(bt(14)?1:0),dy=ay+(bt(13)?1:0)-(bt(12)?1:0);
+    if(dx||dy){
+      if(!px&&!py){px=innerWidth/2;py=innerHeight/2;}
+      var sp=(bt(6)||bt(7)||bt(4)||bt(5)?1700:800)*dt/1000;
+      px=Math.max(0,Math.min(innerWidth-2,px+dx*sp));py=Math.max(0,Math.min(innerHeight-2,py+dy*sp));
+      set(true);kRow();kick();
+    }
+    var a=bt(0)||bt(1);
+    if(a&&!gA&&on&&activeRow){el.classList.add("pop");activeRow.click();}
+    if(!a&&gA)el.classList.remove("pop");
+    gA=a;
+  }
+  function gStart(){if(!gRaf&&!gNo){gl=0;gRaf=requestAnimationFrame(gLoop);}}
+  addEventListener("gamepadconnected",gStart);
+  try{if(navigator.getGamepads)gStart();}catch(e){}
   if(FINE){
   document.addEventListener("pointermove",function(e){
     if(e.pointerType==="touch")return;
@@ -1112,15 +1180,17 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
   }
   /* ---- اللمس (موبايل/تابلت): الإصبع النازل = رول أوفر. اليد بتظهر فوق الإصبع، والصف تحته بيتفتح؛
           اسحب لتغيّر الصف، ارفع إصبعك لتفتحه (أو اسحب لفوق عند الهيدر وارفع لتلغي). ---- */
-  var TOFF=84,tdown=false,swallow=0,tId=-1;
+  /* منع قائمة الضغط المطوّل (كليك يمين) على اللمس بالصفحة الأولى */
+  document.addEventListener("contextmenu",function(e){if(!FINE||tdown||(!cur&&e.target.closest&&e.target.closest("#cols"))){if(!cur&&!introOn)e.preventDefault();}});
+  var TOFF=10,tdown=false,swallow=0,tId=-1;
   function tOK(){return !busy&&!cur&&!introOn&&cols.style.display!=="none";}
   function tMove(x,y){
     px=x;py=y-TOFF;
-    var i=slotIdx(y),c=activeRow?[].indexOf.call(cols.children,activeRow):-1;
+    var i=slotIdx(py),c=activeRow?[].indexOf.call(cols.children,activeRow):-1;
     if(i<0){if(activeRow)setActive(null);}
     else if(i!==c){
       var ok=true;
-      if(c>=0&&Math.abs(i-c)===1){var g=slotInfo(),edge=g.top+g.h*(i>c?c+1:c),d=i>c?y-edge:edge-y;if(d<8)ok=false;}
+      if(c>=0&&Math.abs(i-c)===1){var g=slotInfo(),edge=g.top+g.h*(i>c?c+1:c),d=i>c?py-edge:edge-py;if(d<8)ok=false;}
       if(ok)setActive(cols.children[i]);
     }
     kick();
@@ -1135,7 +1205,7 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
   function tEnd(e,open){
     if(!tdown||e.pointerId!==tId)return;
     tdown=false;set(false);el.classList.remove("pop");
-    var r=open&&tOK()?slotRow(e.clientY):null;
+    var r=open&&tOK()?slotRow(e.clientY-TOFF):null;
     if(r){swallowT();r.click();}else if(!busy)setActive(null);
   }
   function swallowT(){swallow=performance.now()+600;}
