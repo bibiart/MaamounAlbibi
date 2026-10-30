@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 52 -->
+<!-- Maamoun Albibi v2 / build 53 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="app-version" content="v2-build-36">
@@ -1126,13 +1126,21 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
     kraf=requestAnimationFrame(kLoop);
   }
   document.addEventListener("keydown",function(e){
-    if(e.ctrlKey||e.metaKey||e.altKey||!kOK())return;
+    if(e.ctrlKey||e.metaKey||e.altKey||introOn)return;
     var c=e.code;
+    if(!kOK()){   /* خارج الصفحة الأولى: WASD = الأسهم (إلا لو بكتب بحقل) */
+      var tg=e.target&&e.target.tagName;if(tg==="INPUT"||tg==="TEXTAREA"||e.isTrusted===false)return;
+      var AR2={KeyW:"ArrowUp",KeyS:"ArrowDown",KeyA:"ArrowLeft",KeyD:"ArrowRight"};
+      if(AR2[c]){e.preventDefault();fireKey(AR2[c]);}
+      return;
+    }
     if(c==="KeyW"||c==="KeyA"||c==="KeyS"||c==="KeyD"){
       e.preventDefault();KS[c]=1;KS.fast=e.shiftKey;
       if(!kraf){kl=0;kraf=requestAnimationFrame(kLoop);}
-    }else if(c==="Space"&&on&&activeRow){
-      e.preventDefault();el.classList.add("pop");activeRow.click();
+    }else if(c==="Space"&&on){
+      e.preventDefault();el.classList.add("pop");
+      var q=document.elementFromPoint(px,py),bb=q&&q.closest?q.closest(".bar button"):null;
+      if(bb)bb.click();else if(activeRow)activeRow.click();
     }
   });
   document.addEventListener("keyup",function(e){
@@ -1141,29 +1149,63 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
     KS.fast=e.shiftKey;
   });
   addEventListener("blur",function(){KS={};});
-  /* ---- جويستيك / يد تحكم (Gamepad): العصا اليسار أو الأسهم = تحريك اليد، زر A = ضغطة، الزناد = أسرع ---- */
-  var gRaf=0,gl=0,gA=false,gNo=0;
+  /* ---- جويستيك / يد تحكم (Gamepad): تحكم كامل بكل الموقع ----
+     D-pad = أسهم الكيبورد (تنقّل بالصفوف/المشاريع/الصور) | A = Enter (فتح/ضغطة) | B = رجوع (Esc)
+     العصا اليسار = اليد الكبيرة بالصفحة الأولى | العصا اليمين = سكرول الصفحة | Y أو Start = عربي/English
+     L1/R1 = الصورة السابقة/التالية بالعارض | الزناد = أسرع */
+  var gRaf=0,gl=0,gNo=0,gB={},gRep={};
+  function fireKey(k){try{document.dispatchEvent(new KeyboardEvent("keydown",{key:k,bubbles:true,cancelable:true}));}catch(e){}}
+  function langBtn(){var b=$("lang");if(b)b.click();}
+  function gScroller(){return lbOpen?null:(curProj?proj:(cur?page:null));}
   function gLoop(now){
     gRaf=0;var gps=[],g=null;try{gps=navigator.getGamepads?navigator.getGamepads():[];}catch(e){gNo=1;return;}   // داخل المعاينة (iframe) الجويستيك ممنوع: نوقف بهدوء
     for(var i=0;i<gps.length;i++)if(gps[i]&&gps[i].connected){g=gps[i];break;}
     if(!g){gl=0;return;}
     var dt=Math.min(40,now-(gl||now));gl=now;
     gRaf=requestAnimationFrame(gLoop);
-    if(!kOK())return;
     var bt=function(n){return !!(g.buttons[n]&&g.buttons[n].pressed);};
-    var ax=g.axes[0]||0,ay=g.axes[1]||0,m=Math.sqrt(ax*ax+ay*ay);
-    if(m<.2){ax=ay=0;m=0;}else{var f=(Math.min(1,m)-.2)/.8/m;ax*=f;ay*=f;}   // منطقة ميتة 20%
-    var dx=ax+(bt(15)?1:0)-(bt(14)?1:0),dy=ay+(bt(13)?1:0)-(bt(12)?1:0);
-    if(dx||dy){
-      if(!px&&!py){px=innerWidth/2;py=innerHeight/2;}
-      var sp=(bt(6)||bt(7)||bt(4)||bt(5)?1700:800)*dt/1000;
-      px=Math.max(0,Math.min(innerWidth-2,px+dx*sp));py=Math.max(0,Math.min(innerHeight-2,py+dy*sp));
-      set(true);kRow();kick();
+    /* ضغطات بتتكرر (D-pad/عصا بالأسهم) مع تأخير أول 380ms ثم كل 130ms */
+    var edge=function(id,down,fn,rep){
+      if(down){var t=gRep[id];if(t===undefined){gRep[id]=now+380;fn();}else if(rep&&now>=t){gRep[id]=now+130;fn();}}
+      else delete gRep[id];
+    };
+    var home=kOK(),ax=g.axes[0]||0,ay=g.axes[1]||0,m=Math.sqrt(ax*ax+ay*ay);
+    if(m<.25){ax=ay=0;m=0;}else{var f=(Math.min(1,m)-.25)/.75/m;ax*=f;ay*=f;}
+    /* D-pad: أسهم دايماً (كل الصفحات) */
+    edge("up",bt(12),function(){fireKey("ArrowUp");},1);edge("down",bt(13),function(){fireKey("ArrowDown");},1);
+    edge("left",bt(14),function(){fireKey("ArrowLeft");},1);edge("right",bt(15),function(){fireKey("ArrowRight");},1);
+    if(home&&!lbOpen){
+      /* العصا اليسار: اليد الكبيرة بالصفحة الأولى */
+      if(ax||ay){
+        if(!px&&!py){px=innerWidth/2;py=innerHeight/2;}
+        var sp=(bt(6)||bt(7)||bt(4)||bt(5)?1700:800)*dt/1000;
+        px=Math.max(0,Math.min(innerWidth-2,px+ax*sp));py=Math.max(0,Math.min(innerHeight-2,py+ay*sp));
+        set(true);kRow();kick();
+      }
+    }else{
+      /* بباقي الصفحات: العصا اليسار = أسهم */
+      edge("lsU",ay<-.6,function(){fireKey("ArrowUp");},1);edge("lsD",ay>.6,function(){fireKey("ArrowDown");},1);
+      edge("lsL",ax<-.6,function(){fireKey("ArrowLeft");},1);edge("lsR",ax>.6,function(){fireKey("ArrowRight");},1);
     }
-    var a=bt(0)||bt(1);
-    if(a&&!gA&&on&&activeRow){el.classList.add("pop");activeRow.click();}
-    if(!a&&gA)el.classList.remove("pop");
-    gA=a;
+    /* A: ضغطة (على الصف تحت اليد، أو زر عربي/English لو اليد فوقه) أو Enter */
+    var a=bt(0);
+    if(a&&!gB.a){
+      gB.a=1;
+      if(home&&on){
+        var q=document.elementFromPoint(px,py),bb=q&&q.closest?q.closest(".bar button"):null;
+        if(bb){el.classList.add("pop");bb.click();}
+        else if(activeRow){el.classList.add("pop");activeRow.click();}
+      }else fireKey("Enter");
+    }else if(!a&&gB.a){gB.a=0;el.classList.remove("pop");}
+    /* B: رجوع */
+    var bb2=bt(1);if(bb2&&!gB.b){gB.b=1;fireKey("Escape");}else if(!bb2)gB.b=0;
+    /* Y / Start / Select: عربي <-> English */
+    var y=bt(3)||bt(9)||bt(8);if(y&&!gB.y){gB.y=1;langBtn();}else if(!y)gB.y=0;
+    /* L1 / R1: الصورة السابقة / التالية داخل العارض، وبغيره سكرول صفحة */
+    edge("l1",bt(4)&&!home,function(){fireKey(lbOpen?"ArrowUp":"PageUp");},1);
+    edge("r1",bt(5)&&!home,function(){fireKey(lbOpen?"ArrowDown":"PageDown");},1);
+    /* العصا اليمين: سكرول الصفحة/المشروع */
+    var ry=g.axes[3]||0;if(Math.abs(ry)>.2){var sc=gScroller();if(sc)sc.scrollTop+=ry*(bt(7)?2600:1400)*dt/1000;}
   }
   function gStart(){if(!gRaf&&!gNo){gl=0;gRaf=requestAnimationFrame(gLoop);}}
   addEventListener("gamepadconnected",gStart);
