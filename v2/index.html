@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 53 -->
+<!-- Maamoun Albibi v2 / build 54 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="app-version" content="v2-build-36">
@@ -1158,7 +1158,8 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
   function langBtn(){var b=$("lang");if(b)b.click();}
   function gScroller(){return lbOpen?null:(curProj?proj:(cur?page:null));}
   function gLoop(now){
-    gRaf=0;var gps=[],g=null;try{gps=navigator.getGamepads?navigator.getGamepads():[];}catch(e){gNo=1;return;}   // داخل المعاينة (iframe) الجويستيك ممنوع: نوقف بهدوء
+    gRaf=0;if(introOn){setTimeout(gStart,300);return;}
+    var gps=[],g=null;try{gps=navigator.getGamepads?navigator.getGamepads():[];}catch(e){gNo=1;return;}   // داخل المعاينة (iframe) الجويستيك ممنوع: نوقف بهدوء
     for(var i=0;i<gps.length;i++)if(gps[i]&&gps[i].connected){g=gps[i];break;}
     if(!g){gl=0;return;}
     var dt=Math.min(40,now-(gl||now));gl=now;
@@ -1207,7 +1208,8 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
     /* العصا اليمين: سكرول الصفحة/المشروع */
     var ry=g.axes[3]||0;if(Math.abs(ry)>.2){var sc=gScroller();if(sc)sc.scrollTop+=ry*(bt(7)?2600:1400)*dt/1000;}
   }
-  function gStart(){if(!gRaf&&!gNo){gl=0;gRaf=requestAnimationFrame(gLoop);}}
+  function gStart(){if(gNo||gRaf)return;if(introOn){setTimeout(gStart,300);return;}   /* ما نشغّل الجويستيك لين تخلص حركة المقدمة (كان يعلّقها) */
+    gl=0;gRaf=requestAnimationFrame(gLoop);}
   addEventListener("gamepadconnected",gStart);
   try{if(navigator.getGamepads)gStart();}catch(e){}
   if(FINE){
