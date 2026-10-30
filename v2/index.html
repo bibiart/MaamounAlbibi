@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 54 -->
+<!-- Maamoun Albibi v2 / build 56 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="app-version" content="v2-build-36">
@@ -1100,7 +1100,12 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
     if(on||Math.abs(ang)>.5)raf=requestAnimationFrame(loop);
   }
   function kick(){if(!raf){last=0;raf=requestAnimationFrame(loop);}}
-  function overRow(t){return !!(t&&t.closest&&t.closest(".col"))&&!cur&&!introOn&&cols.style.display!=="none";}
+  function overRow(t){
+    if(!t||!t.closest||introOn)return false;
+    if(!cur)return !!t.closest(".col")&&cols.style.display!=="none";
+    /* صفحة "عني": اليد الكبيرة فوق الصفحة، ونرجّع المؤشر العادي فوق الأزرار والحقول والروابط */
+    return cur.type==="about"&&!curProj&&!busy&&!!t.closest("#page")&&!t.closest("a,button,input,textarea,label,select,.bar,.bizcard,.cf");
+  }
   function set(v){if(v===on)return;on=v;if(v)kick();el.classList.toggle("show",v);document.body.classList.toggle("pcur-on",v);}
   /* ---- تحكم بالكيبورد: WASD يحرّك اليد الكبيرة بالصفحة الأولى، Shift أسرع، Space/Enter ضغطة ---- */
   var KS={},kraf=0,kl=0;
@@ -1226,7 +1231,7 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
           اسحب لتغيّر الصف، ارفع إصبعك لتفتحه (أو اسحب لفوق عند الهيدر وارفع لتلغي). ---- */
   /* منع قائمة الضغط المطوّل (كليك يمين) على اللمس بالصفحة الأولى */
   document.addEventListener("contextmenu",function(e){if(!FINE||tdown||(!cur&&e.target.closest&&e.target.closest("#cols"))){if(!cur&&!introOn)e.preventDefault();}});
-  var TOFF=10,tdown=false,swallow=0,tId=-1;
+  var TOFF=46,tdown=false,swallow=0,tId=-1;
   function tOK(){return !busy&&!cur&&!introOn&&cols.style.display!=="none";}
   function tMove(x,y){
     px=x;py=y-TOFF;
@@ -1258,7 +1263,7 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
   cols.addEventListener("click",function(e){
     if(swallow&&performance.now()<swallow&&e.isTrusted){e.preventDefault();e.stopImmediatePropagation();swallow=0;}
   },true);
-  setInterval(function(){if(on&&(cur||introOn||cols.style.display==="none"))set(false);},200);
+  setInterval(function(){if(on&&(introOn||(cur&&!(cur.type==="about"&&!curProj))||(!cur&&cols.style.display==="none")))set(false);},200);
 })();
 
 /* ---- الرول أوفر: بدون ارتجاج ---- */
@@ -1740,6 +1745,72 @@ applyLang();
     var r=v.play();if(r&&r.catch)r.catch(function(){});
   });
   page.addEventListener("mouseout",function(e){var c=e.target.closest&&e.target.closest(".card");if(!c||c.contains(e.relatedTarget))return;stop(c);});
+})();
+
+/* ===== عني: بارتكل على الصورة (الرول أوفر بيفتّت الصورة لنقاط بتبتعد عن المؤشر وترجع) ===== */
+(function(){
+  if(!(window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches))return;
+  var CELL=7,R=110,cache=new WeakMap();
+  function samp(img,W,H){
+    var c=cache.get(img);if(c&&c.W===W&&c.H===H)return c;
+    var cv=document.createElement("canvas");cv.width=W;cv.height=H;var x=cv.getContext("2d");
+    var iw=img.naturalWidth,ih=img.naturalHeight;if(!iw||!ih)return null;
+    var sc=Math.max(W/iw,H/ih),dw=iw*sc,dh=ih*sc;x.drawImage(img,(W-dw)/2,(H-dh)/2,dw,dh);
+    var cols=Math.floor(W/CELL),rows=Math.floor(H/CELL),data;
+    try{data=x.getImageData(0,0,W,H).data;}catch(e){cache.set(img,{W:W,H:H,bad:1});return cache.get(img);}
+    var P=[];
+    for(var j=0;j<rows;j++)for(var i=0;i<cols;i++){
+      var cx=i*CELL+CELL/2|0,cy=j*CELL+CELL/2|0,k=(cy*W+cx)*4;
+      P.push({hx:i*CELL+CELL/2,hy:j*CELL+CELL/2,x:i*CELL+CELL/2,y:j*CELL+CELL/2,vx:0,vy:0,c:"rgb("+data[k]+","+data[k+1]+","+data[k+2]+")"});
+    }
+    c={W:W,H:H,P:P};cache.set(img,c);return c;
+  }
+  var st=null;   // {pic,cv,ctx,img,set,mx,my,raf,inside}
+  function frame(){
+    if(!st)return;
+    var set=st.set,ctx=st.ctx,W=st.W,H=st.H;ctx.clearRect(0,0,W,H);
+    var moving=false,P=set.P;
+    for(var i=0;i<P.length;i++){
+      var p=P[i];
+      if(st.inside){var dx=p.x-st.mx,dy=p.y-st.my,d2=dx*dx+dy*dy;
+        if(d2<R*R&&d2>.01){var d=Math.sqrt(d2),f=(1-d/R)*3.2;p.vx+=dx/d*f;p.vy+=dy/d*f;}}
+      p.vx+=(p.hx-p.x)*.045;p.vy+=(p.hy-p.y)*.045;p.vx*=.86;p.vy*=.86;p.x+=p.vx;p.y+=p.vy;
+      var ox=p.x-p.hx,oy=p.y-p.hy;
+      if(ox*ox+oy*oy>.6||p.vx*p.vx+p.vy*p.vy>.02){
+        moving=true;
+        ctx.fillStyle="#151519";ctx.fillRect(p.hx-CELL/2,p.hy-CELL/2,CELL,CELL);   // الخلية الأصلية بتفرغ
+      }
+    }
+    if(moving){for(var j=0;j<P.length;j++){var q=P[j],a=q.x-q.hx,b=q.y-q.hy;
+      if(a*a+b*b>.6||q.vx*q.vx+q.vy*q.vy>.02){ctx.fillStyle=q.c;ctx.beginPath();ctx.arc(q.x,q.y,CELL*.46,0,6.283);ctx.fill();}}}
+    if(moving||st.inside)st.raf=requestAnimationFrame(frame);else{st.raf=0;}
+  }
+  function kill(){if(st){if(st.raf)cancelAnimationFrame(st.raf);if(st.cv.parentNode)st.cv.remove();st=null;}}
+  document.addEventListener("pointermove",function(e){
+    if(e.pointerType==="touch")return;
+    var tr=e.target.closest&&e.target.closest(".abtr");
+    if(!tr||!document.body.contains(tr)||cur&&cur.type!=="about"||introOn||busy){if(st)st.inside=false;return;}
+    var r=tr.getBoundingClientRect(),W=Math.round(r.width),H=Math.round(r.height);
+    /* الصورة الظاهرة حالياً بالسلايدر */
+    var imgs=[].slice.call(tr.querySelectorAll("img")),img=null,best=-1;
+    imgs.forEach(function(im){var q=im.getBoundingClientRect(),w=Math.max(0,Math.min(q.right,r.right)-Math.max(q.left,r.left));if(w>best){best=w;img=im;}});
+    if(!img)return;
+    if(st&&(st.img!==img||st.W!==W||st.H!==H))kill();
+    if(!st){
+      var set=samp(img,W,H);if(!set||set.bad)return;
+      var cv=document.createElement("canvas");cv.width=W;cv.height=H;
+      cv.style.cssText="position:absolute;left:0;top:0;width:"+W+"px;height:"+H+"px;pointer-events:none;border-radius:10px;z-index:2";
+      var host=tr.parentNode;host.style.position="sticky";tr.style.position="relative";
+      cv.style.position="absolute";var off=tr.offsetTop;cv.style.top=off+"px";cv.style.left=tr.offsetLeft+"px";
+      host.appendChild(cv);
+      st={cv:cv,ctx:cv.getContext("2d"),img:img,set:set,W:W,H:H,mx:-999,my:-999,inside:true,raf:0};
+    }
+    st.mx=e.clientX-r.left;st.my=e.clientY-r.top;st.inside=true;
+    if(!st.raf)st.raf=requestAnimationFrame(frame);
+  },{passive:true});
+  document.addEventListener("pointerleave",function(){if(st)st.inside=false;});
+  document.addEventListener("pointerout",function(e){if(st&&!e.relatedTarget)st.inside=false;});
+  setInterval(function(){if(st&&(!cur||cur.type!=="about"||!document.body.contains(st.cv)))kill();else if(st&&!st.inside&&!st.raf){kill();}},700);
 })();
 
 /* ===== اختيار خطوط مؤقت ===== */
