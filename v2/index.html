@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 56 -->
+<!-- Maamoun Albibi v2 / build 57 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="app-version" content="v2-build-36">
@@ -1082,6 +1082,7 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
   if(!FINE){el.style.width="63px";el.style.height="72px";HX=27;HY=3.5;var sv0=el.querySelector("svg");if(sv0)sv0.style.transformOrigin="27px 3.5px";}   /* نص الحجم على اللمس بدون scale (كان بيزيح مكان اليد عن الإصبع) */
   /* الماوس هو اللي بيحرّك اليد بالضبط؛ بس دورانها بيتجه نحو الكلمة الأقرب (الصف اللي فوقه) */
   function targetAngle(){
+    if(!FINE)return 0;   /* على اللمس: اليد دايماً مستقيمة وراسها لقدّام (فوق)، بدون ما تلف باتجاه الكلمة */
     var row=cols.querySelector(".col.on");
     if(!row){var q=document.elementFromPoint(px,py);row=q&&q.closest?q.closest(".col"):null;}
     var l=row&&row.querySelector(".label");if(!l)return 0;
@@ -1231,7 +1232,7 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
           اسحب لتغيّر الصف، ارفع إصبعك لتفتحه (أو اسحب لفوق عند الهيدر وارفع لتلغي). ---- */
   /* منع قائمة الضغط المطوّل (كليك يمين) على اللمس بالصفحة الأولى */
   document.addEventListener("contextmenu",function(e){if(!FINE||tdown||(!cur&&e.target.closest&&e.target.closest("#cols"))){if(!cur&&!introOn)e.preventDefault();}});
-  var TOFF=46,tdown=false,swallow=0,tId=-1;
+  var TOFF=61,tdown=false,swallow=0,tId=-1;
   function tOK(){return !busy&&!cur&&!introOn&&cols.style.display!=="none";}
   function tMove(x,y){
     px=x;py=y-TOFF;
