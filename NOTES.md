@@ -2,6 +2,7 @@
 
 Dated log, newest first. This repo is public: no personal or private info here.
 
+2026-10-31: Renamed the category "Codex" to "Interactive" (index, about, contact and all project pages). Hash links change from #codex/... to #interactive/.... Version v47.
 2026-10-30: Murooth card still image is now a frame from its hover video (images/murooth/cover.jpg, new "cp" field). Version v46.
 2026-10-27: Performance: card videos now play only on hover (lazy load, first 8 s then restart, still image on phones); on phones/touch the page uses native scroll and skips parallax work; the per-frame animation work pauses while a project is open or nothing moved. Applied to index and all project pages. Version v45.
 2026-10-25: Arshif Aam: home card cover and og:image now images/archive/14.jpg. Version v44.
