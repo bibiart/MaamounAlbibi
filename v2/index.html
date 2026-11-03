@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Maamoun Albibi v2 / build 57 -->
+<!-- Maamoun Albibi v2 / build 58 -->
 <title>Maamoun Albibi / v2</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="app-version" content="v2-build-36">
@@ -386,9 +386,29 @@ html.introing body::after{display:none}
 #olines{position:fixed;inset:0;z-index:67;pointer-events:none;display:none}
 #olines i{position:absolute;left:0;right:0;background:#ff4d2e;will-change:transform;backface-visibility:hidden;transform:translate3d(-110vw,0,0)}
 
+/* لوحة الجويستيك (Ctrl+Alt+Shift+P): أيقونة فلات بلا إطار ولا ظل */
+#gph{position:fixed;z-index:88;left:18px;bottom:18px;width:236px;padding:14px 16px 12px;border-radius:18px;background:#0b0b0d;color:#efeae0;font:700 11px "Helvetica Neue",Arial,sans-serif;direction:ltr;display:none}
+#gph.open{display:block}
+body.lb-open #gph{display:none !important}
+#gph svg{display:block;width:100%;height:auto}
+#gph .gb{fill:#efeae0;stroke:none}
+#gph .gr{fill:#0b0b0d;stroke:none}
+#gph .gp{fill:#c9c3b6;stroke:none}
+#gph .gp.on,#gph .gr.on{fill:#ff4d2e !important}
+#gph .gk{fill:#0b0b0d}
+#gph .gt{font:800 11px "Helvetica Neue",Arial,sans-serif;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+#gph .gf{fill:#0b0b0d;stroke:none}
+#gph .gf.on{fill:#ff4d2e}
+#gph .gs{margin:0 0 6px;text-align:start;letter-spacing:.1em;font-size:10px;opacity:.6}
+#gph .gs.ok{opacity:1;color:#ff4d2e}
+#gph ul{display:none !important;list-style:none;margin:8px 0 0;padding:0;display:grid;gap:3px}
+#gph li{display:flex;gap:8px;align-items:baseline;line-height:1.35;opacity:.85}
+#gph li b{flex:none;min-width:66px;color:#ff4d2e}
+html[lang="ar"] #gph li{direction:rtl;font-family:inherit;font-size:12px}
+html[lang="ar"] #gph .gs{font-family:inherit;text-align:end}
 /* اختيار خطوط مؤقت (ثمانية) */
 html[lang="ar"] .col .label,html[lang="ar"] .page h1,html[lang="ar"] .proj h1,html[lang="ar"] .sub,html[lang="ar"] .post .pt,html[lang="ar"] .abtxt .ablead{font-family:"LatinSans",var(--fd),"Segoe UI",Tahoma,sans-serif;font-weight:var(--dw)}
-#fpick{position:fixed;z-index:90;left:14px;bottom:14px;width:236px;background:rgba(18,18,22,.92);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 12px;color:#efeae0;font:600 11px "Helvetica Neue",Arial,sans-serif;direction:ltr}
+#fpick{position:fixed;z-index:90;right:14px;bottom:14px;width:236px;background:rgba(18,18,22,.92);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 12px;color:#efeae0;font:600 11px "Helvetica Neue",Arial,sans-serif;direction:ltr}
 #fpick h4{font-size:10px;letter-spacing:.12em;opacity:.55;margin:0 0 6px;font-weight:700}
 #fpick .r{display:flex;gap:4px;margin:4px 0 8px;flex-wrap:wrap}
 #fpick button{flex:1;padding:6px 4px;border-radius:6px;border:1px solid rgba(255,255,255,.22);background:none;color:inherit;cursor:pointer;font:inherit;white-space:nowrap}
@@ -416,6 +436,18 @@ html[lang="ar"] .col .label,html[lang="ar"] .page h1,html[lang="ar"] .proj h1,ht
   <div class="ibar"><span id="icnt">000</span><b id="ifill"></b><span>LOADING</span></div>
 </div>
 
+<div id="gph" aria-hidden="true"><div class="gs" id="gphs"></div>
+<svg viewBox="0 0 320 200" id="gphsvg">
+<rect class="gp" id="g6" x="62" y="4" width="42" height="13" rx="6"/><rect class="gp" id="g7" x="216" y="4" width="42" height="13" rx="6"/>
+<rect class="gp" id="g4" x="48" y="21" width="62" height="13" rx="6"/><rect class="gp" id="g5" x="210" y="21" width="62" height="13" rx="6"/>
+<path class="gb" d="M62 40 C30 40 8 100 10 150 C12 186 40 192 60 172 L92 142 L228 142 L260 172 C280 192 308 186 310 150 C312 100 290 40 258 40 Z"/>
+<circle class="gp" id="g8" cx="142" cy="78" r="5"/><circle class="gp" id="g9" cx="178" cy="78" r="5"/><circle class="gr" cx="160" cy="58" r="9"/>
+<circle class="gr" cx="88" cy="82" r="24"/><circle class="gp" id="gls" cx="88" cy="82" r="14" style="fill:#efeae0"/>
+<rect class="gr" x="111" y="104" width="16" height="16" id="g12"/><rect class="gr" x="111" y="136" width="16" height="16" id="g13"/><rect class="gr" x="95" y="120" width="16" height="16" id="g14"/><rect class="gr" x="127" y="120" width="16" height="16" id="g15"/><rect class="gr" x="111" y="120" width="16" height="16"/>
+<circle class="gr" cx="204" cy="128" r="22"/><circle class="gp" id="grs" cx="204" cy="128" r="13" style="fill:#efeae0"/>
+<circle class="gf" id="g3" cx="238" cy="58" r="11"/><circle class="gf" id="g0" cx="238" cy="102" r="11"/><circle class="gf" id="g2" cx="216" cy="80" r="11"/><circle class="gf" id="g1" cx="260" cy="80" r="11"/>
+<text class="gt" x="238" y="58" fill="#f5c400">Y</text><text class="gt" x="238" y="102" fill="#5cc12e">A</text><text class="gt" x="216" y="80" fill="#2a8cff">X</text><text class="gt" x="260" y="80" fill="#ff4d2e" style="fill:#ff3b3b">B</text>
+</svg><ul id="gphl"></ul></div>
 <div id="pcur" aria-hidden="true"></div>
 <main id="cols"></main>
 <main class="page" id="page" style="display:none"></main>
@@ -1159,6 +1191,33 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
      D-pad = أسهم الكيبورد (تنقّل بالصفوف/المشاريع/الصور) | A = Enter (فتح/ضغطة) | B = رجوع (Esc)
      العصا اليسار = اليد الكبيرة بالصفحة الأولى | العصا اليمين = سكرول الصفحة | Y أو Start = عربي/English
      L1/R1 = الصورة السابقة/التالية بالعارض | الزناد = أسرع */
+  /* ---- لوحة الجويستيك (Xbox) فيكتور: Ctrl+Alt+Shift+P تظهر/تختفي، بتضوي الأزرار لحظياً ---- */
+  var HUD=(function(){
+    var box=$("gph"),st=$("gphs"),lst=$("gphl"),conn=false,open=false,ls=$("gls"),rs=$("grs");
+    var LG={ar:[["العصا اليسار","تحريك اليد (الصفحة الأولى) / أسهم"],["D-pad","تنقّل بين الصفوف / المشاريع / الصور"],["A","فتح / ضغطة"],["B","رجوع"],["Y / Menu","عربي / English"],["العصا اليمين","سكرول الصفحة"],["LB / RB","صورة سابقة / تالية"],["RT","أسرع"]],
+            en:[["Left stick","Move the hand (home) / arrows"],["D-pad","Move through rows / projects / images"],["A","Open / click"],["B","Back"],["Y / Menu","Arabic / English"],["Right stick","Scroll the page"],["LB / RB","Previous / next image"],["RT","Faster"]]};
+    function render(){
+      var l=(typeof lang!=="undefined"&&lang==="ar")?"ar":"en";
+      lst.innerHTML=LG[l].map(function(r){return "<li><b>"+r[0]+"</b><span>"+r[1]+"</span></li>";}).join("");
+      st.className="gs"+(conn?" ok":"");
+      st.textContent=conn?(l==="ar"?"الجويستيك متصل":"GAMEPAD CONNECTED"):(l==="ar"?"وصّل الجويستيك واضغط أي زر":"CONNECT A GAMEPAD AND PRESS ANY BUTTON");
+    }
+    function upd(g){
+      if(!open||!g)return;
+      for(var i=0;i<=15;i++){var e=$("g"+i);if(e)e.classList.toggle("on",!!(g.buttons[i]&&g.buttons[i].pressed));}
+      ls.setAttribute("cx",88+(g.axes[0]||0)*9);ls.setAttribute("cy",82+(g.axes[1]||0)*9);
+      rs.setAttribute("cx",204+(g.axes[2]||0)*9);rs.setAttribute("cy",128+(g.axes[3]||0)*9);
+      ls.classList.toggle("on",!!(g.buttons[10]&&g.buttons[10].pressed));rs.classList.toggle("on",!!(g.buttons[11]&&g.buttons[11].pressed));
+    }
+    function toggle(){open=!open;box.classList.toggle("open",open);if(open)render();}
+    document.addEventListener("keydown",function(e){
+      if(e.ctrlKey&&e.altKey&&e.shiftKey&&(e.code==="KeyP"||(e.key||"").toLowerCase()==="p")){e.preventDefault();toggle();}
+    });
+    addEventListener("gamepadconnected",function(){conn=true;if(open)render();});
+    addEventListener("gamepaddisconnected",function(){conn=false;if(open)render();});
+    setInterval(function(){if(open)render();},800);
+    return {upd:upd,isOpen:function(){return open;},setConn:function(v){if(conn!==v){conn=v;if(open)render();}}};
+  })();
   var gRaf=0,gl=0,gNo=0,gB={},gRep={};
   function fireKey(k){try{document.dispatchEvent(new KeyboardEvent("keydown",{key:k,bubbles:true,cancelable:true}));}catch(e){}}
   function langBtn(){var b=$("lang");if(b)b.click();}
@@ -1167,7 +1226,8 @@ $("brand").onclick=function(e){e.preventDefault();if(curProj)backProj();else if(
     gRaf=0;if(introOn){setTimeout(gStart,300);return;}
     var gps=[],g=null;try{gps=navigator.getGamepads?navigator.getGamepads():[];}catch(e){gNo=1;return;}   // داخل المعاينة (iframe) الجويستيك ممنوع: نوقف بهدوء
     for(var i=0;i<gps.length;i++)if(gps[i]&&gps[i].connected){g=gps[i];break;}
-    if(!g){gl=0;return;}
+    if(!g){gl=0;HUD.setConn(false);return;}
+    HUD.setConn(true);HUD.upd(g);
     var dt=Math.min(40,now-(gl||now));gl=now;
     gRaf=requestAnimationFrame(gLoop);
     var bt=function(n){return !!(g.buttons[n]&&g.buttons[n].pressed);};
